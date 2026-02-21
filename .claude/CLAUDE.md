@@ -157,6 +157,26 @@
 - ホットリロード: Airを使用（バックエンド）
 - ボリュームは必ず永続化設定
 
+### Go開発（Docker必須）
+**🚨 重要: ホストOSでGoコマンドを直接実行しない**
+
+**必須ルール:**
+- すべてのGoコマンドは `docker compose exec api` 内で実行
+- ホストOSに Go をインストールする必要はない
+- 開発環境はDockerコンテナで完結させる
+
+**例:**
+```bash
+# ❌ 禁止: ホストOSで直接実行
+go mod init
+go get -u github.com/labstack/echo/v4
+
+# ✅ 正しい: コンテナ内で実行
+docker compose exec api go mod init
+docker compose exec api go get -u github.com/labstack/echo/v4
+docker compose exec api swag init -g cmd/server/main.go -o docs
+```
+
 ---
 
 ## 🔒 セキュリティルール

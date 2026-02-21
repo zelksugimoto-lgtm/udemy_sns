@@ -1,0 +1,1453 @@
+basePath: /api/v1
+definitions:
+  github_com_yourusername_sns-app_internal_dto_request.CreateCommentRequest:
+    properties:
+      content:
+        example: Great post!
+        maxLength: 500
+        minLength: 1
+        type: string
+      parent_comment_id:
+        example: 550e8400-e29b-41d4-a716-446655440000
+        type: string
+    required:
+    - content
+    type: object
+  github_com_yourusername_sns-app_internal_dto_request.CreatePostRequest:
+    properties:
+      content:
+        example: Hello, world!
+        maxLength: 250
+        minLength: 1
+        type: string
+    required:
+    - content
+    type: object
+  github_com_yourusername_sns-app_internal_dto_request.CreateReportRequest:
+    properties:
+      details:
+        example: This is spam content
+        maxLength: 1000
+        type: string
+      reason:
+        enum:
+        - spam
+        - inappropriate
+        - harassment
+        - other
+        example: spam
+        type: string
+      reportable_id:
+        example: 550e8400-e29b-41d4-a716-446655440000
+        type: string
+      reportable_type:
+        enum:
+        - Post
+        - Comment
+        - User
+        example: Post
+        type: string
+    required:
+    - reason
+    - reportable_id
+    - reportable_type
+    type: object
+  github_com_yourusername_sns-app_internal_dto_request.LoginRequest:
+    properties:
+      email:
+        example: user@example.com
+        type: string
+      password:
+        example: password123
+        type: string
+    required:
+    - email
+    - password
+    type: object
+  github_com_yourusername_sns-app_internal_dto_request.RegisterRequest:
+    properties:
+      display_name:
+        example: John Doe
+        maxLength: 100
+        minLength: 1
+        type: string
+      email:
+        example: user@example.com
+        type: string
+      password:
+        example: password123
+        minLength: 8
+        type: string
+      username:
+        example: johndoe
+        maxLength: 50
+        minLength: 3
+        type: string
+    required:
+    - display_name
+    - email
+    - password
+    - username
+    type: object
+  github_com_yourusername_sns-app_internal_dto_request.UpdatePostRequest:
+    properties:
+      content:
+        example: Updated content
+        maxLength: 250
+        minLength: 1
+        type: string
+    required:
+    - content
+    type: object
+  github_com_yourusername_sns-app_internal_dto_request.UpdateProfileRequest:
+    properties:
+      bio:
+        example: This is my bio
+        maxLength: 1000
+        type: string
+      display_name:
+        example: John Doe Updated
+        maxLength: 100
+        minLength: 1
+        type: string
+    type: object
+  github_com_yourusername_sns-app_internal_dto_response.AuthResponse:
+    properties:
+      token:
+        example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+        type: string
+      user:
+        $ref: '#/definitions/github_com_yourusername_sns-app_internal_dto_response.UserResponse'
+    type: object
+  github_com_yourusername_sns-app_internal_dto_response.BookmarkListResponse:
+    properties:
+      data:
+        items:
+          $ref: '#/definitions/github_com_yourusername_sns-app_internal_dto_response.PostResponse'
+        type: array
+      pagination:
+        $ref: '#/definitions/github_com_yourusername_sns-app_internal_dto_response.PaginationResponse'
+    type: object
+  github_com_yourusername_sns-app_internal_dto_response.CommentListResponse:
+    properties:
+      data:
+        items:
+          $ref: '#/definitions/github_com_yourusername_sns-app_internal_dto_response.CommentResponse'
+        type: array
+      pagination:
+        $ref: '#/definitions/github_com_yourusername_sns-app_internal_dto_response.PaginationResponse'
+    type: object
+  github_com_yourusername_sns-app_internal_dto_response.CommentResponse:
+    properties:
+      child_comments:
+        items:
+          $ref: '#/definitions/github_com_yourusername_sns-app_internal_dto_response.CommentResponse'
+        type: array
+      content:
+        example: Great post!
+        type: string
+      created_at:
+        example: "2025-01-01T00:00:00Z"
+        type: string
+      id:
+        example: 550e8400-e29b-41d4-a716-446655440000
+        type: string
+      is_liked:
+        example: false
+        type: boolean
+      like_count:
+        example: 5
+        type: integer
+      parent_comment_id:
+        example: 550e8400-e29b-41d4-a716-446655440000
+        type: string
+      post_id:
+        example: 550e8400-e29b-41d4-a716-446655440000
+        type: string
+      updated_at:
+        example: "2025-01-01T00:00:00Z"
+        type: string
+      user:
+        $ref: '#/definitions/github_com_yourusername_sns-app_internal_dto_response.UserSimple'
+      user_id:
+        example: 550e8400-e29b-41d4-a716-446655440000
+        type: string
+    type: object
+  github_com_yourusername_sns-app_internal_dto_response.FollowListResponse:
+    properties:
+      data:
+        items:
+          $ref: '#/definitions/github_com_yourusername_sns-app_internal_dto_response.UserSimple'
+        type: array
+      pagination:
+        $ref: '#/definitions/github_com_yourusername_sns-app_internal_dto_response.PaginationResponse'
+    type: object
+  github_com_yourusername_sns-app_internal_dto_response.NotificationListResponse:
+    properties:
+      data:
+        items:
+          $ref: '#/definitions/github_com_yourusername_sns-app_internal_dto_response.NotificationResponse'
+        type: array
+      pagination:
+        $ref: '#/definitions/github_com_yourusername_sns-app_internal_dto_response.PaginationResponse'
+      unread_count:
+        example: 5
+        type: integer
+    type: object
+  github_com_yourusername_sns-app_internal_dto_response.NotificationResponse:
+    properties:
+      actor:
+        $ref: '#/definitions/github_com_yourusername_sns-app_internal_dto_response.UserSimple'
+      created_at:
+        example: "2025-01-01T00:00:00Z"
+        type: string
+      id:
+        example: 550e8400-e29b-41d4-a716-446655440000
+        type: string
+      is_read:
+        example: false
+        type: boolean
+      notification_type:
+        example: like
+        type: string
+      target_id:
+        example: 550e8400-e29b-41d4-a716-446655440000
+        type: string
+      target_type:
+        example: Post
+        type: string
+    type: object
+  github_com_yourusername_sns-app_internal_dto_response.PaginationResponse:
+    properties:
+      has_more:
+        example: true
+        type: boolean
+      limit:
+        example: 20
+        type: integer
+      offset:
+        example: 0
+        type: integer
+      total:
+        example: 100
+        type: integer
+    type: object
+  github_com_yourusername_sns-app_internal_dto_response.PostListResponse:
+    properties:
+      data:
+        items:
+          $ref: '#/definitions/github_com_yourusername_sns-app_internal_dto_response.PostResponse'
+        type: array
+      pagination:
+        $ref: '#/definitions/github_com_yourusername_sns-app_internal_dto_response.PaginationResponse'
+    type: object
+  github_com_yourusername_sns-app_internal_dto_response.PostResponse:
+    properties:
+      comment_count:
+        example: 5
+        type: integer
+      content:
+        example: Hello, world!
+        type: string
+      created_at:
+        example: "2025-01-01T00:00:00Z"
+        type: string
+      id:
+        example: 550e8400-e29b-41d4-a716-446655440000
+        type: string
+      is_bookmarked:
+        example: false
+        type: boolean
+      is_liked:
+        example: false
+        type: boolean
+      like_count:
+        example: 10
+        type: integer
+      updated_at:
+        example: "2025-01-01T00:00:00Z"
+        type: string
+      user:
+        $ref: '#/definitions/github_com_yourusername_sns-app_internal_dto_response.UserSimple'
+      user_id:
+        example: 550e8400-e29b-41d4-a716-446655440000
+        type: string
+    type: object
+  github_com_yourusername_sns-app_internal_dto_response.UserListResponse:
+    properties:
+      data:
+        items:
+          $ref: '#/definitions/github_com_yourusername_sns-app_internal_dto_response.UserSimple'
+        type: array
+      pagination:
+        $ref: '#/definitions/github_com_yourusername_sns-app_internal_dto_response.PaginationResponse'
+    type: object
+  github_com_yourusername_sns-app_internal_dto_response.UserProfileResponse:
+    properties:
+      bio:
+        example: Hello, I'm John!
+        type: string
+      created_at:
+        example: "2025-01-01T00:00:00Z"
+        type: string
+      display_name:
+        example: John Doe
+        type: string
+      follower_count:
+        example: 100
+        type: integer
+      following_count:
+        example: 50
+        type: integer
+      id:
+        example: 550e8400-e29b-41d4-a716-446655440000
+        type: string
+      is_followed_by:
+        example: false
+        type: boolean
+      is_following:
+        example: false
+        type: boolean
+      username:
+        example: johndoe
+        type: string
+    type: object
+  github_com_yourusername_sns-app_internal_dto_response.UserResponse:
+    properties:
+      bio:
+        example: Hello, I'm John!
+        type: string
+      created_at:
+        example: "2025-01-01T00:00:00Z"
+        type: string
+      display_name:
+        example: John Doe
+        type: string
+      email:
+        example: user@example.com
+        type: string
+      follower_count:
+        example: 100
+        type: integer
+      following_count:
+        example: 50
+        type: integer
+      id:
+        example: 550e8400-e29b-41d4-a716-446655440000
+        type: string
+      username:
+        example: johndoe
+        type: string
+    type: object
+  github_com_yourusername_sns-app_internal_dto_response.UserSimple:
+    properties:
+      display_name:
+        example: John Doe
+        type: string
+      follower_count:
+        example: 100
+        type: integer
+      id:
+        example: 550e8400-e29b-41d4-a716-446655440000
+        type: string
+      username:
+        example: johndoe
+        type: string
+    type: object
+  github_com_yourusername_sns-app_pkg_errors.ErrorDetail:
+    properties:
+      code:
+        example: BAD_REQUEST
+        type: string
+      details:
+        items:
+          $ref: '#/definitions/github_com_yourusername_sns-app_pkg_errors.ValidationError'
+        type: array
+      message:
+        example: Invalid request parameters
+        type: string
+    type: object
+  github_com_yourusername_sns-app_pkg_errors.ErrorResponse:
+    properties:
+      error:
+        $ref: '#/definitions/github_com_yourusername_sns-app_pkg_errors.ErrorDetail'
+    type: object
+  github_com_yourusername_sns-app_pkg_errors.ValidationError:
+    properties:
+      field:
+        example: email
+        type: string
+      message:
+        example: Invalid email format
+        type: string
+    type: object
+host: localhost:8080
+info:
+  contact:
+    email: support@swagger.io
+    name: API Support
+    url: http://www.swagger.io/support
+  description: Twitter風のSNSアプリケーションのREST API
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: http://swagger.io/terms/
+  title: SNS Application API
+  version: "1.0"
+paths:
+  /auth/login:
+    post:
+      consumes:
+      - application/json
+      description: メールアドレスとパスワードでログインし、JWTトークンを返す
+      parameters:
+      - description: ログイン情報
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_yourusername_sns-app_internal_dto_request.LoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_yourusername_sns-app_internal_dto_response.AuthResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github_com_yourusername_sns-app_pkg_errors.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_yourusername_sns-app_pkg_errors.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/github_com_yourusername_sns-app_pkg_errors.ErrorResponse'
+      summary: ログイン
+      tags:
+      - auth
+  /auth/me:
+    get:
+      consumes:
+      - application/json
+      description: JWTトークンから現在ログイン中のユーザー情報を取得
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_yourusername_sns-app_internal_dto_response.UserResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_yourusername_sns-app_pkg_errors.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/github_com_yourusername_sns-app_pkg_errors.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: 現在のユーザー情報取得
+      tags:
+      - auth
+  /auth/register:
+    post:
+      consumes:
+      - application/json
+      description: 新しいユーザーを登録し、JWTトークンを返す
+      parameters:
+      - description: 登録情報
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_yourusername_sns-app_internal_dto_request.RegisterRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/github_com_yourusername_sns-app_internal_dto_response.AuthResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github_com_yourusername_sns-app_pkg_errors.ErrorResponse'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/github_com_yourusername_sns-app_pkg_errors.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/github_com_yourusername_sns-app_pkg_errors.ErrorResponse'
+      summary: ユーザー登録
+      tags:
+      - auth
+  /bookmarks:
+    get:
+      consumes:
+      - application/json
+      description: ブックマークした投稿の一覧を取得
+      parameters:
+      - description: '取得件数（デフォルト: 20）'
+        in: query
+        name: limit
+        type: integer
+      - description: 'オフセット（デフォルト: 0）'
+        in: query
+        name: offset
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_yourusername_sns-app_internal_dto_response.BookmarkListResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_yourusername_sns-app_pkg_errors.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/github_com_yourusername_sns-app_pkg_errors.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: ブックマーク一覧取得
+      tags:
+      - bookmarks
+  /comments/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: コメントを削除（論理削除、コメント投稿者のみ）
+      parameters:
+      - description: コメントID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_yourusername_sns-app_pkg_errors.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/github_com_yourusername_sns-app_pkg_errors.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/github_com_yourusername_sns-app_pkg_errors.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/github_com_yourusername_sns-app_pkg_errors.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: コメント削除
+      tags:
+      - comments
+  /comments/{id}/like:
+    delete:
+      consumes:
+      - application/json
+      description: コメントのいいねを削除
+      parameters:
+      - description: コメントID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_yourusername_sns-app_pkg_errors.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/github_com_yourusername_sns-app_pkg_errors.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/github_com_yourusername_sns-app_pkg_errors.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: コメントのいいね解除
+      tags:
+      - likes
+    post:
+      consumes:
+      - application/json
+      description: コメントにいいねを追加
+      parameters:
+      - description: コメントID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_yourusername_sns-app_pkg_errors.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/github_com_yourusername_sns-app_pkg_errors.ErrorResponse'
+        "409":
+          description: 既にいいね済み
+          schema:
+            $ref: '#/definitions/github_com_yourusername_sns-app_pkg_errors.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/github_com_yourusername_sns-app_pkg_errors.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: コメントにいいね
+      tags:
+      - likes
+  /notifications:
+    get:
+      consumes:
+      - application/json
+      description: ログイン中のユーザーの通知一覧を取得
+      parameters:
+      - description: '取得件数（デフォルト: 20）'
+        in: query
+        name: limit
+        type: integer
+      - description: 'オフセット（デフォルト: 0）'
+        in: query
+        name: offset
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_yourusername_sns-app_internal_dto_response.NotificationListResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_yourusername_sns-app_pkg_errors.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/github_com_yourusername_sns-app_pkg_errors.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: 通知一覧取得
+      tags:
+      - notifications
+  /notifications/{id}/read:
+    patch:
+      consumes:
+      - application/json
+      description: 指定した通知を既読にする
+      parameters:
+      - description: 通知ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_yourusername_sns-app_pkg_errors.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/github_com_yourusername_sns-app_pkg_errors.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/github_com_yourusername_sns-app_pkg_errors.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: 通知を既読にする
+      tags:
+      - notifications
+  /notifications/read-all:
+    post:
+      consumes:
+      - application/json
+      description: ログイン中のユーザーのすべての通知を既読にする
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_yourusername_sns-app_pkg_errors.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/github_com_yourusername_sns-app_pkg_errors.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: すべての通知を既読にする
+      tags:
+      - notifications
+  /posts:
+    post:
+      consumes:
+      - application/json
+      description: 新しい投稿を作成
+      parameters:
+      - description: 投稿内容
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_yourusername_sns-app_internal_dto_request.CreatePostRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/github_com_yourusername_sns-app_internal_dto_response.PostResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github_com_yourusername_sns-app_pkg_errors.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_yourusername_sns-app_pkg_errors.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/github_com_yourusername_sns-app_pkg_errors.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: 投稿作成
+      tags:
+      - posts
+  /posts/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: 投稿を削除（論理削除、投稿者のみ）
+      parameters:
+      - description: 投稿ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_yourusername_sns-app_pkg_errors.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/github_com_yourusername_sns-app_pkg_errors.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/github_com_yourusername_sns-app_pkg_errors.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/github_com_yourusername_sns-app_pkg_errors.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: 投稿削除
+      tags:
+      - posts
+    get:
+      consumes:
+      - application/json
+      description: IDから投稿を取得
+      parameters:
+      - description: 投稿ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_yourusername_sns-app_internal_dto_response.PostResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/github_com_yourusername_sns-app_pkg_errors.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/github_com_yourusername_sns-app_pkg_errors.ErrorResponse'
+      summary: 投稿取得
+      tags:
+      - posts
+    patch:
+      consumes:
+      - application/json
+      description: 投稿内容を更新（投稿者のみ）
+      parameters:
+      - description: 投稿ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: 更新内容
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_yourusername_sns-app_internal_dto_request.UpdatePostRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_yourusername_sns-app_internal_dto_response.PostResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github_com_yourusername_sns-app_pkg_errors.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_yourusername_sns-app_pkg_errors.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/github_com_yourusername_sns-app_pkg_errors.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/github_com_yourusername_sns-app_pkg_errors.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/github_com_yourusername_sns-app_pkg_errors.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: 投稿更新
+      tags:
+      - posts
+  /posts/{id}/bookmark:
+    delete:
+      consumes:
+      - application/json
+      description: ブックマークを削除
+      parameters:
+      - description: 投稿ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_yourusername_sns-app_pkg_errors.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/github_com_yourusername_sns-app_pkg_errors.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/github_com_yourusername_sns-app_pkg_errors.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: ブックマーク削除
+      tags:
+      - bookmarks
+    post:
+      consumes:
+      - application/json
+      description: 投稿をブックマークに追加
+      parameters:
+      - description: 投稿ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_yourusername_sns-app_pkg_errors.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/github_com_yourusername_sns-app_pkg_errors.ErrorResponse'
+        "409":
+          description: 既にブックマーク済み
+          schema:
+            $ref: '#/definitions/github_com_yourusername_sns-app_pkg_errors.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/github_com_yourusername_sns-app_pkg_errors.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: ブックマーク追加
+      tags:
+      - bookmarks
+  /posts/{id}/comments:
+    get:
+      consumes:
+      - application/json
+      description: 投稿のコメント一覧を取得（ネスト構造）
+      parameters:
+      - description: 投稿ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: '取得件数（デフォルト: 20）'
+        in: query
+        name: limit
+        type: integer
+      - description: 'オフセット（デフォルト: 0）'
+        in: query
+        name: offset
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_yourusername_sns-app_internal_dto_response.CommentListResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/github_com_yourusername_sns-app_pkg_errors.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/github_com_yourusername_sns-app_pkg_errors.ErrorResponse'
+      summary: コメント一覧取得
+      tags:
+      - comments
+    post:
+      consumes:
+      - application/json
+      description: 投稿にコメントを追加（ネスト対応）
+      parameters:
+      - description: 投稿ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: コメント内容
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_yourusername_sns-app_internal_dto_request.CreateCommentRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/github_com_yourusername_sns-app_internal_dto_response.CommentResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github_com_yourusername_sns-app_pkg_errors.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_yourusername_sns-app_pkg_errors.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/github_com_yourusername_sns-app_pkg_errors.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/github_com_yourusername_sns-app_pkg_errors.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: コメント作成
+      tags:
+      - comments
+  /posts/{id}/like:
+    delete:
+      consumes:
+      - application/json
+      description: 投稿のいいねを削除
+      parameters:
+      - description: 投稿ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_yourusername_sns-app_pkg_errors.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/github_com_yourusername_sns-app_pkg_errors.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/github_com_yourusername_sns-app_pkg_errors.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: 投稿のいいね解除
+      tags:
+      - likes
+    post:
+      consumes:
+      - application/json
+      description: 投稿にいいねを追加
+      parameters:
+      - description: 投稿ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_yourusername_sns-app_pkg_errors.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/github_com_yourusername_sns-app_pkg_errors.ErrorResponse'
+        "409":
+          description: 既にいいね済み
+          schema:
+            $ref: '#/definitions/github_com_yourusername_sns-app_pkg_errors.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/github_com_yourusername_sns-app_pkg_errors.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: 投稿にいいね
+      tags:
+      - likes
+  /reports:
+    post:
+      consumes:
+      - application/json
+      description: 投稿、コメント、ユーザーを通報
+      parameters:
+      - description: 通報内容
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_yourusername_sns-app_internal_dto_request.CreateReportRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github_com_yourusername_sns-app_pkg_errors.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_yourusername_sns-app_pkg_errors.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/github_com_yourusername_sns-app_pkg_errors.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/github_com_yourusername_sns-app_pkg_errors.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: 通報作成
+      tags:
+      - reports
+  /timeline:
+    get:
+      consumes:
+      - application/json
+      description: フォロー中のユーザー + 自分の投稿を時系列で取得
+      parameters:
+      - description: '取得件数（デフォルト: 20）'
+        in: query
+        name: limit
+        type: integer
+      - description: 'オフセット（デフォルト: 0）'
+        in: query
+        name: offset
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_yourusername_sns-app_internal_dto_response.PostListResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_yourusername_sns-app_pkg_errors.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/github_com_yourusername_sns-app_pkg_errors.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: タイムライン取得
+      tags:
+      - posts
+  /users:
+    get:
+      consumes:
+      - application/json
+      description: キーワードでユーザーを検索
+      parameters:
+      - description: 検索キーワード
+        in: query
+        name: q
+        required: true
+        type: string
+      - description: '取得件数（デフォルト: 20）'
+        in: query
+        name: limit
+        type: integer
+      - description: 'オフセット（デフォルト: 0）'
+        in: query
+        name: offset
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_yourusername_sns-app_internal_dto_response.UserListResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github_com_yourusername_sns-app_pkg_errors.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/github_com_yourusername_sns-app_pkg_errors.ErrorResponse'
+      summary: ユーザー検索
+      tags:
+      - users
+  /users/{username}:
+    get:
+      consumes:
+      - application/json
+      description: ユーザー名からプロフィール情報を取得
+      parameters:
+      - description: ユーザー名
+        in: path
+        name: username
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_yourusername_sns-app_internal_dto_response.UserProfileResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/github_com_yourusername_sns-app_pkg_errors.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/github_com_yourusername_sns-app_pkg_errors.ErrorResponse'
+      summary: ユーザープロフィール取得
+      tags:
+      - users
+  /users/{username}/follow:
+    delete:
+      consumes:
+      - application/json
+      description: ユーザーのフォローを解除
+      parameters:
+      - description: ユーザー名
+        in: path
+        name: username
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_yourusername_sns-app_pkg_errors.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/github_com_yourusername_sns-app_pkg_errors.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/github_com_yourusername_sns-app_pkg_errors.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: フォロー解除
+      tags:
+      - follows
+    post:
+      consumes:
+      - application/json
+      description: ユーザーをフォロー
+      parameters:
+      - description: ユーザー名
+        in: path
+        name: username
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+        "400":
+          description: 自分自身をフォローできない
+          schema:
+            $ref: '#/definitions/github_com_yourusername_sns-app_pkg_errors.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_yourusername_sns-app_pkg_errors.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/github_com_yourusername_sns-app_pkg_errors.ErrorResponse'
+        "409":
+          description: 既にフォロー済み
+          schema:
+            $ref: '#/definitions/github_com_yourusername_sns-app_pkg_errors.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/github_com_yourusername_sns-app_pkg_errors.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: フォロー
+      tags:
+      - follows
+  /users/{username}/followers:
+    get:
+      consumes:
+      - application/json
+      description: ユーザーのフォロワー一覧を取得
+      parameters:
+      - description: ユーザー名
+        in: path
+        name: username
+        required: true
+        type: string
+      - description: '取得件数（デフォルト: 20）'
+        in: query
+        name: limit
+        type: integer
+      - description: 'オフセット（デフォルト: 0）'
+        in: query
+        name: offset
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_yourusername_sns-app_internal_dto_response.FollowListResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/github_com_yourusername_sns-app_pkg_errors.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/github_com_yourusername_sns-app_pkg_errors.ErrorResponse'
+      summary: フォロワー一覧取得
+      tags:
+      - follows
+  /users/{username}/following:
+    get:
+      consumes:
+      - application/json
+      description: ユーザーがフォロー中のユーザー一覧を取得
+      parameters:
+      - description: ユーザー名
+        in: path
+        name: username
+        required: true
+        type: string
+      - description: '取得件数（デフォルト: 20）'
+        in: query
+        name: limit
+        type: integer
+      - description: 'オフセット（デフォルト: 0）'
+        in: query
+        name: offset
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_yourusername_sns-app_internal_dto_response.FollowListResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/github_com_yourusername_sns-app_pkg_errors.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/github_com_yourusername_sns-app_pkg_errors.ErrorResponse'
+      summary: フォロー中一覧取得
+      tags:
+      - follows
+  /users/{username}/posts:
+    get:
+      consumes:
+      - application/json
+      description: 指定したユーザー名の投稿一覧を取得
+      parameters:
+      - description: ユーザー名
+        in: path
+        name: username
+        required: true
+        type: string
+      - description: '取得件数（デフォルト: 20）'
+        in: query
+        name: limit
+        type: integer
+      - description: 'オフセット（デフォルト: 0）'
+        in: query
+        name: offset
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_yourusername_sns-app_internal_dto_response.PostListResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/github_com_yourusername_sns-app_pkg_errors.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/github_com_yourusername_sns-app_pkg_errors.ErrorResponse'
+      summary: ユーザーの投稿一覧取得
+      tags:
+      - posts
+  /users/me:
+    patch:
+      consumes:
+      - application/json
+      description: 現在ログイン中のユーザーのプロフィールを更新
+      parameters:
+      - description: 更新情報
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_yourusername_sns-app_internal_dto_request.UpdateProfileRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_yourusername_sns-app_internal_dto_response.UserResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github_com_yourusername_sns-app_pkg_errors.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_yourusername_sns-app_pkg_errors.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/github_com_yourusername_sns-app_pkg_errors.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: プロフィール更新
+      tags:
+      - users
+securityDefinitions:
+  BearerAuth:
+    description: Type "Bearer" followed by a space and JWT token.
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

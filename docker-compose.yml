@@ -1,0 +1,69 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:15-alpine
+    container_name: sns_db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: social_media_db
+      TZ: Asia/Tokyo
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - sns_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  api:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: sns_api
+    ports:
+      - "8080:8080"
+    environment:
+      # Database
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_USER: postgres
+      DB_PASSWORD: password
+      DB_NAME: social_media_db
+
+      # Server
+      PORT: 8080
+      ENV: development
+
+      # JWT
+      JWT_SECRET: your-secret-key-change-in-production
+      JWT_EXPIRATION: 168h
+
+      # File Upload (Phase 2で使用)
+      MAX_VIDEO_SIZE_MB: 20
+      MAX_IMAGE_SIZE_MB: 5
+      MAX_UPLOAD_FILES: 4
+
+      # Timezone
+      TZ: Asia/Tokyo
+    volumes:
+      - ./backend:/app
+      - /app/tmp
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - sns_network
+
+volumes:
+  postgres_data:
+    driver: local
+
+networks:
+  sns_network:
+    driver: bridge
