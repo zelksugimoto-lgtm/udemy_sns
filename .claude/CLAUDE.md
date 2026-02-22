@@ -177,6 +177,27 @@ docker compose exec api go get -u github.com/labstack/echo/v4
 docker compose exec api swag init -g cmd/server/main.go -o docs
 ```
 
+### Swagger/OpenAPI ドキュメント生成ルール
+**🚨 重要: Swaggerドキュメント生成後は必ずOpenAPI 3.0形式への変換も実行する**
+
+**必須手順:**
+1. swagでSwagger 2.0ドキュメントを生成
+2. swagger2openapiでOpenAPI 3.0形式に変換
+
+**実行コマンド:**
+```bash
+# 1. Swagger 2.0ドキュメント生成（コンテナ内）
+docker compose exec api swag init -g cmd/server/main.go -o docs
+
+# 2. OpenAPI 3.0形式への変換（ホストOS）
+npx swagger2openapi backend/docs/swagger.json -o backend/docs/openapi.yaml -y
+```
+
+**ルール:**
+- swagドキュメントを生成・更新したら**必ず**openapi.yamlへの変換も実行すること
+- openapi.yamlはフロントエンド開発で型生成に使用される
+- 両方のファイル（swagger.json, openapi.yaml）をGitにコミットすること
+
 ---
 
 ## 🔒 セキュリティルール

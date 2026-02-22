@@ -1,18 +1,24 @@
 package handler
 
 import (
+	"net/http"
+
 	"github.com/labstack/echo/v4"
 	"github.com/yourusername/sns-app/internal/dto/request"
 	"github.com/yourusername/sns-app/internal/dto/response"
+	"github.com/yourusername/sns-app/internal/middleware"
+	"github.com/yourusername/sns-app/internal/service"
 	"github.com/yourusername/sns-app/pkg/errors"
 )
 
 type AuthHandler struct {
-	// サービスは後で実装
+	authService service.AuthService
 }
 
-func NewAuthHandler() *AuthHandler {
-	return &AuthHandler{}
+func NewAuthHandler(authService service.AuthService) *AuthHandler {
+	return &AuthHandler{
+		authService: authService,
+	}
 }
 
 // Register godoc
@@ -28,8 +34,25 @@ func NewAuthHandler() *AuthHandler {
 // @Failure      500      {object}  errors.ErrorResponse
 // @Router       /auth/register [post]
 func (h *AuthHandler) Register(c echo.Context) error {
-	// TODO: 実装
-	return c.JSON(201, response.AuthResponse{})
+	var req request.RegisterRequest
+	if err := c.Bind(&req); err != nil {
+		return c.JSON(http.StatusBadRequest, errors.BadRequest("無効なリクエストです"))
+	}
+
+	// バリデーション
+	if req.Email == "" || req.Username == "" || req.DisplayName == "" || req.Password == "" {
+		return c.JSON(http.StatusBadRequest, errors.BadRequest("必須項目が不足しています"))
+	}
+
+	result, err := h.authService.Register(&req)
+	if err != nil {
+		if err.Error() == "このメールアドレスは既に使用されています" || err.Error() == "このユーザー名は既に使用されています" {
+			return c.JSON(http.StatusConflict, errors.Conflict(err.Error()))
+		}
+		return c.JSON(http.StatusInternalServerError, errors.InternalError(err.Error()))
+	}
+
+	return c.JSON(http.StatusCreated, result)
 }
 
 // Login godoc
@@ -45,8 +68,22 @@ func (h *AuthHandler) Register(c echo.Context) error {
 // @Failure      500      {object}  errors.ErrorResponse
 // @Router       /auth/login [post]
 func (h *AuthHandler) Login(c echo.Context) error {
-	// TODO: 実装
-	return c.JSON(200, response.AuthResponse{})
+	var req request.LoginRequest
+	if err := c.Bind(&req); err != nil {
+		return c.JSON(http.StatusBadRequest, errors.BadRequest("無効なリクエストです"))
+	}
+
+	// バリデーション
+	if req.Email == "" || req.Password == "" {
+		return c.JSON(http.StatusBadRequest, errors.BadRequest("必須項目が不足しています"))
+	}
+
+	result, err := h.authService.Login(&req)
+	if err != nil {
+		return c.JSON(http.StatusUnauthorized, errors.Unauthorized(err.Error()))
+	}
+
+	return c.JSON(http.StatusOK, result)
 }
 
 // GetMe godoc
@@ -61,6 +98,15 @@ func (h *AuthHandler) Login(c echo.Context) error {
 // @Failure      500  {object}  errors.ErrorResponse
 // @Router       /auth/me [get]
 func (h *AuthHandler) GetMe(c echo.Context) error {
-	// TODO: 実装
-	return c.JSON(200, response.UserResponse{})
+	userID, err := middleware.GetUserID(c)
+	if err != nil {
+		return c.JSON(http.StatusUnauthorized, errors.Unauthorized(err.Error()))
+	}
+
+	result, err := h.authService.GetMe(userID)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, errors.InternalError(err.Error()))
+	}
+
+	return c.JSON(http.StatusOK, result)
 }
