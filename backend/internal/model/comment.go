@@ -15,7 +15,7 @@ type Comment struct {
 	User          User      `gorm:"foreignKey:UserID" json:"user,omitempty"`
 	ParentComment *Comment  `gorm:"foreignKey:ParentCommentID" json:"parent_comment,omitempty"`
 	ChildComments []Comment `gorm:"foreignKey:ParentCommentID" json:"child_comments,omitempty"`
-	Likes         []Like    `gorm:"foreignKey:LikeableID;polymorphicType:LikeableType;polymorphicValue:Comment" json:"likes,omitempty"`
+	Likes         []Like    `gorm:"foreignKey:LikeableID;polymorphicType:LikeableType;polymorphicValue:Comment;constraint:-" json:"likes,omitempty"`
 }
 
 // TableName テーブル名を指定

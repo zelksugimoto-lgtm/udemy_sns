@@ -5,7 +5,6 @@ import (
 
 	"github.com/labstack/echo/v4"
 	"github.com/yourusername/sns-app/internal/dto/request"
-	"github.com/yourusername/sns-app/internal/dto/response"
 	"github.com/yourusername/sns-app/internal/middleware"
 	"github.com/yourusername/sns-app/internal/service"
 	"github.com/yourusername/sns-app/pkg/errors"

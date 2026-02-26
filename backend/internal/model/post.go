@@ -12,7 +12,7 @@ type Post struct {
 	// Relations
 	User      User       `gorm:"foreignKey:UserID" json:"user,omitempty"`
 	Comments  []Comment  `gorm:"foreignKey:PostID" json:"comments,omitempty"`
-	Likes     []Like     `gorm:"foreignKey:LikeableID;polymorphicType:LikeableType;polymorphicValue:Post" json:"likes,omitempty"`
+	Likes     []Like     `gorm:"foreignKey:LikeableID;polymorphicType:LikeableType;polymorphicValue:Post;constraint:-" json:"likes,omitempty"`
 	Bookmarks []Bookmark `gorm:"foreignKey:PostID" json:"bookmarks,omitempty"`
 }
 

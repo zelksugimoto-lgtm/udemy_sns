@@ -1,17 +1,24 @@
 package handler
 
 import (
+	"net/http"
+	"strconv"
+
+	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
-	"github.com/yourusername/sns-app/internal/dto/response"
+	"github.com/yourusername/sns-app/internal/middleware"
+	"github.com/yourusername/sns-app/internal/service"
 	"github.com/yourusername/sns-app/pkg/errors"
 )
 
 type NotificationHandler struct {
-	// サービスは後で実装
+	notificationService service.NotificationService
 }
 
-func NewNotificationHandler() *NotificationHandler {
-	return &NotificationHandler{}
+func NewNotificationHandler(notificationService service.NotificationService) *NotificationHandler {
+	return &NotificationHandler{
+		notificationService: notificationService,
+	}
 }
 
 // GetNotifications godoc
@@ -28,8 +35,31 @@ func NewNotificationHandler() *NotificationHandler {
 // @Failure      500     {object}  errors.ErrorResponse
 // @Router       /notifications [get]
 func (h *NotificationHandler) GetNotifications(c echo.Context) error {
-	// TODO: 実装
-	return c.JSON(200, response.NotificationListResponse{})
+	// ユーザーIDを取得
+	userID, err := middleware.GetUserID(c)
+	if err != nil {
+		return c.JSON(http.StatusUnauthorized, errors.Unauthorized("認証が必要です"))
+	}
+
+	// クエリパラメータを取得
+	limit, _ := strconv.Atoi(c.QueryParam("limit"))
+	offset, _ := strconv.Atoi(c.QueryParam("offset"))
+
+	// デフォルト値設定
+	if limit <= 0 {
+		limit = 20
+	}
+	if offset < 0 {
+		offset = 0
+	}
+
+	// サービス層を呼び出し
+	result, err := h.notificationService.GetNotifications(userID, limit, offset)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, errors.InternalError("通知一覧の取得に失敗しました"))
+	}
+
+	return c.JSON(http.StatusOK, result)
 }
 
 // MarkAsRead godoc
@@ -46,8 +76,32 @@ func (h *NotificationHandler) GetNotifications(c echo.Context) error {
 // @Failure      500  {object}  errors.ErrorResponse
 // @Router       /notifications/{id}/read [patch]
 func (h *NotificationHandler) MarkAsRead(c echo.Context) error {
-	// TODO: 実装
-	return c.NoContent(200)
+	// ユーザーIDを取得
+	userID, err := middleware.GetUserID(c)
+	if err != nil {
+		return c.JSON(http.StatusUnauthorized, errors.Unauthorized("認証が必要です"))
+	}
+
+	// 通知IDを取得
+	notificationIDStr := c.Param("id")
+	notificationID, err := uuid.Parse(notificationIDStr)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, errors.BadRequest("無効な通知IDです"))
+	}
+
+	// サービス層を呼び出し
+	err = h.notificationService.MarkAsRead(userID, notificationID)
+	if err != nil {
+		if err.Error() == "通知が見つかりません" {
+			return c.JSON(http.StatusNotFound, errors.NotFound("通知が見つかりません"))
+		}
+		if err.Error() == "この通知を既読にする権限がありません" {
+			return c.JSON(http.StatusForbidden, errors.Forbidden("この通知を既読にする権限がありません"))
+		}
+		return c.JSON(http.StatusInternalServerError, errors.InternalError("通知の既読化に失敗しました"))
+	}
+
+	return c.NoContent(http.StatusOK)
 }
 
 // MarkAllAsRead godoc
@@ -62,6 +116,17 @@ func (h *NotificationHandler) MarkAsRead(c echo.Context) error {
 // @Failure      500  {object}  errors.ErrorResponse
 // @Router       /notifications/read-all [post]
 func (h *NotificationHandler) MarkAllAsRead(c echo.Context) error {
-	// TODO: 実装
-	return c.NoContent(200)
+	// ユーザーIDを取得
+	userID, err := middleware.GetUserID(c)
+	if err != nil {
+		return c.JSON(http.StatusUnauthorized, errors.Unauthorized("認証が必要です"))
+	}
+
+	// サービス層を呼び出し
+	err = h.notificationService.MarkAllAsRead(userID)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, errors.InternalError("すべての通知の既読化に失敗しました"))
+	}
+
+	return c.NoContent(http.StatusOK)
 }

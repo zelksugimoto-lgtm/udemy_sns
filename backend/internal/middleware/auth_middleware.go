@@ -1,6 +1,7 @@
 package middleware
 
 import (
+	"errors"
 	"net/http"
 	"os"
 	"strings"
@@ -8,7 +9,7 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
-	"github.com/yourusername/sns-app/pkg/errors"
+	pkgErrors "github.com/yourusername/sns-app/pkg/errors"
 )
 
 // AuthMiddleware JWT認証ミドルウェア
@@ -18,12 +19,12 @@ func AuthMiddleware() echo.MiddlewareFunc {
 			// Authorization ヘッダーを取得
 			authHeader := c.Request().Header.Get("Authorization")
 			if authHeader == "" {
-				return c.JSON(http.StatusUnauthorized, errors.Unauthorized("認証が必要です"))
+				return c.JSON(http.StatusUnauthorized, pkgErrors.Unauthorized("認証が必要です"))
 			}
 
 			// "Bearer "プレフィックスを確認
 			if !strings.HasPrefix(authHeader, "Bearer ") {
-				return c.JSON(http.StatusUnauthorized, errors.Unauthorized("無効な認証形式です"))
+				return c.JSON(http.StatusUnauthorized, pkgErrors.Unauthorized("無効な認証形式です"))
 			}
 
 			// トークンを抽出
@@ -45,7 +46,7 @@ func AuthMiddleware() echo.MiddlewareFunc {
 			})
 
 			if err != nil {
-				return c.JSON(http.StatusUnauthorized, errors.Unauthorized("無効なトークンです"))
+				return c.JSON(http.StatusUnauthorized, pkgErrors.Unauthorized("無効なトークンです"))
 			}
 
 			// クレームを取得
@@ -53,13 +54,13 @@ func AuthMiddleware() echo.MiddlewareFunc {
 				// ユーザーIDを取得
 				userIDStr, ok := claims["user_id"].(string)
 				if !ok {
-					return c.JSON(http.StatusUnauthorized, errors.Unauthorized("無効なトークンです"))
+					return c.JSON(http.StatusUnauthorized, pkgErrors.Unauthorized("無効なトークンです"))
 				}
 
 				// UUIDに変換
 				userID, err := uuid.Parse(userIDStr)
 				if err != nil {
-					return c.JSON(http.StatusUnauthorized, errors.Unauthorized("無効なユーザーIDです"))
+					return c.JSON(http.StatusUnauthorized, pkgErrors.Unauthorized("無効なユーザーIDです"))
 				}
 
 				// コンテキストにユーザーIDを設定
@@ -68,7 +69,7 @@ func AuthMiddleware() echo.MiddlewareFunc {
 				return next(c)
 			}
 
-			return c.JSON(http.StatusUnauthorized, errors.Unauthorized("無効なトークンです"))
+			return c.JSON(http.StatusUnauthorized, pkgErrors.Unauthorized("無効なトークンです"))
 		}
 	}
 }
@@ -77,7 +78,7 @@ func AuthMiddleware() echo.MiddlewareFunc {
 func GetUserID(c echo.Context) (uuid.UUID, error) {
 	userID, ok := c.Get("user_id").(uuid.UUID)
 	if !ok {
-		return uuid.Nil, http.ErrAbortHandler
+		return uuid.Nil, errors.New("認証が必要です")
 	}
 	return userID, nil
 }

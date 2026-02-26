@@ -141,8 +141,8 @@ func generateJWT(userID uuid.UUID) (string, error) {
 }
 
 // mapUserToUserResponse UserをUserResponseにマッピング
-func mapUserToUserResponse(user *model.User) response.UserResponse {
-	return response.UserResponse{
+func mapUserToUserResponse(user *model.User) *response.UserResponse {
+	return &response.UserResponse{
 		ID:          user.ID,
 		Email:       user.Email,
 		Username:    user.Username,

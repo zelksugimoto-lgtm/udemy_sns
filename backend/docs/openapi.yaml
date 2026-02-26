@@ -22,8 +22,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/github_com_yourusername_sns-app_internal_dto_reques\
-                t.LoginRequest"
+              $ref: "#/components/schemas/request.LoginRequest"
         description: ログイン情報
         required: true
       responses:
@@ -32,29 +31,25 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/github_com_yourusername_sns-app_internal_dto_respon\
-                  se.AuthResponse"
+                $ref: "#/components/schemas/response.AuthResponse"
         "400":
           description: Bad Request
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/github_com_yourusername_sns-app_pkg_errors.ErrorRes\
-                  ponse"
+                $ref: "#/components/schemas/errors.ErrorResponse"
         "401":
           description: Unauthorized
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/github_com_yourusername_sns-app_pkg_errors.ErrorRes\
-                  ponse"
+                $ref: "#/components/schemas/errors.ErrorResponse"
         "500":
           description: Internal Server Error
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/github_com_yourusername_sns-app_pkg_errors.ErrorRes\
-                  ponse"
+                $ref: "#/components/schemas/errors.ErrorResponse"
   /auth/me:
     get:
       security:
@@ -69,22 +64,19 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/github_com_yourusername_sns-app_internal_dto_respon\
-                  se.UserResponse"
+                $ref: "#/components/schemas/response.UserResponse"
         "401":
           description: Unauthorized
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/github_com_yourusername_sns-app_pkg_errors.ErrorRes\
-                  ponse"
+                $ref: "#/components/schemas/errors.ErrorResponse"
         "500":
           description: Internal Server Error
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/github_com_yourusername_sns-app_pkg_errors.ErrorRes\
-                  ponse"
+                $ref: "#/components/schemas/errors.ErrorResponse"
   /auth/register:
     post:
       description: 新しいユーザーを登録し、JWTトークンを返す
@@ -95,8 +87,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/github_com_yourusername_sns-app_internal_dto_reques\
-                t.RegisterRequest"
+              $ref: "#/components/schemas/request.RegisterRequest"
         description: 登録情報
         required: true
       responses:
@@ -105,29 +96,25 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/github_com_yourusername_sns-app_internal_dto_respon\
-                  se.AuthResponse"
+                $ref: "#/components/schemas/response.AuthResponse"
         "400":
           description: Bad Request
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/github_com_yourusername_sns-app_pkg_errors.ErrorRes\
-                  ponse"
+                $ref: "#/components/schemas/errors.ErrorResponse"
         "409":
           description: Conflict
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/github_com_yourusername_sns-app_pkg_errors.ErrorRes\
-                  ponse"
+                $ref: "#/components/schemas/errors.ErrorResponse"
         "500":
           description: Internal Server Error
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/github_com_yourusername_sns-app_pkg_errors.ErrorRes\
-                  ponse"
+                $ref: "#/components/schemas/errors.ErrorResponse"
   /bookmarks:
     get:
       security:
@@ -153,22 +140,19 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/github_com_yourusername_sns-app_internal_dto_respon\
-                  se.BookmarkListResponse"
+                $ref: "#/components/schemas/response.BookmarkListResponse"
         "401":
           description: Unauthorized
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/github_com_yourusername_sns-app_pkg_errors.ErrorRes\
-                  ponse"
+                $ref: "#/components/schemas/errors.ErrorResponse"
         "500":
           description: Internal Server Error
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/github_com_yourusername_sns-app_pkg_errors.ErrorRes\
-                  ponse"
+                $ref: "#/components/schemas/errors.ErrorResponse"
   "/comments/{id}":
     delete:
       security:
@@ -192,29 +176,25 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/github_com_yourusername_sns-app_pkg_errors.ErrorRes\
-                  ponse"
+                $ref: "#/components/schemas/errors.ErrorResponse"
         "403":
           description: Forbidden
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/github_com_yourusername_sns-app_pkg_errors.ErrorRes\
-                  ponse"
+                $ref: "#/components/schemas/errors.ErrorResponse"
         "404":
           description: Not Found
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/github_com_yourusername_sns-app_pkg_errors.ErrorRes\
-                  ponse"
+                $ref: "#/components/schemas/errors.ErrorResponse"
         "500":
           description: Internal Server Error
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/github_com_yourusername_sns-app_pkg_errors.ErrorRes\
-                  ponse"
+                $ref: "#/components/schemas/errors.ErrorResponse"
   "/comments/{id}/like":
     post:
       security:
@@ -238,29 +218,25 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/github_com_yourusername_sns-app_pkg_errors.ErrorRes\
-                  ponse"
+                $ref: "#/components/schemas/errors.ErrorResponse"
         "404":
           description: Not Found
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/github_com_yourusername_sns-app_pkg_errors.ErrorRes\
-                  ponse"
+                $ref: "#/components/schemas/errors.ErrorResponse"
         "409":
           description: 既にいいね済み
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/github_com_yourusername_sns-app_pkg_errors.ErrorRes\
-                  ponse"
+                $ref: "#/components/schemas/errors.ErrorResponse"
         "500":
           description: Internal Server Error
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/github_com_yourusername_sns-app_pkg_errors.ErrorRes\
-                  ponse"
+                $ref: "#/components/schemas/errors.ErrorResponse"
     delete:
       security:
         - BearerAuth: []
@@ -283,22 +259,19 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/github_com_yourusername_sns-app_pkg_errors.ErrorRes\
-                  ponse"
+                $ref: "#/components/schemas/errors.ErrorResponse"
         "404":
           description: Not Found
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/github_com_yourusername_sns-app_pkg_errors.ErrorRes\
-                  ponse"
+                $ref: "#/components/schemas/errors.ErrorResponse"
         "500":
           description: Internal Server Error
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/github_com_yourusername_sns-app_pkg_errors.ErrorRes\
-                  ponse"
+                $ref: "#/components/schemas/errors.ErrorResponse"
   /notifications:
     get:
       security:
@@ -324,22 +297,19 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/github_com_yourusername_sns-app_internal_dto_respon\
-                  se.NotificationListResponse"
+                $ref: "#/components/schemas/response.NotificationListResponse"
         "401":
           description: Unauthorized
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/github_com_yourusername_sns-app_pkg_errors.ErrorRes\
-                  ponse"
+                $ref: "#/components/schemas/errors.ErrorResponse"
         "500":
           description: Internal Server Error
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/github_com_yourusername_sns-app_pkg_errors.ErrorRes\
-                  ponse"
+                $ref: "#/components/schemas/errors.ErrorResponse"
   /notifications/read-all:
     post:
       security:
@@ -356,15 +326,13 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/github_com_yourusername_sns-app_pkg_errors.ErrorRes\
-                  ponse"
+                $ref: "#/components/schemas/errors.ErrorResponse"
         "500":
           description: Internal Server Error
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/github_com_yourusername_sns-app_pkg_errors.ErrorRes\
-                  ponse"
+                $ref: "#/components/schemas/errors.ErrorResponse"
   "/notifications/{id}/read":
     patch:
       security:
@@ -388,22 +356,19 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/github_com_yourusername_sns-app_pkg_errors.ErrorRes\
-                  ponse"
+                $ref: "#/components/schemas/errors.ErrorResponse"
         "404":
           description: Not Found
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/github_com_yourusername_sns-app_pkg_errors.ErrorRes\
-                  ponse"
+                $ref: "#/components/schemas/errors.ErrorResponse"
         "500":
           description: Internal Server Error
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/github_com_yourusername_sns-app_pkg_errors.ErrorRes\
-                  ponse"
+                $ref: "#/components/schemas/errors.ErrorResponse"
   /posts:
     post:
       security:
@@ -416,8 +381,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/github_com_yourusername_sns-app_internal_dto_reques\
-                t.CreatePostRequest"
+              $ref: "#/components/schemas/request.CreatePostRequest"
         description: 投稿内容
         required: true
       responses:
@@ -426,29 +390,25 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/github_com_yourusername_sns-app_internal_dto_respon\
-                  se.PostResponse"
+                $ref: "#/components/schemas/response.PostResponse"
         "400":
           description: Bad Request
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/github_com_yourusername_sns-app_pkg_errors.ErrorRes\
-                  ponse"
+                $ref: "#/components/schemas/errors.ErrorResponse"
         "401":
           description: Unauthorized
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/github_com_yourusername_sns-app_pkg_errors.ErrorRes\
-                  ponse"
+                $ref: "#/components/schemas/errors.ErrorResponse"
         "500":
           description: Internal Server Error
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/github_com_yourusername_sns-app_pkg_errors.ErrorRes\
-                  ponse"
+                $ref: "#/components/schemas/errors.ErrorResponse"
   "/posts/{id}":
     get:
       description: IDから投稿を取得
@@ -468,22 +428,19 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/github_com_yourusername_sns-app_internal_dto_respon\
-                  se.PostResponse"
+                $ref: "#/components/schemas/response.PostResponse"
         "404":
           description: Not Found
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/github_com_yourusername_sns-app_pkg_errors.ErrorRes\
-                  ponse"
+                $ref: "#/components/schemas/errors.ErrorResponse"
         "500":
           description: Internal Server Error
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/github_com_yourusername_sns-app_pkg_errors.ErrorRes\
-                  ponse"
+                $ref: "#/components/schemas/errors.ErrorResponse"
     delete:
       security:
         - BearerAuth: []
@@ -506,29 +463,25 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/github_com_yourusername_sns-app_pkg_errors.ErrorRes\
-                  ponse"
+                $ref: "#/components/schemas/errors.ErrorResponse"
         "403":
           description: Forbidden
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/github_com_yourusername_sns-app_pkg_errors.ErrorRes\
-                  ponse"
+                $ref: "#/components/schemas/errors.ErrorResponse"
         "404":
           description: Not Found
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/github_com_yourusername_sns-app_pkg_errors.ErrorRes\
-                  ponse"
+                $ref: "#/components/schemas/errors.ErrorResponse"
         "500":
           description: Internal Server Error
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/github_com_yourusername_sns-app_pkg_errors.ErrorRes\
-                  ponse"
+                $ref: "#/components/schemas/errors.ErrorResponse"
     patch:
       security:
         - BearerAuth: []
@@ -547,8 +500,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/github_com_yourusername_sns-app_internal_dto_reques\
-                t.UpdatePostRequest"
+              $ref: "#/components/schemas/request.UpdatePostRequest"
         description: 更新内容
         required: true
       responses:
@@ -557,43 +509,37 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/github_com_yourusername_sns-app_internal_dto_respon\
-                  se.PostResponse"
+                $ref: "#/components/schemas/response.PostResponse"
         "400":
           description: Bad Request
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/github_com_yourusername_sns-app_pkg_errors.ErrorRes\
-                  ponse"
+                $ref: "#/components/schemas/errors.ErrorResponse"
         "401":
           description: Unauthorized
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/github_com_yourusername_sns-app_pkg_errors.ErrorRes\
-                  ponse"
+                $ref: "#/components/schemas/errors.ErrorResponse"
         "403":
           description: Forbidden
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/github_com_yourusername_sns-app_pkg_errors.ErrorRes\
-                  ponse"
+                $ref: "#/components/schemas/errors.ErrorResponse"
         "404":
           description: Not Found
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/github_com_yourusername_sns-app_pkg_errors.ErrorRes\
-                  ponse"
+                $ref: "#/components/schemas/errors.ErrorResponse"
         "500":
           description: Internal Server Error
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/github_com_yourusername_sns-app_pkg_errors.ErrorRes\
-                  ponse"
+                $ref: "#/components/schemas/errors.ErrorResponse"
   "/posts/{id}/bookmark":
     post:
       security:
@@ -617,29 +563,25 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/github_com_yourusername_sns-app_pkg_errors.ErrorRes\
-                  ponse"
+                $ref: "#/components/schemas/errors.ErrorResponse"
         "404":
           description: Not Found
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/github_com_yourusername_sns-app_pkg_errors.ErrorRes\
-                  ponse"
+                $ref: "#/components/schemas/errors.ErrorResponse"
         "409":
           description: 既にブックマーク済み
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/github_com_yourusername_sns-app_pkg_errors.ErrorRes\
-                  ponse"
+                $ref: "#/components/schemas/errors.ErrorResponse"
         "500":
           description: Internal Server Error
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/github_com_yourusername_sns-app_pkg_errors.ErrorRes\
-                  ponse"
+                $ref: "#/components/schemas/errors.ErrorResponse"
     delete:
       security:
         - BearerAuth: []
@@ -662,22 +604,19 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/github_com_yourusername_sns-app_pkg_errors.ErrorRes\
-                  ponse"
+                $ref: "#/components/schemas/errors.ErrorResponse"
         "404":
           description: Not Found
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/github_com_yourusername_sns-app_pkg_errors.ErrorRes\
-                  ponse"
+                $ref: "#/components/schemas/errors.ErrorResponse"
         "500":
           description: Internal Server Error
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/github_com_yourusername_sns-app_pkg_errors.ErrorRes\
-                  ponse"
+                $ref: "#/components/schemas/errors.ErrorResponse"
   "/posts/{id}/comments":
     get:
       description: 投稿のコメント一覧を取得（ネスト構造）
@@ -707,22 +646,19 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/github_com_yourusername_sns-app_internal_dto_respon\
-                  se.CommentListResponse"
+                $ref: "#/components/schemas/response.CommentListResponse"
         "404":
           description: Not Found
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/github_com_yourusername_sns-app_pkg_errors.ErrorRes\
-                  ponse"
+                $ref: "#/components/schemas/errors.ErrorResponse"
         "500":
           description: Internal Server Error
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/github_com_yourusername_sns-app_pkg_errors.ErrorRes\
-                  ponse"
+                $ref: "#/components/schemas/errors.ErrorResponse"
     post:
       security:
         - BearerAuth: []
@@ -741,8 +677,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/github_com_yourusername_sns-app_internal_dto_reques\
-                t.CreateCommentRequest"
+              $ref: "#/components/schemas/request.CreateCommentRequest"
         description: コメント内容
         required: true
       responses:
@@ -751,36 +686,31 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/github_com_yourusername_sns-app_internal_dto_respon\
-                  se.CommentResponse"
+                $ref: "#/components/schemas/response.CommentResponse"
         "400":
           description: Bad Request
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/github_com_yourusername_sns-app_pkg_errors.ErrorRes\
-                  ponse"
+                $ref: "#/components/schemas/errors.ErrorResponse"
         "401":
           description: Unauthorized
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/github_com_yourusername_sns-app_pkg_errors.ErrorRes\
-                  ponse"
+                $ref: "#/components/schemas/errors.ErrorResponse"
         "404":
           description: Not Found
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/github_com_yourusername_sns-app_pkg_errors.ErrorRes\
-                  ponse"
+                $ref: "#/components/schemas/errors.ErrorResponse"
         "500":
           description: Internal Server Error
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/github_com_yourusername_sns-app_pkg_errors.ErrorRes\
-                  ponse"
+                $ref: "#/components/schemas/errors.ErrorResponse"
   "/posts/{id}/like":
     post:
       security:
@@ -804,29 +734,25 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/github_com_yourusername_sns-app_pkg_errors.ErrorRes\
-                  ponse"
+                $ref: "#/components/schemas/errors.ErrorResponse"
         "404":
           description: Not Found
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/github_com_yourusername_sns-app_pkg_errors.ErrorRes\
-                  ponse"
+                $ref: "#/components/schemas/errors.ErrorResponse"
         "409":
           description: 既にいいね済み
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/github_com_yourusername_sns-app_pkg_errors.ErrorRes\
-                  ponse"
+                $ref: "#/components/schemas/errors.ErrorResponse"
         "500":
           description: Internal Server Error
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/github_com_yourusername_sns-app_pkg_errors.ErrorRes\
-                  ponse"
+                $ref: "#/components/schemas/errors.ErrorResponse"
     delete:
       security:
         - BearerAuth: []
@@ -849,22 +775,19 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/github_com_yourusername_sns-app_pkg_errors.ErrorRes\
-                  ponse"
+                $ref: "#/components/schemas/errors.ErrorResponse"
         "404":
           description: Not Found
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/github_com_yourusername_sns-app_pkg_errors.ErrorRes\
-                  ponse"
+                $ref: "#/components/schemas/errors.ErrorResponse"
         "500":
           description: Internal Server Error
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/github_com_yourusername_sns-app_pkg_errors.ErrorRes\
-                  ponse"
+                $ref: "#/components/schemas/errors.ErrorResponse"
   /reports:
     post:
       security:
@@ -877,8 +800,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/github_com_yourusername_sns-app_internal_dto_reques\
-                t.CreateReportRequest"
+              $ref: "#/components/schemas/request.CreateReportRequest"
         description: 通報内容
         required: true
       responses:
@@ -889,29 +811,25 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/github_com_yourusername_sns-app_pkg_errors.ErrorRes\
-                  ponse"
+                $ref: "#/components/schemas/errors.ErrorResponse"
         "401":
           description: Unauthorized
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/github_com_yourusername_sns-app_pkg_errors.ErrorRes\
-                  ponse"
+                $ref: "#/components/schemas/errors.ErrorResponse"
         "404":
           description: Not Found
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/github_com_yourusername_sns-app_pkg_errors.ErrorRes\
-                  ponse"
+                $ref: "#/components/schemas/errors.ErrorResponse"
         "500":
           description: Internal Server Error
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/github_com_yourusername_sns-app_pkg_errors.ErrorRes\
-                  ponse"
+                $ref: "#/components/schemas/errors.ErrorResponse"
   /timeline:
     get:
       security:
@@ -937,22 +855,19 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/github_com_yourusername_sns-app_internal_dto_respon\
-                  se.PostListResponse"
+                $ref: "#/components/schemas/response.PostListResponse"
         "401":
           description: Unauthorized
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/github_com_yourusername_sns-app_pkg_errors.ErrorRes\
-                  ponse"
+                $ref: "#/components/schemas/errors.ErrorResponse"
         "500":
           description: Internal Server Error
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/github_com_yourusername_sns-app_pkg_errors.ErrorRes\
-                  ponse"
+                $ref: "#/components/schemas/errors.ErrorResponse"
   /users:
     get:
       description: キーワードでユーザーを検索
@@ -982,22 +897,19 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/github_com_yourusername_sns-app_internal_dto_respon\
-                  se.UserListResponse"
+                $ref: "#/components/schemas/response.UserListResponse"
         "400":
           description: Bad Request
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/github_com_yourusername_sns-app_pkg_errors.ErrorRes\
-                  ponse"
+                $ref: "#/components/schemas/errors.ErrorResponse"
         "500":
           description: Internal Server Error
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/github_com_yourusername_sns-app_pkg_errors.ErrorRes\
-                  ponse"
+                $ref: "#/components/schemas/errors.ErrorResponse"
   /users/me:
     patch:
       security:
@@ -1010,8 +922,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/github_com_yourusername_sns-app_internal_dto_reques\
-                t.UpdateProfileRequest"
+              $ref: "#/components/schemas/request.UpdateProfileRequest"
         description: 更新情報
         required: true
       responses:
@@ -1020,29 +931,25 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/github_com_yourusername_sns-app_internal_dto_respon\
-                  se.UserResponse"
+                $ref: "#/components/schemas/response.UserResponse"
         "400":
           description: Bad Request
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/github_com_yourusername_sns-app_pkg_errors.ErrorRes\
-                  ponse"
+                $ref: "#/components/schemas/errors.ErrorResponse"
         "401":
           description: Unauthorized
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/github_com_yourusername_sns-app_pkg_errors.ErrorRes\
-                  ponse"
+                $ref: "#/components/schemas/errors.ErrorResponse"
         "500":
           description: Internal Server Error
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/github_com_yourusername_sns-app_pkg_errors.ErrorRes\
-                  ponse"
+                $ref: "#/components/schemas/errors.ErrorResponse"
   "/users/{username}":
     get:
       description: ユーザー名からプロフィール情報を取得
@@ -1062,22 +969,19 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/github_com_yourusername_sns-app_internal_dto_respon\
-                  se.UserProfileResponse"
+                $ref: "#/components/schemas/response.UserProfileResponse"
         "404":
           description: Not Found
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/github_com_yourusername_sns-app_pkg_errors.ErrorRes\
-                  ponse"
+                $ref: "#/components/schemas/errors.ErrorResponse"
         "500":
           description: Internal Server Error
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/github_com_yourusername_sns-app_pkg_errors.ErrorRes\
-                  ponse"
+                $ref: "#/components/schemas/errors.ErrorResponse"
   "/users/{username}/follow":
     post:
       security:
@@ -1101,36 +1005,31 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/github_com_yourusername_sns-app_pkg_errors.ErrorRes\
-                  ponse"
+                $ref: "#/components/schemas/errors.ErrorResponse"
         "401":
           description: Unauthorized
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/github_com_yourusername_sns-app_pkg_errors.ErrorRes\
-                  ponse"
+                $ref: "#/components/schemas/errors.ErrorResponse"
         "404":
           description: Not Found
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/github_com_yourusername_sns-app_pkg_errors.ErrorRes\
-                  ponse"
+                $ref: "#/components/schemas/errors.ErrorResponse"
         "409":
           description: 既にフォロー済み
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/github_com_yourusername_sns-app_pkg_errors.ErrorRes\
-                  ponse"
+                $ref: "#/components/schemas/errors.ErrorResponse"
         "500":
           description: Internal Server Error
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/github_com_yourusername_sns-app_pkg_errors.ErrorRes\
-                  ponse"
+                $ref: "#/components/schemas/errors.ErrorResponse"
     delete:
       security:
         - BearerAuth: []
@@ -1153,22 +1052,19 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/github_com_yourusername_sns-app_pkg_errors.ErrorRes\
-                  ponse"
+                $ref: "#/components/schemas/errors.ErrorResponse"
         "404":
           description: Not Found
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/github_com_yourusername_sns-app_pkg_errors.ErrorRes\
-                  ponse"
+                $ref: "#/components/schemas/errors.ErrorResponse"
         "500":
           description: Internal Server Error
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/github_com_yourusername_sns-app_pkg_errors.ErrorRes\
-                  ponse"
+                $ref: "#/components/schemas/errors.ErrorResponse"
   "/users/{username}/followers":
     get:
       description: ユーザーのフォロワー一覧を取得
@@ -1198,22 +1094,19 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/github_com_yourusername_sns-app_internal_dto_respon\
-                  se.FollowListResponse"
+                $ref: "#/components/schemas/response.FollowListResponse"
         "404":
           description: Not Found
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/github_com_yourusername_sns-app_pkg_errors.ErrorRes\
-                  ponse"
+                $ref: "#/components/schemas/errors.ErrorResponse"
         "500":
           description: Internal Server Error
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/github_com_yourusername_sns-app_pkg_errors.ErrorRes\
-                  ponse"
+                $ref: "#/components/schemas/errors.ErrorResponse"
   "/users/{username}/following":
     get:
       description: ユーザーがフォロー中のユーザー一覧を取得
@@ -1243,22 +1136,19 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/github_com_yourusername_sns-app_internal_dto_respon\
-                  se.FollowListResponse"
+                $ref: "#/components/schemas/response.FollowListResponse"
         "404":
           description: Not Found
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/github_com_yourusername_sns-app_pkg_errors.ErrorRes\
-                  ponse"
+                $ref: "#/components/schemas/errors.ErrorResponse"
         "500":
           description: Internal Server Error
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/github_com_yourusername_sns-app_pkg_errors.ErrorRes\
-                  ponse"
+                $ref: "#/components/schemas/errors.ErrorResponse"
   "/users/{username}/posts":
     get:
       description: 指定したユーザー名の投稿一覧を取得
@@ -1288,22 +1178,19 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/github_com_yourusername_sns-app_internal_dto_respon\
-                  se.PostListResponse"
+                $ref: "#/components/schemas/response.PostListResponse"
         "404":
           description: Not Found
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/github_com_yourusername_sns-app_pkg_errors.ErrorRes\
-                  ponse"
+                $ref: "#/components/schemas/errors.ErrorResponse"
         "500":
           description: Internal Server Error
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/github_com_yourusername_sns-app_pkg_errors.ErrorRes\
-                  ponse"
+                $ref: "#/components/schemas/errors.ErrorResponse"
 servers:
   - url: //localhost:8080/api/v1
 components:
@@ -1314,7 +1201,34 @@ components:
       name: Authorization
       in: header
   schemas:
-    github_com_yourusername_sns-app_internal_dto_request.CreateCommentRequest:
+    errors.ErrorDetail:
+      type: object
+      properties:
+        code:
+          type: string
+          example: BAD_REQUEST
+        details:
+          type: array
+          items:
+            $ref: "#/components/schemas/errors.ValidationError"
+        message:
+          type: string
+          example: Invalid request parameters
+    errors.ErrorResponse:
+      type: object
+      properties:
+        error:
+          $ref: "#/components/schemas/errors.ErrorDetail"
+    errors.ValidationError:
+      type: object
+      properties:
+        field:
+          type: string
+          example: email
+        message:
+          type: string
+          example: Invalid email format
+    request.CreateCommentRequest:
       type: object
       required:
         - content
@@ -1327,24 +1241,32 @@ components:
         parent_comment_id:
           type: string
           example: 550e8400-e29b-41d4-a716-446655440000
-    github_com_yourusername_sns-app_internal_dto_request.CreatePostRequest:
+    request.CreatePostRequest:
       type: object
       required:
         - content
+        - visibility
       properties:
         content:
           type: string
           maxLength: 250
           minLength: 1
           example: Hello, world!
-    github_com_yourusername_sns-app_internal_dto_request.CreateReportRequest:
+        visibility:
+          type: string
+          enum:
+            - public
+            - followers
+            - private
+          example: public
+    request.CreateReportRequest:
       type: object
       required:
         - reason
-        - reportable_id
-        - reportable_type
+        - target_id
+        - target_type
       properties:
-        details:
+        comment:
           type: string
           maxLength: 1000
           example: This is spam content
@@ -1352,21 +1274,21 @@ components:
           type: string
           enum:
             - spam
-            - inappropriate
+            - inappropriate_content
             - harassment
             - other
           example: spam
-        reportable_id:
+        target_id:
           type: string
           example: 550e8400-e29b-41d4-a716-446655440000
-        reportable_type:
+        target_type:
           type: string
           enum:
             - Post
             - Comment
             - User
           example: Post
-    github_com_yourusername_sns-app_internal_dto_request.LoginRequest:
+    request.LoginRequest:
       type: object
       required:
         - email
@@ -1378,7 +1300,7 @@ components:
         password:
           type: string
           example: password123
-    github_com_yourusername_sns-app_internal_dto_request.RegisterRequest:
+    request.RegisterRequest:
       type: object
       required:
         - display_name
@@ -1403,19 +1325,27 @@ components:
           maxLength: 50
           minLength: 3
           example: johndoe
-    github_com_yourusername_sns-app_internal_dto_request.UpdatePostRequest:
+    request.UpdatePostRequest:
       type: object
-      required:
-        - content
       properties:
         content:
           type: string
           maxLength: 250
           minLength: 1
           example: Updated content
-    github_com_yourusername_sns-app_internal_dto_request.UpdateProfileRequest:
+        visibility:
+          type: string
+          enum:
+            - public
+            - followers
+            - private
+          example: public
+    request.UpdateProfileRequest:
       type: object
       properties:
+        avatar_url:
+          type: string
+          example: https://example.com/avatar.jpg
         bio:
           type: string
           maxLength: 1000
@@ -1425,45 +1355,42 @@ components:
           maxLength: 100
           minLength: 1
           example: John Doe Updated
-    github_com_yourusername_sns-app_internal_dto_response.AuthResponse:
+        header_url:
+          type: string
+          example: https://example.com/header.jpg
+    response.AuthResponse:
       type: object
       properties:
         token:
           type: string
           example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
         user:
-          $ref: "#/components/schemas/github_com_yourusername_sns-app_internal_dto_respon\
-            se.UserResponse"
-    github_com_yourusername_sns-app_internal_dto_response.BookmarkListResponse:
+          $ref: "#/components/schemas/response.UserResponse"
+    response.BookmarkListResponse:
       type: object
       properties:
-        data:
+        pagination:
+          $ref: "#/components/schemas/response.PaginationResponse"
+        posts:
           type: array
           items:
-            $ref: "#/components/schemas/github_com_yourusername_sns-app_internal_dto_respon\
-              se.PostResponse"
-        pagination:
-          $ref: "#/components/schemas/github_com_yourusername_sns-app_internal_dto_respon\
-            se.PaginationResponse"
-    github_com_yourusername_sns-app_internal_dto_response.CommentListResponse:
+            $ref: "#/components/schemas/response.PostResponse"
+    response.CommentListResponse:
       type: object
       properties:
-        data:
+        comments:
           type: array
           items:
-            $ref: "#/components/schemas/github_com_yourusername_sns-app_internal_dto_respon\
-              se.CommentResponse"
+            $ref: "#/components/schemas/response.CommentResponse"
         pagination:
-          $ref: "#/components/schemas/github_com_yourusername_sns-app_internal_dto_respon\
-            se.PaginationResponse"
-    github_com_yourusername_sns-app_internal_dto_response.CommentResponse:
+          $ref: "#/components/schemas/response.PaginationResponse"
+    response.CommentResponse:
       type: object
       properties:
         child_comments:
           type: array
           items:
-            $ref: "#/components/schemas/github_com_yourusername_sns-app_internal_dto_respon\
-              se.CommentResponse"
+            $ref: "#/components/schemas/response.CommentResponse"
         content:
           type: string
           example: Great post!
@@ -1476,12 +1403,9 @@ components:
         is_liked:
           type: boolean
           example: false
-        like_count:
+        likes_count:
           type: integer
           example: 5
-        parent_comment_id:
-          type: string
-          example: 550e8400-e29b-41d4-a716-446655440000
         post_id:
           type: string
           example: 550e8400-e29b-41d4-a716-446655440000
@@ -1489,42 +1413,33 @@ components:
           type: string
           example: 2025-01-01T00:00:00Z
         user:
-          $ref: "#/components/schemas/github_com_yourusername_sns-app_internal_dto_respon\
-            se.UserSimple"
-        user_id:
-          type: string
-          example: 550e8400-e29b-41d4-a716-446655440000
-    github_com_yourusername_sns-app_internal_dto_response.FollowListResponse:
+          $ref: "#/components/schemas/response.UserSimple"
+    response.FollowListResponse:
       type: object
       properties:
-        data:
+        pagination:
+          $ref: "#/components/schemas/response.PaginationResponse"
+        users:
           type: array
           items:
-            $ref: "#/components/schemas/github_com_yourusername_sns-app_internal_dto_respon\
-              se.UserSimple"
-        pagination:
-          $ref: "#/components/schemas/github_com_yourusername_sns-app_internal_dto_respon\
-            se.PaginationResponse"
-    github_com_yourusername_sns-app_internal_dto_response.NotificationListResponse:
+            $ref: "#/components/schemas/response.UserSimple"
+    response.NotificationListResponse:
       type: object
       properties:
-        data:
+        notifications:
           type: array
           items:
-            $ref: "#/components/schemas/github_com_yourusername_sns-app_internal_dto_respon\
-              se.NotificationResponse"
+            $ref: "#/components/schemas/response.NotificationResponse"
         pagination:
-          $ref: "#/components/schemas/github_com_yourusername_sns-app_internal_dto_respon\
-            se.PaginationResponse"
+          $ref: "#/components/schemas/response.PaginationResponse"
         unread_count:
           type: integer
           example: 5
-    github_com_yourusername_sns-app_internal_dto_response.NotificationResponse:
+    response.NotificationResponse:
       type: object
       properties:
         actor:
-          $ref: "#/components/schemas/github_com_yourusername_sns-app_internal_dto_respon\
-            se.UserSimple"
+          $ref: "#/components/schemas/response.UserSimple"
         created_at:
           type: string
           example: 2025-01-01T00:00:00Z
@@ -1534,16 +1449,19 @@ components:
         is_read:
           type: boolean
           example: false
-        notification_type:
+        message:
           type: string
-          example: like
+          example: "@johndoe liked your post"
         target_id:
           type: string
           example: 550e8400-e29b-41d4-a716-446655440000
         target_type:
           type: string
           example: Post
-    github_com_yourusername_sns-app_internal_dto_response.PaginationResponse:
+        type:
+          type: string
+          example: like
+    response.PaginationResponse:
       type: object
       properties:
         has_more:
@@ -1558,21 +1476,19 @@ components:
         total:
           type: integer
           example: 100
-    github_com_yourusername_sns-app_internal_dto_response.PostListResponse:
+    response.PostListResponse:
       type: object
       properties:
-        data:
+        pagination:
+          $ref: "#/components/schemas/response.PaginationResponse"
+        posts:
           type: array
           items:
-            $ref: "#/components/schemas/github_com_yourusername_sns-app_internal_dto_respon\
-              se.PostResponse"
-        pagination:
-          $ref: "#/components/schemas/github_com_yourusername_sns-app_internal_dto_respon\
-            se.PaginationResponse"
-    github_com_yourusername_sns-app_internal_dto_response.PostResponse:
+            $ref: "#/components/schemas/response.PostResponse"
+    response.PostResponse:
       type: object
       properties:
-        comment_count:
+        comments_count:
           type: integer
           example: 5
         content:
@@ -1584,38 +1500,35 @@ components:
         id:
           type: string
           example: 550e8400-e29b-41d4-a716-446655440000
-        is_bookmarked:
-          type: boolean
-          example: false
         is_liked:
           type: boolean
           example: false
-        like_count:
+        likes_count:
           type: integer
           example: 10
         updated_at:
           type: string
           example: 2025-01-01T00:00:00Z
         user:
-          $ref: "#/components/schemas/github_com_yourusername_sns-app_internal_dto_respon\
-            se.UserSimple"
-        user_id:
+          $ref: "#/components/schemas/response.UserSimple"
+        visibility:
           type: string
-          example: 550e8400-e29b-41d4-a716-446655440000
-    github_com_yourusername_sns-app_internal_dto_response.UserListResponse:
+          example: public
+    response.UserListResponse:
       type: object
       properties:
-        data:
+        pagination:
+          $ref: "#/components/schemas/response.PaginationResponse"
+        users:
           type: array
           items:
-            $ref: "#/components/schemas/github_com_yourusername_sns-app_internal_dto_respon\
-              se.UserSimple"
-        pagination:
-          $ref: "#/components/schemas/github_com_yourusername_sns-app_internal_dto_respon\
-            se.PaginationResponse"
-    github_com_yourusername_sns-app_internal_dto_response.UserProfileResponse:
+            $ref: "#/components/schemas/response.UserSimple"
+    response.UserProfileResponse:
       type: object
       properties:
+        avatar_url:
+          type: string
+          example: https://example.com/avatar.jpg
         bio:
           type: string
           example: Hello, I'm John!
@@ -1625,27 +1538,30 @@ components:
         display_name:
           type: string
           example: John Doe
-        follower_count:
+        followers_count:
           type: integer
           example: 100
         following_count:
           type: integer
           example: 50
+        header_url:
+          type: string
+          example: https://example.com/header.jpg
         id:
           type: string
           example: 550e8400-e29b-41d4-a716-446655440000
-        is_followed_by:
-          type: boolean
-          example: false
-        is_following:
-          type: boolean
-          example: false
+        posts_count:
+          type: integer
+          example: 25
         username:
           type: string
           example: johndoe
-    github_com_yourusername_sns-app_internal_dto_response.UserResponse:
+    response.UserResponse:
       type: object
       properties:
+        avatar_url:
+          type: string
+          example: https://example.com/avatar.jpg
         bio:
           type: string
           example: Hello, I'm John!
@@ -1658,59 +1574,27 @@ components:
         email:
           type: string
           example: user@example.com
-        follower_count:
-          type: integer
-          example: 100
-        following_count:
-          type: integer
-          example: 50
+        header_url:
+          type: string
+          example: https://example.com/header.jpg
         id:
           type: string
           example: 550e8400-e29b-41d4-a716-446655440000
         username:
           type: string
           example: johndoe
-    github_com_yourusername_sns-app_internal_dto_response.UserSimple:
+    response.UserSimple:
       type: object
       properties:
+        avatar_url:
+          type: string
+          example: https://example.com/avatar.jpg
         display_name:
           type: string
           example: John Doe
-        follower_count:
-          type: integer
-          example: 100
         id:
           type: string
           example: 550e8400-e29b-41d4-a716-446655440000
         username:
           type: string
           example: johndoe
-    github_com_yourusername_sns-app_pkg_errors.ErrorDetail:
-      type: object
-      properties:
-        code:
-          type: string
-          example: BAD_REQUEST
-        details:
-          type: array
-          items:
-            $ref: "#/components/schemas/github_com_yourusername_sns-app_pkg_errors.Validati\
-              onError"
-        message:
-          type: string
-          example: Invalid request parameters
-    github_com_yourusername_sns-app_pkg_errors.ErrorResponse:
-      type: object
-      properties:
-        error:
-          $ref: "#/components/schemas/github_com_yourusername_sns-app_pkg_errors.ErrorDet\
-            ail"
-    github_com_yourusername_sns-app_pkg_errors.ValidationError:
-      type: object
-      properties:
-        field:
-          type: string
-          example: email
-        message:
-          type: string
-          example: Invalid email format

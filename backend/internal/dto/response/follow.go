@@ -2,6 +2,6 @@ package response
 
 // FollowListResponse はフォロー/フォロワー一覧レスポンス
 type FollowListResponse struct {
-	Data       []UserSimple       `json:"data"`
+	Users      []UserSimple       `json:"users"`
 	Pagination PaginationResponse `json:"pagination"`
 }

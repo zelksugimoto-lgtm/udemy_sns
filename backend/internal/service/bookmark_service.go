@@ -87,7 +87,23 @@ func (s *bookmarkService) GetBookmarks(userID uuid.UUID, limit, offset int) (*re
 		likesCount, _ := s.postRepo.CountLikes(bookmark.PostID)
 		commentsCount, _ := s.postRepo.CountComments(bookmark.PostID)
 
-		posts[i] = *mapPostToPostResponse(&bookmark.Post, &bookmark.Post.User, int(likesCount), int(commentsCount), false)
+		posts[i] = response.PostResponse{
+			ID:            bookmark.Post.ID,
+			Content:       bookmark.Post.Content,
+			Visibility:    bookmark.Post.Visibility,
+			LikesCount:    int(likesCount),
+			CommentsCount: int(commentsCount),
+			IsLiked:       false, // ブックマーク一覧では計算しない
+			IsBookmarked:  true,  // ブックマーク一覧なので常にtrue
+			User: response.UserSimple{
+				ID:          bookmark.Post.User.ID,
+				Username:    bookmark.Post.User.Username,
+				DisplayName: bookmark.Post.User.DisplayName,
+				AvatarURL:   bookmark.Post.User.AvatarURL,
+			},
+			CreatedAt: bookmark.Post.CreatedAt,
+			UpdatedAt: bookmark.Post.UpdatedAt,
+		}
 	}
 
 	return &response.BookmarkListResponse{

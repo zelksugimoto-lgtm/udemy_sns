@@ -1,18 +1,25 @@
 package handler
 
 import (
+	"net/http"
+	"strconv"
+
+	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
 	"github.com/yourusername/sns-app/internal/dto/request"
-	"github.com/yourusername/sns-app/internal/dto/response"
+	"github.com/yourusername/sns-app/internal/middleware"
+	"github.com/yourusername/sns-app/internal/service"
 	"github.com/yourusername/sns-app/pkg/errors"
 )
 
 type CommentHandler struct {
-	// サービスは後で実装
+	commentService service.CommentService
 }
 
-func NewCommentHandler() *CommentHandler {
-	return &CommentHandler{}
+func NewCommentHandler(commentService service.CommentService) *CommentHandler {
+	return &CommentHandler{
+		commentService: commentService,
+	}
 }
 
 // CreateComment godoc
@@ -31,8 +38,43 @@ func NewCommentHandler() *CommentHandler {
 // @Failure      500      {object}  errors.ErrorResponse
 // @Router       /posts/{id}/comments [post]
 func (h *CommentHandler) CreateComment(c echo.Context) error {
-	// TODO: 実装
-	return c.JSON(201, response.CommentResponse{})
+	// ユーザーIDを取得
+	userID, err := middleware.GetUserID(c)
+	if err != nil {
+		return c.JSON(http.StatusUnauthorized, errors.Unauthorized("認証が必要です"))
+	}
+
+	// 投稿IDを取得
+	postIDStr := c.Param("id")
+	postID, err := uuid.Parse(postIDStr)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, errors.BadRequest("無効な投稿IDです"))
+	}
+
+	// リクエストボディをパース
+	var req request.CreateCommentRequest
+	if err := c.Bind(&req); err != nil {
+		return c.JSON(http.StatusBadRequest, errors.BadRequest("無効なリクエストです"))
+	}
+
+	// バリデーション
+	if req.Content == "" {
+		return c.JSON(http.StatusBadRequest, errors.BadRequest("コメント内容は必須です"))
+	}
+
+	// サービス層を呼び出し
+	comment, err := h.commentService.CreateComment(userID, postID, &req)
+	if err != nil {
+		if err.Error() == "投稿が見つかりません" {
+			return c.JSON(http.StatusNotFound, errors.NotFound("投稿が見つかりません"))
+		}
+		if err.Error() == "親コメントが見つかりません" {
+			return c.JSON(http.StatusNotFound, errors.NotFound("親コメントが見つかりません"))
+		}
+		return c.JSON(http.StatusInternalServerError, errors.InternalError("コメントの作成に失敗しました"))
+	}
+
+	return c.JSON(http.StatusCreated, comment)
 }
 
 // GetComments godoc
@@ -49,8 +91,35 @@ func (h *CommentHandler) CreateComment(c echo.Context) error {
 // @Failure      500     {object}  errors.ErrorResponse
 // @Router       /posts/{id}/comments [get]
 func (h *CommentHandler) GetComments(c echo.Context) error {
-	// TODO: 実装
-	return c.JSON(200, response.CommentListResponse{})
+	// 投稿IDを取得
+	postIDStr := c.Param("id")
+	postID, err := uuid.Parse(postIDStr)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, errors.BadRequest("無効な投稿IDです"))
+	}
+
+	// クエリパラメータを取得
+	limit, _ := strconv.Atoi(c.QueryParam("limit"))
+	offset, _ := strconv.Atoi(c.QueryParam("offset"))
+
+	// デフォルト値設定
+	if limit <= 0 {
+		limit = 20
+	}
+	if offset < 0 {
+		offset = 0
+	}
+
+	// サービス層を呼び出し
+	result, err := h.commentService.GetComments(postID, limit, offset)
+	if err != nil {
+		if err.Error() == "投稿が見つかりません" {
+			return c.JSON(http.StatusNotFound, errors.NotFound("投稿が見つかりません"))
+		}
+		return c.JSON(http.StatusInternalServerError, errors.InternalError("コメント一覧の取得に失敗しました"))
+	}
+
+	return c.JSON(http.StatusOK, result)
 }
 
 // DeleteComment godoc
@@ -68,6 +137,30 @@ func (h *CommentHandler) GetComments(c echo.Context) error {
 // @Failure      500  {object}  errors.ErrorResponse
 // @Router       /comments/{id} [delete]
 func (h *CommentHandler) DeleteComment(c echo.Context) error {
-	// TODO: 実装
-	return c.NoContent(204)
+	// ユーザーIDを取得
+	userID, err := middleware.GetUserID(c)
+	if err != nil {
+		return c.JSON(http.StatusUnauthorized, errors.Unauthorized("認証が必要です"))
+	}
+
+	// コメントIDを取得
+	commentIDStr := c.Param("id")
+	commentID, err := uuid.Parse(commentIDStr)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, errors.BadRequest("無効なコメントIDです"))
+	}
+
+	// サービス層を呼び出し
+	err = h.commentService.DeleteComment(userID, commentID)
+	if err != nil {
+		if err.Error() == "コメントが見つかりません" {
+			return c.JSON(http.StatusNotFound, errors.NotFound("コメントが見つかりません"))
+		}
+		if err.Error() == "このコメントを削除する権限がありません" {
+			return c.JSON(http.StatusForbidden, errors.Forbidden("このコメントを削除する権限がありません"))
+		}
+		return c.JSON(http.StatusInternalServerError, errors.InternalError("コメントの削除に失敗しました"))
+	}
+
+	return c.NoContent(http.StatusNoContent)
 }

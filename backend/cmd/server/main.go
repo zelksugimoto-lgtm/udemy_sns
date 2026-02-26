@@ -76,7 +76,7 @@ func main() {
 	// Services
 	authService := service.NewAuthService(userRepo)
 	userService := service.NewUserService(userRepo, followRepo, postRepo)
-	postService := service.NewPostService(postRepo, userRepo, followRepo, likeRepo)
+	postService := service.NewPostService(postRepo, userRepo, followRepo, likeRepo, bookmarkRepo)
 	commentService := service.NewCommentService(commentRepo, postRepo, userRepo, likeRepo)
 	likeService := service.NewLikeService(likeRepo, postRepo, commentRepo)
 	bookmarkService := service.NewBookmarkService(bookmarkRepo, postRepo)

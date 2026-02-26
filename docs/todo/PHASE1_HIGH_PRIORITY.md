@@ -314,108 +314,109 @@
 ## 3. フロントエンド開発
 
 ### 3.1 プロジェクト初期化
-- [ ] Vite + React + TypeScript プロジェクト作成
-- [ ] 必要なパッケージのインストール
-  - [ ] React Router
-  - [ ] Material-UI (MUI)
-  - [ ] Axios
-  - [ ] React Query (TanStack Query)
-  - [ ] React Hook Form
-  - [ ] Yup
-  - [ ] openapi-typescript
-- [ ] ディレクトリ構造作成
-- [ ] `.env` ファイル作成
+- [x] Vite + React + TypeScript プロジェクト作成
+- [x] 必要なパッケージのインストール
+  - [x] React Router
+  - [x] Material-UI (MUI)
+  - [x] Axios
+  - [x] React Query (TanStack Query)
+  - [x] React Hook Form
+  - [x] Yup
+  - [x] openapi-typescript
+  - [x] date-fns
+  - [x] @mui/icons-material
+- [x] ディレクトリ構造作成
+- [x] `.env` ファイル作成
 
 ### 3.2 型生成・API設定
-- [ ] openapi-typescript で型生成
-  - [ ] `backend/docs/swagger.json` から型生成
-  - [ ] `src/api/generated/` に配置
-- [ ] Axios クライアント設定
-  - [ ] Base URL設定
-  - [ ] インターセプター設定（JWT自動付与、401ハンドリング）
-- [ ] APIエンドポイント定義
-  - [ ] `src/api/endpoints/auth.ts`
-  - [ ] `src/api/endpoints/users.ts`
-  - [ ] `src/api/endpoints/posts.ts`
-  - [ ] `src/api/endpoints/comments.ts`
-  - [ ] `src/api/endpoints/likes.ts`
-  - [ ] `src/api/endpoints/bookmarks.ts`
-  - [ ] `src/api/endpoints/follows.ts`
-  - [ ] `src/api/endpoints/notifications.ts`
-  - [ ] `src/api/endpoints/reports.ts`
+- [x] openapi-typescript で型生成
+  - [x] `backend/docs/openapi.yaml` から型生成
+  - [x] `src/api/generated/schema.ts` に配置
+- [x] Axios クライアント設定
+  - [x] Base URL設定
+  - [x] インターセプター設定（JWT自動付与、401ハンドリング）
+- [x] APIエンドポイント定義
+  - [x] `src/api/endpoints/auth.ts`
+  - [x] `src/api/endpoints/users.ts`
+  - [x] `src/api/endpoints/posts.ts`
+  - [x] `src/api/endpoints/comments.ts`
+  - [x] `src/api/endpoints/bookmarks.ts`
+  - [x] `src/api/endpoints/notifications.ts`
+  - [x] `src/api/endpoints/reports.ts`
 
 ### 3.3 テーマ設定
-- [ ] MUIテーマ作成
-  - [ ] `theme/lightTheme.ts`
-  - [ ] `theme/darkTheme.ts`
-  - [ ] `theme/customTheme.ts` (2パターン)
-- [ ] ThemeContext 作成
-  - [ ] テーマ切り替え機能
-  - [ ] localStorageに永続化
+- [x] MUIテーマ作成
+  - [x] `theme/lightTheme.ts`
+  - [x] `theme/darkTheme.ts`
+  - [ ] `theme/customTheme.ts` (2パターン) ※Phase 2で実装
+- [x] ThemeContext 作成
+  - [x] テーマ切り替え機能
+  - [x] localStorageに永続化
 
 ### 3.4 認証機能
-- [ ] AuthContext 作成
-  - [ ] ユーザー状態管理
-  - [ ] login 関数
-  - [ ] register 関数
-  - [ ] logout 関数
-- [ ] トークン管理ユーティリティ (`utils/storage.ts`)
-- [ ] ProtectedRoute コンポーネント
-- [ ] ログインページ (`pages/Login.tsx`)
-  - [ ] ログインフォーム
-  - [ ] バリデーション
-  - [ ] エラー表示
-- [ ] ユーザー登録ページ (`pages/Register.tsx`)
-  - [ ] 登録フォーム
-  - [ ] パスワード強度インジケーター
-  - [ ] バリデーション
-  - [ ] エラー表示
+- [x] AuthContext 作成
+  - [x] ユーザー状態管理
+  - [x] login 関数
+  - [x] register 関数
+  - [x] logout 関数
+- [x] トークン管理ユーティリティ (`utils/storage.ts`)
+- [x] ProtectedRoute コンポーネント（useEffectでリダイレクト実装）
+- [x] ログインページ (`pages/Login.tsx`)
+  - [x] ログインフォーム
+  - [x] バリデーション
+  - [x] エラー表示
+- [x] ユーザー登録ページ (`pages/Register.tsx`)
+  - [x] 登録フォーム
+  - [ ] パスワード強度インジケーター ※Phase 2で実装
+  - [x] バリデーション
+  - [x] エラー表示
 
 ### 3.5 レイアウト・共通コンポーネント
-- [ ] Layout コンポーネント
-  - [ ] Header
-  - [ ] Sidebar
-  - [ ] Main
-  - [ ] レスポンシブ対応
-- [ ] Header コンポーネント
-  - [ ] ロゴ
-  - [ ] 通知アイコン（未読バッジ）
-  - [ ] ユーザーメニュー
-- [ ] Sidebar コンポーネント
-  - [ ] ナビゲーションリンク
-  - [ ] 投稿ボタン
-- [ ] InfiniteScroll コンポーネント
-  - [ ] 無限スクロール実装
-  - [ ] ローディング表示
-- [ ] その他共通コンポーネント
-  - [ ] Avatar
-  - [ ] Button
-  - [ ] TextField
+- [x] Layout コンポーネント
+  - [x] Header
+  - [x] Sidebar
+  - [x] Main
+  - [x] レスポンシブ対応
+- [x] Header コンポーネント
+  - [x] ロゴ
+  - [x] 通知アイコン（未読バッジ対応）
+  - [x] ユーザーメニュー
+  - [x] テーマ切り替えボタン
+- [x] Sidebar コンポーネント
+  - [x] ナビゲーションリンク
+  - [x] 投稿ボタン
+- [x] InfiniteScroll コンポーネント
+  - [x] 無限スクロール実装（Intersection Observer使用）
+  - [x] ローディング表示
+- [x] その他共通コンポーネント
+  - [x] Avatar (MUIコンポーネント使用)
+  - [x] Button (MUIコンポーネント使用)
+  - [x] TextField (MUIコンポーネント使用)
 
 ### 3.6 ホーム / タイムライン
-- [ ] Timeline ページ (`pages/Home.tsx`)
-  - [ ] 投稿フォーム（上部固定）
-  - [ ] タイムライン表示
-  - [ ] 無限スクロール
-- [ ] PostForm コンポーネント
-  - [ ] テキストエリア（250文字制限、残り文字数表示）
-  - [ ] 投稿ボタン
-  - [ ] バリデーション
-- [ ] PostCard コンポーネント
-  - [ ] ユーザー情報表示
-  - [ ] 投稿日時（相対時間）
-  - [ ] 投稿本文
-  - [ ] アクションボタン（いいね、コメント、ブックマーク、共有、メニュー）
-  - [ ] いいね数・コメント数表示
-- [ ] PostList コンポーネント
-  - [ ] 投稿一覧表示
-  - [ ] 無限スクロール統合
-- [ ] カスタムフック
-  - [ ] `usePosts` - 投稿CRUD、タイムライン取得
-  - [ ] `useInfiniteScroll` - 無限スクロール
+- [x] Timeline ページ (`pages/Home.tsx`)
+  - [x] 投稿フォーム（上部固定）
+  - [x] タイムライン表示
+  - [x] 無限スクロール
+- [x] PostForm コンポーネント
+  - [x] テキストエリア（250文字制限、残り文字数表示）
+  - [x] 投稿ボタン
+  - [x] バリデーション
+- [x] PostCard コンポーネント
+  - [x] ユーザー情報表示
+  - [x] 投稿日時（相対時間）
+  - [x] 投稿本文
+  - [x] アクションボタン（いいね、コメント、ブックマーク、共有、メニュー）
+  - [x] いいね数・コメント数表示
+- [x] PostList コンポーネント（Timeline内に統合）
+  - [x] 投稿一覧表示
+  - [x] 無限スクロール統合
+- [x] カスタムフック
+  - [x] React Query の useInfiniteQuery 使用
+  - [x] Intersection Observer による無限スクロール
 
 ### 3.7 ユーザープロフィール
-- [ ] Profile ページ (`pages/Profile.tsx`)
+- [ ] Profile ページ (`pages/Profile.tsx`) ※Phase 2で実装
   - [ ] ユーザー情報表示
   - [ ] フォローボタン
   - [ ] 投稿一覧
@@ -426,58 +427,49 @@
 - [ ] FollowButton コンポーネント
   - [ ] フォロー/フォロー解除
   - [ ] 状態管理
-- [ ] カスタムフック
-  - [ ] `useUsers` - ユーザー取得、検索
-  - [ ] `useFollow` - フォロー機能
 
 ### 3.8 投稿詳細
-- [ ] PostDetail ページ (`pages/PostDetail.tsx`)
-  - [ ] 投稿内容表示
-  - [ ] コメント一覧
-  - [ ] コメント投稿フォーム
-- [ ] CommentCard コンポーネント
-  - [ ] コメント表示
-  - [ ] いいねボタン
-  - [ ] 返信ボタン
-- [ ] CommentThread コンポーネント
-  - [ ] ネスト構造表示
-  - [ ] 再帰的レンダリング
-- [ ] CommentForm コンポーネント
-  - [ ] コメント投稿フォーム
-  - [ ] 返信フォーム
-- [ ] カスタムフック
-  - [ ] `useComments` - コメントCRUD
+- [x] PostDetail ページ (`pages/PostDetail.tsx`)
+  - [x] 投稿内容表示
+  - [x] コメント一覧
+  - [x] コメント投稿フォーム
+  - [x] 戻るボタン
+- [x] CommentCard コンポーネント
+  - [x] コメント表示
+  - [x] いいねボタン
+  - [x] 返信ボタン
+  - [x] ネスト表示（最大3レベル）
+- [x] CommentForm コンポーネント
+  - [x] コメント投稿フォーム
+  - [x] 返信フォーム
+- [x] カスタムフック
+  - [x] React Query の useMutation 使用
 
 ### 3.9 ブックマーク
-- [ ] Bookmarks ページ (`pages/Bookmarks.tsx`)
-  - [ ] ブックマーク一覧表示
-  - [ ] 無限スクロール
-- [ ] カスタムフック
-  - [ ] `useBookmarks` - ブックマーク機能
+- [x] Bookmarks ページ (`pages/Bookmarks.tsx`)
+  - [x] ブックマーク一覧表示
+  - [x] 通常のリスト表示（無限スクロールはPhase 2で実装）
 
 ### 3.10 通知
-- [ ] Notifications ページ (`pages/Notifications.tsx`)
-  - [ ] 通知一覧表示
-  - [ ] 未読バッジ
-  - [ ] 既読化
-- [ ] NotificationItem コンポーネント
-  - [ ] 通知タイプ別アイコン
-  - [ ] 通知内容表示
-  - [ ] タップで該当投稿へ遷移
-- [ ] カスタムフック
-  - [ ] `useNotifications` - 通知取得、既読化
-  - [ ] 1分間隔ポーリング実装
+- [x] Notifications ページ (`pages/Notifications.tsx`)
+  - [x] 通知一覧表示
+  - [x] 未読バッジ対応
+  - [x] 既読化（自動）
+  - [x] 通知タイプ別アイコン
+  - [x] 通知内容表示
+  - [x] タップで該当投稿へ遷移
+- [ ] 1分間隔ポーリング実装 ※Phase 2で実装
 
 ### 3.11 設定
-- [ ] Settings ページ (`pages/Settings.tsx`)
-  - [ ] プロフィール編集フォーム
-  - [ ] テーマ切り替え
-- [ ] プロフィール編集機能
-  - [ ] 表示名、自己紹介編集
-  - [ ] バリデーション
+- [x] Settings ページ (`pages/Settings.tsx`)
+  - [x] プロフィール編集フォーム
+  - [x] テーマ切り替え
+- [x] プロフィール編集機能
+  - [x] 表示名、自己紹介編集
+  - [x] バリデーション
 
 ### 3.12 ユーザー検索
-- [ ] ユーザー検索機能
+- [ ] ユーザー検索機能 ※Phase 2で実装
   - [ ] 検索フォーム
   - [ ] 検索結果表示
   - [ ] ページネーション
@@ -486,16 +478,16 @@
   - [ ] フォローボタン
 
 ### 3.13 その他機能
-- [ ] 通報機能UI
+- [x] 通報機能UI（メニューに表示、詳細はPhase 2）
   - [ ] 通報ダイアログ
   - [ ] 通報理由選択
   - [ ] 詳細入力
-- [ ] エラーハンドリング
-  - [ ] エラーメッセージ表示
-  - [ ] 401エラー時ログイン画面へリダイレクト
-- [ ] ローディング表示
-  - [ ] ページ読み込み中
-  - [ ] API通信中
+- [x] エラーハンドリング
+  - [x] エラーメッセージ表示
+  - [x] 401エラー時ログイン画面へリダイレクト
+- [x] ローディング表示
+  - [x] ページ読み込み中
+  - [x] API通信中
 
 ---
 

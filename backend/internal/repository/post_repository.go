@@ -87,10 +87,16 @@ func (r *postRepository) GetTimeline(userID uuid.UUID, followingIDs []uuid.UUID,
 	var posts []model.Post
 	var total int64
 
-	// 自分とフォローしているユーザーの投稿を取得
-	userIDs := append(followingIDs, userID)
+	var query *gorm.DB
 
-	query := r.db.Model(&model.Post{}).Where("user_id IN ? AND visibility IN ?", userIDs, []string{"public", "followers"})
+	// Phase 1: フォローIDが空の場合は全ユーザーの公開投稿を取得
+	if len(followingIDs) == 0 {
+		query = r.db.Model(&model.Post{}).Where("visibility = ?", "public")
+	} else {
+		// Phase 2以降: 自分とフォローしているユーザーの投稿を取得
+		userIDs := append(followingIDs, userID)
+		query = r.db.Model(&model.Post{}).Where("user_id IN ? AND visibility IN ?", userIDs, []string{"public", "followers"})
+	}
 
 	// 総数取得
 	if err := query.Count(&total).Error; err != nil {

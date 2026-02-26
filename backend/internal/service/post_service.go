@@ -21,10 +21,11 @@ type PostService interface {
 }
 
 type postService struct {
-	postRepo   repository.PostRepository
-	userRepo   repository.UserRepository
-	followRepo repository.FollowRepository
-	likeRepo   repository.LikeRepository
+	postRepo     repository.PostRepository
+	userRepo     repository.UserRepository
+	followRepo   repository.FollowRepository
+	likeRepo     repository.LikeRepository
+	bookmarkRepo repository.BookmarkRepository
 }
 
 // NewPostService 投稿サービスのコンストラクタ
@@ -33,12 +34,14 @@ func NewPostService(
 	userRepo repository.UserRepository,
 	followRepo repository.FollowRepository,
 	likeRepo repository.LikeRepository,
+	bookmarkRepo repository.BookmarkRepository,
 ) PostService {
 	return &postService{
-		postRepo:   postRepo,
-		userRepo:   userRepo,
-		followRepo: followRepo,
-		likeRepo:   likeRepo,
+		postRepo:     postRepo,
+		userRepo:     userRepo,
+		followRepo:   followRepo,
+		likeRepo:     likeRepo,
+		bookmarkRepo: bookmarkRepo,
 	}
 }
 
@@ -60,7 +63,7 @@ func (s *postService) CreatePost(userID uuid.UUID, req *request.CreatePostReques
 		return nil, err
 	}
 
-	return mapPostToPostResponse(post, user, 0, 0, false), nil
+	return mapPostToPostResponse(post, user, 0, 0, false, false), nil
 }
 
 // GetPost 投稿取得
@@ -77,7 +80,7 @@ func (s *postService) GetPost(postID uuid.UUID) (*response.PostResponse, error) 
 	likesCount, _ := s.postRepo.CountLikes(postID)
 	commentsCount, _ := s.postRepo.CountComments(postID)
 
-	return mapPostToPostResponse(post, &post.User, int(likesCount), int(commentsCount), false), nil
+	return mapPostToPostResponse(post, &post.User, int(likesCount), int(commentsCount), false, false), nil
 }
 
 // UpdatePost 投稿更新
@@ -111,7 +114,7 @@ func (s *postService) UpdatePost(userID uuid.UUID, postID uuid.UUID, req *reques
 	likesCount, _ := s.postRepo.CountLikes(postID)
 	commentsCount, _ := s.postRepo.CountComments(postID)
 
-	return mapPostToPostResponse(post, &post.User, int(likesCount), int(commentsCount), false), nil
+	return mapPostToPostResponse(post, &post.User, int(likesCount), int(commentsCount), false, false), nil
 }
 
 // DeletePost 投稿削除
@@ -133,12 +136,11 @@ func (s *postService) DeletePost(userID uuid.UUID, postID uuid.UUID) error {
 }
 
 // GetTimeline タイムライン取得
+// Phase 1: 全ユーザーの投稿を表示（フォロー機能は Phase 2 で実装）
 func (s *postService) GetTimeline(userID uuid.UUID, limit, offset int) (*response.PostListResponse, error) {
-	// フォロー中のユーザーIDを取得
-	followingIDs, err := s.followRepo.GetFollowingIDs(userID)
-	if err != nil {
-		return nil, err
-	}
+	// Phase 1: 全ユーザーの投稿を取得（公開投稿のみ）
+	// フォロー機能はPhase 2で有効化
+	var followingIDs []uuid.UUID // 空のスライス（全ユーザーを対象）
 
 	// タイムライン取得
 	posts, total, err := s.postRepo.GetTimeline(userID, followingIDs, limit, offset)
@@ -152,8 +154,9 @@ func (s *postService) GetTimeline(userID uuid.UUID, limit, offset int) (*respons
 		likesCount, _ := s.postRepo.CountLikes(post.ID)
 		commentsCount, _ := s.postRepo.CountComments(post.ID)
 		isLiked, _ := s.likeRepo.Exists(userID, "Post", post.ID)
+		isBookmarked, _ := s.bookmarkRepo.Exists(userID, post.ID)
 
-		postResponses[i] = *mapPostToPostResponse(&post, &post.User, int(likesCount), int(commentsCount), isLiked)
+		postResponses[i] = *mapPostToPostResponse(&post, &post.User, int(likesCount), int(commentsCount), isLiked, isBookmarked)
 	}
 
 	return &response.PostListResponse{
@@ -187,7 +190,7 @@ func (s *postService) GetUserPosts(username string, limit, offset int) (*respons
 		likesCount, _ := s.postRepo.CountLikes(post.ID)
 		commentsCount, _ := s.postRepo.CountComments(post.ID)
 
-		postResponses[i] = *mapPostToPostResponse(&post, &post.User, int(likesCount), int(commentsCount), false)
+		postResponses[i] = *mapPostToPostResponse(&post, &post.User, int(likesCount), int(commentsCount), false, false)
 	}
 
 	return &response.PostListResponse{
@@ -201,7 +204,7 @@ func (s *postService) GetUserPosts(username string, limit, offset int) (*respons
 }
 
 // mapPostToPostResponse PostをPostResponseにマッピング
-func mapPostToPostResponse(post *model.Post, user *model.User, likesCount, commentsCount int, isLiked bool) *response.PostResponse {
+func mapPostToPostResponse(post *model.Post, user *model.User, likesCount, commentsCount int, isLiked, isBookmarked bool) *response.PostResponse {
 	return &response.PostResponse{
 		ID:            post.ID,
 		Content:       post.Content,
@@ -209,6 +212,7 @@ func mapPostToPostResponse(post *model.Post, user *model.User, likesCount, comme
 		LikesCount:    likesCount,
 		CommentsCount: commentsCount,
 		IsLiked:       isLiked,
+		IsBookmarked:  isBookmarked,
 		User: response.UserSimple{
 			ID:          user.ID,
 			Username:    user.Username,

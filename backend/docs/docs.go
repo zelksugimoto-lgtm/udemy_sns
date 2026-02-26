@@ -44,7 +44,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_yourusername_sns-app_internal_dto_request.LoginRequest"
+                            "$ref": "#/definitions/request.LoginRequest"
                         }
                     }
                 ],
@@ -52,25 +52,25 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github_com_yourusername_sns-app_internal_dto_response.AuthResponse"
+                            "$ref": "#/definitions/response.AuthResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/github_com_yourusername_sns-app_pkg_errors.ErrorResponse"
+                            "$ref": "#/definitions/errors.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/github_com_yourusername_sns-app_pkg_errors.ErrorResponse"
+                            "$ref": "#/definitions/errors.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/github_com_yourusername_sns-app_pkg_errors.ErrorResponse"
+                            "$ref": "#/definitions/errors.ErrorResponse"
                         }
                     }
                 }
@@ -98,19 +98,19 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github_com_yourusername_sns-app_internal_dto_response.UserResponse"
+                            "$ref": "#/definitions/response.UserResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/github_com_yourusername_sns-app_pkg_errors.ErrorResponse"
+                            "$ref": "#/definitions/errors.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/github_com_yourusername_sns-app_pkg_errors.ErrorResponse"
+                            "$ref": "#/definitions/errors.ErrorResponse"
                         }
                     }
                 }
@@ -136,7 +136,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_yourusername_sns-app_internal_dto_request.RegisterRequest"
+                            "$ref": "#/definitions/request.RegisterRequest"
                         }
                     }
                 ],
@@ -144,25 +144,25 @@ const docTemplate = `{
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/github_com_yourusername_sns-app_internal_dto_response.AuthResponse"
+                            "$ref": "#/definitions/response.AuthResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/github_com_yourusername_sns-app_pkg_errors.ErrorResponse"
+                            "$ref": "#/definitions/errors.ErrorResponse"
                         }
                     },
                     "409": {
                         "description": "Conflict",
                         "schema": {
-                            "$ref": "#/definitions/github_com_yourusername_sns-app_pkg_errors.ErrorResponse"
+                            "$ref": "#/definitions/errors.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/github_com_yourusername_sns-app_pkg_errors.ErrorResponse"
+                            "$ref": "#/definitions/errors.ErrorResponse"
                         }
                     }
                 }
@@ -204,19 +204,19 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github_com_yourusername_sns-app_internal_dto_response.BookmarkListResponse"
+                            "$ref": "#/definitions/response.BookmarkListResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/github_com_yourusername_sns-app_pkg_errors.ErrorResponse"
+                            "$ref": "#/definitions/errors.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/github_com_yourusername_sns-app_pkg_errors.ErrorResponse"
+                            "$ref": "#/definitions/errors.ErrorResponse"
                         }
                     }
                 }
@@ -256,25 +256,25 @@ const docTemplate = `{
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/github_com_yourusername_sns-app_pkg_errors.ErrorResponse"
+                            "$ref": "#/definitions/errors.ErrorResponse"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/github_com_yourusername_sns-app_pkg_errors.ErrorResponse"
+                            "$ref": "#/definitions/errors.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/github_com_yourusername_sns-app_pkg_errors.ErrorResponse"
+                            "$ref": "#/definitions/errors.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/github_com_yourusername_sns-app_pkg_errors.ErrorResponse"
+                            "$ref": "#/definitions/errors.ErrorResponse"
                         }
                     }
                 }
@@ -314,25 +314,25 @@ const docTemplate = `{
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/github_com_yourusername_sns-app_pkg_errors.ErrorResponse"
+                            "$ref": "#/definitions/errors.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/github_com_yourusername_sns-app_pkg_errors.ErrorResponse"
+                            "$ref": "#/definitions/errors.ErrorResponse"
                         }
                     },
                     "409": {
                         "description": "既にいいね済み",
                         "schema": {
-                            "$ref": "#/definitions/github_com_yourusername_sns-app_pkg_errors.ErrorResponse"
+                            "$ref": "#/definitions/errors.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/github_com_yourusername_sns-app_pkg_errors.ErrorResponse"
+                            "$ref": "#/definitions/errors.ErrorResponse"
                         }
                     }
                 }
@@ -370,19 +370,19 @@ const docTemplate = `{
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/github_com_yourusername_sns-app_pkg_errors.ErrorResponse"
+                            "$ref": "#/definitions/errors.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/github_com_yourusername_sns-app_pkg_errors.ErrorResponse"
+                            "$ref": "#/definitions/errors.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/github_com_yourusername_sns-app_pkg_errors.ErrorResponse"
+                            "$ref": "#/definitions/errors.ErrorResponse"
                         }
                     }
                 }
@@ -424,19 +424,19 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github_com_yourusername_sns-app_internal_dto_response.NotificationListResponse"
+                            "$ref": "#/definitions/response.NotificationListResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/github_com_yourusername_sns-app_pkg_errors.ErrorResponse"
+                            "$ref": "#/definitions/errors.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/github_com_yourusername_sns-app_pkg_errors.ErrorResponse"
+                            "$ref": "#/definitions/errors.ErrorResponse"
                         }
                     }
                 }
@@ -467,13 +467,13 @@ const docTemplate = `{
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/github_com_yourusername_sns-app_pkg_errors.ErrorResponse"
+                            "$ref": "#/definitions/errors.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/github_com_yourusername_sns-app_pkg_errors.ErrorResponse"
+                            "$ref": "#/definitions/errors.ErrorResponse"
                         }
                     }
                 }
@@ -513,19 +513,19 @@ const docTemplate = `{
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/github_com_yourusername_sns-app_pkg_errors.ErrorResponse"
+                            "$ref": "#/definitions/errors.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/github_com_yourusername_sns-app_pkg_errors.ErrorResponse"
+                            "$ref": "#/definitions/errors.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/github_com_yourusername_sns-app_pkg_errors.ErrorResponse"
+                            "$ref": "#/definitions/errors.ErrorResponse"
                         }
                     }
                 }
@@ -556,7 +556,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_yourusername_sns-app_internal_dto_request.CreatePostRequest"
+                            "$ref": "#/definitions/request.CreatePostRequest"
                         }
                     }
                 ],
@@ -564,25 +564,25 @@ const docTemplate = `{
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/github_com_yourusername_sns-app_internal_dto_response.PostResponse"
+                            "$ref": "#/definitions/response.PostResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/github_com_yourusername_sns-app_pkg_errors.ErrorResponse"
+                            "$ref": "#/definitions/errors.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/github_com_yourusername_sns-app_pkg_errors.ErrorResponse"
+                            "$ref": "#/definitions/errors.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/github_com_yourusername_sns-app_pkg_errors.ErrorResponse"
+                            "$ref": "#/definitions/errors.ErrorResponse"
                         }
                     }
                 }
@@ -614,19 +614,19 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github_com_yourusername_sns-app_internal_dto_response.PostResponse"
+                            "$ref": "#/definitions/response.PostResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/github_com_yourusername_sns-app_pkg_errors.ErrorResponse"
+                            "$ref": "#/definitions/errors.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/github_com_yourusername_sns-app_pkg_errors.ErrorResponse"
+                            "$ref": "#/definitions/errors.ErrorResponse"
                         }
                     }
                 }
@@ -664,25 +664,25 @@ const docTemplate = `{
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/github_com_yourusername_sns-app_pkg_errors.ErrorResponse"
+                            "$ref": "#/definitions/errors.ErrorResponse"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/github_com_yourusername_sns-app_pkg_errors.ErrorResponse"
+                            "$ref": "#/definitions/errors.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/github_com_yourusername_sns-app_pkg_errors.ErrorResponse"
+                            "$ref": "#/definitions/errors.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/github_com_yourusername_sns-app_pkg_errors.ErrorResponse"
+                            "$ref": "#/definitions/errors.ErrorResponse"
                         }
                     }
                 }
@@ -718,7 +718,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_yourusername_sns-app_internal_dto_request.UpdatePostRequest"
+                            "$ref": "#/definitions/request.UpdatePostRequest"
                         }
                     }
                 ],
@@ -726,37 +726,37 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github_com_yourusername_sns-app_internal_dto_response.PostResponse"
+                            "$ref": "#/definitions/response.PostResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/github_com_yourusername_sns-app_pkg_errors.ErrorResponse"
+                            "$ref": "#/definitions/errors.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/github_com_yourusername_sns-app_pkg_errors.ErrorResponse"
+                            "$ref": "#/definitions/errors.ErrorResponse"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/github_com_yourusername_sns-app_pkg_errors.ErrorResponse"
+                            "$ref": "#/definitions/errors.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/github_com_yourusername_sns-app_pkg_errors.ErrorResponse"
+                            "$ref": "#/definitions/errors.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/github_com_yourusername_sns-app_pkg_errors.ErrorResponse"
+                            "$ref": "#/definitions/errors.ErrorResponse"
                         }
                     }
                 }
@@ -796,25 +796,25 @@ const docTemplate = `{
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/github_com_yourusername_sns-app_pkg_errors.ErrorResponse"
+                            "$ref": "#/definitions/errors.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/github_com_yourusername_sns-app_pkg_errors.ErrorResponse"
+                            "$ref": "#/definitions/errors.ErrorResponse"
                         }
                     },
                     "409": {
                         "description": "既にブックマーク済み",
                         "schema": {
-                            "$ref": "#/definitions/github_com_yourusername_sns-app_pkg_errors.ErrorResponse"
+                            "$ref": "#/definitions/errors.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/github_com_yourusername_sns-app_pkg_errors.ErrorResponse"
+                            "$ref": "#/definitions/errors.ErrorResponse"
                         }
                     }
                 }
@@ -852,19 +852,19 @@ const docTemplate = `{
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/github_com_yourusername_sns-app_pkg_errors.ErrorResponse"
+                            "$ref": "#/definitions/errors.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/github_com_yourusername_sns-app_pkg_errors.ErrorResponse"
+                            "$ref": "#/definitions/errors.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/github_com_yourusername_sns-app_pkg_errors.ErrorResponse"
+                            "$ref": "#/definitions/errors.ErrorResponse"
                         }
                     }
                 }
@@ -908,19 +908,19 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github_com_yourusername_sns-app_internal_dto_response.CommentListResponse"
+                            "$ref": "#/definitions/response.CommentListResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/github_com_yourusername_sns-app_pkg_errors.ErrorResponse"
+                            "$ref": "#/definitions/errors.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/github_com_yourusername_sns-app_pkg_errors.ErrorResponse"
+                            "$ref": "#/definitions/errors.ErrorResponse"
                         }
                     }
                 }
@@ -956,7 +956,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_yourusername_sns-app_internal_dto_request.CreateCommentRequest"
+                            "$ref": "#/definitions/request.CreateCommentRequest"
                         }
                     }
                 ],
@@ -964,31 +964,31 @@ const docTemplate = `{
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/github_com_yourusername_sns-app_internal_dto_response.CommentResponse"
+                            "$ref": "#/definitions/response.CommentResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/github_com_yourusername_sns-app_pkg_errors.ErrorResponse"
+                            "$ref": "#/definitions/errors.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/github_com_yourusername_sns-app_pkg_errors.ErrorResponse"
+                            "$ref": "#/definitions/errors.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/github_com_yourusername_sns-app_pkg_errors.ErrorResponse"
+                            "$ref": "#/definitions/errors.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/github_com_yourusername_sns-app_pkg_errors.ErrorResponse"
+                            "$ref": "#/definitions/errors.ErrorResponse"
                         }
                     }
                 }
@@ -1028,25 +1028,25 @@ const docTemplate = `{
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/github_com_yourusername_sns-app_pkg_errors.ErrorResponse"
+                            "$ref": "#/definitions/errors.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/github_com_yourusername_sns-app_pkg_errors.ErrorResponse"
+                            "$ref": "#/definitions/errors.ErrorResponse"
                         }
                     },
                     "409": {
                         "description": "既にいいね済み",
                         "schema": {
-                            "$ref": "#/definitions/github_com_yourusername_sns-app_pkg_errors.ErrorResponse"
+                            "$ref": "#/definitions/errors.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/github_com_yourusername_sns-app_pkg_errors.ErrorResponse"
+                            "$ref": "#/definitions/errors.ErrorResponse"
                         }
                     }
                 }
@@ -1084,19 +1084,19 @@ const docTemplate = `{
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/github_com_yourusername_sns-app_pkg_errors.ErrorResponse"
+                            "$ref": "#/definitions/errors.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/github_com_yourusername_sns-app_pkg_errors.ErrorResponse"
+                            "$ref": "#/definitions/errors.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/github_com_yourusername_sns-app_pkg_errors.ErrorResponse"
+                            "$ref": "#/definitions/errors.ErrorResponse"
                         }
                     }
                 }
@@ -1127,7 +1127,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_yourusername_sns-app_internal_dto_request.CreateReportRequest"
+                            "$ref": "#/definitions/request.CreateReportRequest"
                         }
                     }
                 ],
@@ -1138,25 +1138,25 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/github_com_yourusername_sns-app_pkg_errors.ErrorResponse"
+                            "$ref": "#/definitions/errors.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/github_com_yourusername_sns-app_pkg_errors.ErrorResponse"
+                            "$ref": "#/definitions/errors.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/github_com_yourusername_sns-app_pkg_errors.ErrorResponse"
+                            "$ref": "#/definitions/errors.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/github_com_yourusername_sns-app_pkg_errors.ErrorResponse"
+                            "$ref": "#/definitions/errors.ErrorResponse"
                         }
                     }
                 }
@@ -1198,19 +1198,19 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github_com_yourusername_sns-app_internal_dto_response.PostListResponse"
+                            "$ref": "#/definitions/response.PostListResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/github_com_yourusername_sns-app_pkg_errors.ErrorResponse"
+                            "$ref": "#/definitions/errors.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/github_com_yourusername_sns-app_pkg_errors.ErrorResponse"
+                            "$ref": "#/definitions/errors.ErrorResponse"
                         }
                     }
                 }
@@ -1254,19 +1254,19 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github_com_yourusername_sns-app_internal_dto_response.UserListResponse"
+                            "$ref": "#/definitions/response.UserListResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/github_com_yourusername_sns-app_pkg_errors.ErrorResponse"
+                            "$ref": "#/definitions/errors.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/github_com_yourusername_sns-app_pkg_errors.ErrorResponse"
+                            "$ref": "#/definitions/errors.ErrorResponse"
                         }
                     }
                 }
@@ -1297,7 +1297,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_yourusername_sns-app_internal_dto_request.UpdateProfileRequest"
+                            "$ref": "#/definitions/request.UpdateProfileRequest"
                         }
                     }
                 ],
@@ -1305,25 +1305,25 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github_com_yourusername_sns-app_internal_dto_response.UserResponse"
+                            "$ref": "#/definitions/response.UserResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/github_com_yourusername_sns-app_pkg_errors.ErrorResponse"
+                            "$ref": "#/definitions/errors.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/github_com_yourusername_sns-app_pkg_errors.ErrorResponse"
+                            "$ref": "#/definitions/errors.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/github_com_yourusername_sns-app_pkg_errors.ErrorResponse"
+                            "$ref": "#/definitions/errors.ErrorResponse"
                         }
                     }
                 }
@@ -1355,19 +1355,19 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github_com_yourusername_sns-app_internal_dto_response.UserProfileResponse"
+                            "$ref": "#/definitions/response.UserProfileResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/github_com_yourusername_sns-app_pkg_errors.ErrorResponse"
+                            "$ref": "#/definitions/errors.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/github_com_yourusername_sns-app_pkg_errors.ErrorResponse"
+                            "$ref": "#/definitions/errors.ErrorResponse"
                         }
                     }
                 }
@@ -1407,31 +1407,31 @@ const docTemplate = `{
                     "400": {
                         "description": "自分自身をフォローできない",
                         "schema": {
-                            "$ref": "#/definitions/github_com_yourusername_sns-app_pkg_errors.ErrorResponse"
+                            "$ref": "#/definitions/errors.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/github_com_yourusername_sns-app_pkg_errors.ErrorResponse"
+                            "$ref": "#/definitions/errors.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/github_com_yourusername_sns-app_pkg_errors.ErrorResponse"
+                            "$ref": "#/definitions/errors.ErrorResponse"
                         }
                     },
                     "409": {
                         "description": "既にフォロー済み",
                         "schema": {
-                            "$ref": "#/definitions/github_com_yourusername_sns-app_pkg_errors.ErrorResponse"
+                            "$ref": "#/definitions/errors.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/github_com_yourusername_sns-app_pkg_errors.ErrorResponse"
+                            "$ref": "#/definitions/errors.ErrorResponse"
                         }
                     }
                 }
@@ -1469,19 +1469,19 @@ const docTemplate = `{
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/github_com_yourusername_sns-app_pkg_errors.ErrorResponse"
+                            "$ref": "#/definitions/errors.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/github_com_yourusername_sns-app_pkg_errors.ErrorResponse"
+                            "$ref": "#/definitions/errors.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/github_com_yourusername_sns-app_pkg_errors.ErrorResponse"
+                            "$ref": "#/definitions/errors.ErrorResponse"
                         }
                     }
                 }
@@ -1525,19 +1525,19 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github_com_yourusername_sns-app_internal_dto_response.FollowListResponse"
+                            "$ref": "#/definitions/response.FollowListResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/github_com_yourusername_sns-app_pkg_errors.ErrorResponse"
+                            "$ref": "#/definitions/errors.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/github_com_yourusername_sns-app_pkg_errors.ErrorResponse"
+                            "$ref": "#/definitions/errors.ErrorResponse"
                         }
                     }
                 }
@@ -1581,19 +1581,19 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github_com_yourusername_sns-app_internal_dto_response.FollowListResponse"
+                            "$ref": "#/definitions/response.FollowListResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/github_com_yourusername_sns-app_pkg_errors.ErrorResponse"
+                            "$ref": "#/definitions/errors.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/github_com_yourusername_sns-app_pkg_errors.ErrorResponse"
+                            "$ref": "#/definitions/errors.ErrorResponse"
                         }
                     }
                 }
@@ -1637,19 +1637,19 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github_com_yourusername_sns-app_internal_dto_response.PostListResponse"
+                            "$ref": "#/definitions/response.PostListResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/github_com_yourusername_sns-app_pkg_errors.ErrorResponse"
+                            "$ref": "#/definitions/errors.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/github_com_yourusername_sns-app_pkg_errors.ErrorResponse"
+                            "$ref": "#/definitions/errors.ErrorResponse"
                         }
                     }
                 }
@@ -1657,7 +1657,47 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "github_com_yourusername_sns-app_internal_dto_request.CreateCommentRequest": {
+        "errors.ErrorDetail": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "string",
+                    "example": "BAD_REQUEST"
+                },
+                "details": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/errors.ValidationError"
+                    }
+                },
+                "message": {
+                    "type": "string",
+                    "example": "Invalid request parameters"
+                }
+            }
+        },
+        "errors.ErrorResponse": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "$ref": "#/definitions/errors.ErrorDetail"
+                }
+            }
+        },
+        "errors.ValidationError": {
+            "type": "object",
+            "properties": {
+                "field": {
+                    "type": "string",
+                    "example": "email"
+                },
+                "message": {
+                    "type": "string",
+                    "example": "Invalid email format"
+                }
+            }
+        },
+        "request.CreateCommentRequest": {
             "type": "object",
             "required": [
                 "content"
@@ -1675,10 +1715,11 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_yourusername_sns-app_internal_dto_request.CreatePostRequest": {
+        "request.CreatePostRequest": {
             "type": "object",
             "required": [
-                "content"
+                "content",
+                "visibility"
             ],
             "properties": {
                 "content": {
@@ -1686,18 +1727,27 @@ const docTemplate = `{
                     "maxLength": 250,
                     "minLength": 1,
                     "example": "Hello, world!"
+                },
+                "visibility": {
+                    "type": "string",
+                    "enum": [
+                        "public",
+                        "followers",
+                        "private"
+                    ],
+                    "example": "public"
                 }
             }
         },
-        "github_com_yourusername_sns-app_internal_dto_request.CreateReportRequest": {
+        "request.CreateReportRequest": {
             "type": "object",
             "required": [
                 "reason",
-                "reportable_id",
-                "reportable_type"
+                "target_id",
+                "target_type"
             ],
             "properties": {
-                "details": {
+                "comment": {
                     "type": "string",
                     "maxLength": 1000,
                     "example": "This is spam content"
@@ -1706,17 +1756,17 @@ const docTemplate = `{
                     "type": "string",
                     "enum": [
                         "spam",
-                        "inappropriate",
+                        "inappropriate_content",
                         "harassment",
                         "other"
                     ],
                     "example": "spam"
                 },
-                "reportable_id": {
+                "target_id": {
                     "type": "string",
                     "example": "550e8400-e29b-41d4-a716-446655440000"
                 },
-                "reportable_type": {
+                "target_type": {
                     "type": "string",
                     "enum": [
                         "Post",
@@ -1727,7 +1777,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_yourusername_sns-app_internal_dto_request.LoginRequest": {
+        "request.LoginRequest": {
             "type": "object",
             "required": [
                 "email",
@@ -1744,7 +1794,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_yourusername_sns-app_internal_dto_request.RegisterRequest": {
+        "request.RegisterRequest": {
             "type": "object",
             "required": [
                 "display_name",
@@ -1776,23 +1826,33 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_yourusername_sns-app_internal_dto_request.UpdatePostRequest": {
+        "request.UpdatePostRequest": {
             "type": "object",
-            "required": [
-                "content"
-            ],
             "properties": {
                 "content": {
                     "type": "string",
                     "maxLength": 250,
                     "minLength": 1,
                     "example": "Updated content"
+                },
+                "visibility": {
+                    "type": "string",
+                    "enum": [
+                        "public",
+                        "followers",
+                        "private"
+                    ],
+                    "example": "public"
                 }
             }
         },
-        "github_com_yourusername_sns-app_internal_dto_request.UpdateProfileRequest": {
+        "request.UpdateProfileRequest": {
             "type": "object",
             "properties": {
+                "avatar_url": {
+                    "type": "string",
+                    "example": "https://example.com/avatar.jpg"
+                },
                 "bio": {
                     "type": "string",
                     "maxLength": 1000,
@@ -1803,10 +1863,14 @@ const docTemplate = `{
                     "maxLength": 100,
                     "minLength": 1,
                     "example": "John Doe Updated"
+                },
+                "header_url": {
+                    "type": "string",
+                    "example": "https://example.com/header.jpg"
                 }
             }
         },
-        "github_com_yourusername_sns-app_internal_dto_response.AuthResponse": {
+        "response.AuthResponse": {
             "type": "object",
             "properties": {
                 "token": {
@@ -1814,45 +1878,45 @@ const docTemplate = `{
                     "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
                 },
                 "user": {
-                    "$ref": "#/definitions/github_com_yourusername_sns-app_internal_dto_response.UserResponse"
+                    "$ref": "#/definitions/response.UserResponse"
                 }
             }
         },
-        "github_com_yourusername_sns-app_internal_dto_response.BookmarkListResponse": {
+        "response.BookmarkListResponse": {
             "type": "object",
             "properties": {
-                "data": {
+                "pagination": {
+                    "$ref": "#/definitions/response.PaginationResponse"
+                },
+                "posts": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/github_com_yourusername_sns-app_internal_dto_response.PostResponse"
+                        "$ref": "#/definitions/response.PostResponse"
+                    }
+                }
+            }
+        },
+        "response.CommentListResponse": {
+            "type": "object",
+            "properties": {
+                "comments": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/response.CommentResponse"
                     }
                 },
                 "pagination": {
-                    "$ref": "#/definitions/github_com_yourusername_sns-app_internal_dto_response.PaginationResponse"
+                    "$ref": "#/definitions/response.PaginationResponse"
                 }
             }
         },
-        "github_com_yourusername_sns-app_internal_dto_response.CommentListResponse": {
-            "type": "object",
-            "properties": {
-                "data": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/github_com_yourusername_sns-app_internal_dto_response.CommentResponse"
-                    }
-                },
-                "pagination": {
-                    "$ref": "#/definitions/github_com_yourusername_sns-app_internal_dto_response.PaginationResponse"
-                }
-            }
-        },
-        "github_com_yourusername_sns-app_internal_dto_response.CommentResponse": {
+        "response.CommentResponse": {
             "type": "object",
             "properties": {
                 "child_comments": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/github_com_yourusername_sns-app_internal_dto_response.CommentResponse"
+                        "$ref": "#/definitions/response.CommentResponse"
                     }
                 },
                 "content": {
@@ -1871,13 +1935,9 @@ const docTemplate = `{
                     "type": "boolean",
                     "example": false
                 },
-                "like_count": {
+                "likes_count": {
                     "type": "integer",
                     "example": 5
-                },
-                "parent_comment_id": {
-                    "type": "string",
-                    "example": "550e8400-e29b-41d4-a716-446655440000"
                 },
                 "post_id": {
                     "type": "string",
@@ -1888,39 +1948,35 @@ const docTemplate = `{
                     "example": "2025-01-01T00:00:00Z"
                 },
                 "user": {
-                    "$ref": "#/definitions/github_com_yourusername_sns-app_internal_dto_response.UserSimple"
-                },
-                "user_id": {
-                    "type": "string",
-                    "example": "550e8400-e29b-41d4-a716-446655440000"
+                    "$ref": "#/definitions/response.UserSimple"
                 }
             }
         },
-        "github_com_yourusername_sns-app_internal_dto_response.FollowListResponse": {
+        "response.FollowListResponse": {
             "type": "object",
             "properties": {
-                "data": {
+                "pagination": {
+                    "$ref": "#/definitions/response.PaginationResponse"
+                },
+                "users": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/github_com_yourusername_sns-app_internal_dto_response.UserSimple"
+                        "$ref": "#/definitions/response.UserSimple"
                     }
-                },
-                "pagination": {
-                    "$ref": "#/definitions/github_com_yourusername_sns-app_internal_dto_response.PaginationResponse"
                 }
             }
         },
-        "github_com_yourusername_sns-app_internal_dto_response.NotificationListResponse": {
+        "response.NotificationListResponse": {
             "type": "object",
             "properties": {
-                "data": {
+                "notifications": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/github_com_yourusername_sns-app_internal_dto_response.NotificationResponse"
+                        "$ref": "#/definitions/response.NotificationResponse"
                     }
                 },
                 "pagination": {
-                    "$ref": "#/definitions/github_com_yourusername_sns-app_internal_dto_response.PaginationResponse"
+                    "$ref": "#/definitions/response.PaginationResponse"
                 },
                 "unread_count": {
                     "type": "integer",
@@ -1928,11 +1984,11 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_yourusername_sns-app_internal_dto_response.NotificationResponse": {
+        "response.NotificationResponse": {
             "type": "object",
             "properties": {
                 "actor": {
-                    "$ref": "#/definitions/github_com_yourusername_sns-app_internal_dto_response.UserSimple"
+                    "$ref": "#/definitions/response.UserSimple"
                 },
                 "created_at": {
                     "type": "string",
@@ -1946,9 +2002,9 @@ const docTemplate = `{
                     "type": "boolean",
                     "example": false
                 },
-                "notification_type": {
+                "message": {
                     "type": "string",
-                    "example": "like"
+                    "example": "@johndoe liked your post"
                 },
                 "target_id": {
                     "type": "string",
@@ -1957,10 +2013,14 @@ const docTemplate = `{
                 "target_type": {
                     "type": "string",
                     "example": "Post"
+                },
+                "type": {
+                    "type": "string",
+                    "example": "like"
                 }
             }
         },
-        "github_com_yourusername_sns-app_internal_dto_response.PaginationResponse": {
+        "response.PaginationResponse": {
             "type": "object",
             "properties": {
                 "has_more": {
@@ -1981,24 +2041,24 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_yourusername_sns-app_internal_dto_response.PostListResponse": {
+        "response.PostListResponse": {
             "type": "object",
             "properties": {
-                "data": {
+                "pagination": {
+                    "$ref": "#/definitions/response.PaginationResponse"
+                },
+                "posts": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/github_com_yourusername_sns-app_internal_dto_response.PostResponse"
+                        "$ref": "#/definitions/response.PostResponse"
                     }
-                },
-                "pagination": {
-                    "$ref": "#/definitions/github_com_yourusername_sns-app_internal_dto_response.PaginationResponse"
                 }
             }
         },
-        "github_com_yourusername_sns-app_internal_dto_response.PostResponse": {
+        "response.PostResponse": {
             "type": "object",
             "properties": {
-                "comment_count": {
+                "comments_count": {
                     "type": "integer",
                     "example": 5
                 },
@@ -2022,7 +2082,7 @@ const docTemplate = `{
                     "type": "boolean",
                     "example": false
                 },
-                "like_count": {
+                "likes_count": {
                     "type": "integer",
                     "example": 10
                 },
@@ -2031,31 +2091,35 @@ const docTemplate = `{
                     "example": "2025-01-01T00:00:00Z"
                 },
                 "user": {
-                    "$ref": "#/definitions/github_com_yourusername_sns-app_internal_dto_response.UserSimple"
+                    "$ref": "#/definitions/response.UserSimple"
                 },
-                "user_id": {
+                "visibility": {
                     "type": "string",
-                    "example": "550e8400-e29b-41d4-a716-446655440000"
+                    "example": "public"
                 }
             }
         },
-        "github_com_yourusername_sns-app_internal_dto_response.UserListResponse": {
+        "response.UserListResponse": {
             "type": "object",
             "properties": {
-                "data": {
+                "pagination": {
+                    "$ref": "#/definitions/response.PaginationResponse"
+                },
+                "users": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/github_com_yourusername_sns-app_internal_dto_response.UserSimple"
+                        "$ref": "#/definitions/response.UserSimple"
                     }
-                },
-                "pagination": {
-                    "$ref": "#/definitions/github_com_yourusername_sns-app_internal_dto_response.PaginationResponse"
                 }
             }
         },
-        "github_com_yourusername_sns-app_internal_dto_response.UserProfileResponse": {
+        "response.UserProfileResponse": {
             "type": "object",
             "properties": {
+                "avatar_url": {
+                    "type": "string",
+                    "example": "https://example.com/avatar.jpg"
+                },
                 "bio": {
                     "type": "string",
                     "example": "Hello, I'm John!"
@@ -2068,7 +2132,7 @@ const docTemplate = `{
                     "type": "string",
                     "example": "John Doe"
                 },
-                "follower_count": {
+                "followers_count": {
                     "type": "integer",
                     "example": 100
                 },
@@ -2076,17 +2140,17 @@ const docTemplate = `{
                     "type": "integer",
                     "example": 50
                 },
+                "header_url": {
+                    "type": "string",
+                    "example": "https://example.com/header.jpg"
+                },
                 "id": {
                     "type": "string",
                     "example": "550e8400-e29b-41d4-a716-446655440000"
                 },
-                "is_followed_by": {
-                    "type": "boolean",
-                    "example": false
-                },
-                "is_following": {
-                    "type": "boolean",
-                    "example": false
+                "posts_count": {
+                    "type": "integer",
+                    "example": 25
                 },
                 "username": {
                     "type": "string",
@@ -2094,9 +2158,13 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_yourusername_sns-app_internal_dto_response.UserResponse": {
+        "response.UserResponse": {
             "type": "object",
             "properties": {
+                "avatar_url": {
+                    "type": "string",
+                    "example": "https://example.com/avatar.jpg"
+                },
                 "bio": {
                     "type": "string",
                     "example": "Hello, I'm John!"
@@ -2113,13 +2181,9 @@ const docTemplate = `{
                     "type": "string",
                     "example": "user@example.com"
                 },
-                "follower_count": {
-                    "type": "integer",
-                    "example": 100
-                },
-                "following_count": {
-                    "type": "integer",
-                    "example": 50
+                "header_url": {
+                    "type": "string",
+                    "example": "https://example.com/header.jpg"
                 },
                 "id": {
                     "type": "string",
@@ -2131,17 +2195,17 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_yourusername_sns-app_internal_dto_response.UserSimple": {
+        "response.UserSimple": {
             "type": "object",
             "properties": {
+                "avatar_url": {
+                    "type": "string",
+                    "example": "https://example.com/avatar.jpg"
+                },
                 "display_name": {
                     "type": "string",
                     "example": "John Doe"
                 },
-                "follower_count": {
-                    "type": "integer",
-                    "example": 100
-                },
                 "id": {
                     "type": "string",
                     "example": "550e8400-e29b-41d4-a716-446655440000"
@@ -2149,46 +2213,6 @@ const docTemplate = `{
                 "username": {
                     "type": "string",
                     "example": "johndoe"
-                }
-            }
-        },
-        "github_com_yourusername_sns-app_pkg_errors.ErrorDetail": {
-            "type": "object",
-            "properties": {
-                "code": {
-                    "type": "string",
-                    "example": "BAD_REQUEST"
-                },
-                "details": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/github_com_yourusername_sns-app_pkg_errors.ValidationError"
-                    }
-                },
-                "message": {
-                    "type": "string",
-                    "example": "Invalid request parameters"
-                }
-            }
-        },
-        "github_com_yourusername_sns-app_pkg_errors.ErrorResponse": {
-            "type": "object",
-            "properties": {
-                "error": {
-                    "$ref": "#/definitions/github_com_yourusername_sns-app_pkg_errors.ErrorDetail"
-                }
-            }
-        },
-        "github_com_yourusername_sns-app_pkg_errors.ValidationError": {
-            "type": "object",
-            "properties": {
-                "field": {
-                    "type": "string",
-                    "example": "email"
-                },
-                "message": {
-                    "type": "string",
-                    "example": "Invalid email format"
                 }
             }
         }

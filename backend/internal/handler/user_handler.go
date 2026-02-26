@@ -1,18 +1,24 @@
 package handler
 
 import (
+	"net/http"
+	"strconv"
+
 	"github.com/labstack/echo/v4"
 	"github.com/yourusername/sns-app/internal/dto/request"
-	"github.com/yourusername/sns-app/internal/dto/response"
+	"github.com/yourusername/sns-app/internal/middleware"
+	"github.com/yourusername/sns-app/internal/service"
 	"github.com/yourusername/sns-app/pkg/errors"
 )
 
 type UserHandler struct {
-	// サービスは後で実装
+	userService service.UserService
 }
 
-func NewUserHandler() *UserHandler {
-	return &UserHandler{}
+func NewUserHandler(userService service.UserService) *UserHandler {
+	return &UserHandler{
+		userService: userService,
+	}
 }
 
 // GetProfile godoc
@@ -27,8 +33,14 @@ func NewUserHandler() *UserHandler {
 // @Failure      500       {object}  errors.ErrorResponse
 // @Router       /users/{username} [get]
 func (h *UserHandler) GetProfile(c echo.Context) error {
-	// TODO: 実装
-	return c.JSON(200, response.UserProfileResponse{})
+	username := c.Param("username")
+
+	result, err := h.userService.GetProfile(username)
+	if err != nil {
+		return c.JSON(http.StatusNotFound, errors.NotFound(err.Error()))
+	}
+
+	return c.JSON(http.StatusOK, result)
 }
 
 // UpdateProfile godoc
@@ -45,8 +57,22 @@ func (h *UserHandler) GetProfile(c echo.Context) error {
 // @Failure      500      {object}  errors.ErrorResponse
 // @Router       /users/me [patch]
 func (h *UserHandler) UpdateProfile(c echo.Context) error {
-	// TODO: 実装
-	return c.JSON(200, response.UserResponse{})
+	userID, err := middleware.GetUserID(c)
+	if err != nil {
+		return c.JSON(http.StatusUnauthorized, errors.Unauthorized(err.Error()))
+	}
+
+	var req request.UpdateProfileRequest
+	if err := c.Bind(&req); err != nil {
+		return c.JSON(http.StatusBadRequest, errors.BadRequest("無効なリクエストです"))
+	}
+
+	result, err := h.userService.UpdateProfile(userID, &req)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, errors.InternalError(err.Error()))
+	}
+
+	return c.JSON(http.StatusOK, result)
 }
 
 // SearchUsers godoc
@@ -63,6 +89,21 @@ func (h *UserHandler) UpdateProfile(c echo.Context) error {
 // @Failure      500     {object}  errors.ErrorResponse
 // @Router       /users [get]
 func (h *UserHandler) SearchUsers(c echo.Context) error {
-	// TODO: 実装
-	return c.JSON(200, response.UserListResponse{})
+	query := c.QueryParam("q")
+	limit, _ := strconv.Atoi(c.QueryParam("limit"))
+	offset, _ := strconv.Atoi(c.QueryParam("offset"))
+
+	if limit <= 0 {
+		limit = 20
+	}
+	if offset < 0 {
+		offset = 0
+	}
+
+	result, err := h.userService.SearchUsers(query, limit, offset)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, errors.InternalError(err.Error()))
+	}
+
+	return c.JSON(http.StatusOK, result)
 }

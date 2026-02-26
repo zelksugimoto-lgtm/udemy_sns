@@ -4,4 +4,6 @@ package request
 type UpdateProfileRequest struct {
 	DisplayName *string `json:"display_name,omitempty" validate:"omitempty,min=1,max=100" example:"John Doe Updated"`
 	Bio         *string `json:"bio,omitempty" validate:"omitempty,max=1000" example:"This is my bio"`
+	AvatarURL   *string `json:"avatar_url,omitempty" validate:"omitempty,url" example:"https://example.com/avatar.jpg"`
+	HeaderURL   *string `json:"header_url,omitempty" validate:"omitempty,url" example:"https://example.com/header.jpg"`
 }
