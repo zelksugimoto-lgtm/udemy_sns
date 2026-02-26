@@ -61,6 +61,7 @@ const Notifications: React.FC = () => {
       case 'like':
         return <FavoriteIcon color="error" />;
       case 'comment':
+      case 'reply':
         return <CommentIcon color="primary" />;
       case 'follow':
         return <PersonAddIcon color="primary" />;
@@ -70,17 +71,52 @@ const Notifications: React.FC = () => {
   };
 
   const getNotificationText = (notification: NotificationResponse) => {
-    const actor = notification.actor_user?.display_name || 'ユーザー';
+    const actorDisplayName = notification.actor?.display_name || 'ユーザー';
+    const actorUsername = notification.actor?.username;
+
+    const handleActorClick = (e: React.MouseEvent) => {
+      e.stopPropagation(); // 通知全体のクリックイベントを止める
+      if (actorUsername) {
+        navigate(`/users/${actorUsername}`);
+      }
+    };
+
+    let actionText = '';
     switch (notification.type) {
       case 'like':
-        return `${actor}があなたの投稿にいいねしました`;
+        actionText = 'があなたの投稿にいいねしました';
+        break;
       case 'comment':
-        return `${actor}があなたの投稿にコメントしました`;
+        actionText = 'があなたの投稿にコメントしました';
+        break;
+      case 'reply':
+        actionText = 'があなたのコメントに返信しました';
+        break;
       case 'follow':
-        return `${actor}があなたをフォローしました`;
+        actionText = 'があなたをフォローしました';
+        break;
       default:
-        return notification.message || '';
+        return <span>{notification.message || ''}</span>;
     }
+
+    return (
+      <span>
+        <Typography
+          component="span"
+          sx={{
+            fontWeight: 700,
+            cursor: 'pointer',
+            '&:hover': {
+              textDecoration: 'underline',
+            },
+          }}
+          onClick={handleActorClick}
+        >
+          {actorDisplayName}
+        </Typography>
+        {actionText}
+      </span>
+    );
   };
 
   const handleNotificationClick = (notification: NotificationResponse) => {
@@ -89,10 +125,13 @@ const Notifications: React.FC = () => {
     }
 
     // 通知タイプに応じて遷移
+    // post_idがある場合は投稿詳細ページへ遷移（コメント・返信・いいね通知）
     if (notification.post_id) {
       navigate(`/posts/${notification.post_id}`);
-    } else if (notification.actor_user?.username) {
-      navigate(`/users/${notification.actor_user.username}`);
+    }
+    // フォロー通知などpost_idがない場合はアクターのプロフィールへ遷移
+    else if (notification.actor?.username) {
+      navigate(`/users/${notification.actor.username}`);
     }
   };
 
@@ -111,7 +150,7 @@ const Notifications: React.FC = () => {
       <Box
         sx={{
           p: 2,
-          borderBottom: 1,
+          borderBottom: '1px solid',
           borderColor: 'divider',
         }}
       >
@@ -158,7 +197,7 @@ const Notifications: React.FC = () => {
               sx={{
                 cursor: 'pointer',
                 backgroundColor: notification.is_read ? 'inherit' : 'action.hover',
-                borderBottom: 1,
+                borderBottom: '1px solid',
                 borderColor: 'divider',
                 '&:hover': {
                   backgroundColor: 'action.selected',
@@ -169,10 +208,10 @@ const Notifications: React.FC = () => {
               <ListItemAvatar>
                 <Box sx={{ position: 'relative' }}>
                   <Avatar
-                    alt={notification.actor_user?.display_name}
-                    src={notification.actor_user?.avatar_url || undefined}
+                    alt={notification.actor?.display_name}
+                    src={notification.actor?.avatar_url || undefined}
                   >
-                    {notification.actor_user?.display_name?.charAt(0).toUpperCase()}
+                    {notification.actor?.display_name?.charAt(0).toUpperCase()}
                   </Avatar>
                   <Box
                     sx={{

@@ -31,3 +31,9 @@ export const markNotificationAsRead = async (id: string): Promise<void> => {
 export const markAllNotificationsAsRead = async (): Promise<void> => {
   await apiClient.post('/notifications/read-all');
 };
+
+// 未読通知数取得
+export const getUnreadCount = async (): Promise<number> => {
+  const response = await apiClient.get<{ count: number }>('/notifications/unread-count');
+  return response.data.count;
+};

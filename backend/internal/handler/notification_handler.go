@@ -130,3 +130,30 @@ func (h *NotificationHandler) MarkAllAsRead(c echo.Context) error {
 
 	return c.NoContent(http.StatusOK)
 }
+
+// GetUnreadCount godoc
+// @Summary      未読通知数取得
+// @Description  ログイン中のユーザーの未読通知数を取得
+// @Tags         notifications
+// @Accept       json
+// @Produce      json
+// @Security     BearerAuth
+// @Success      200  {object}  map[string]int "count: 未読通知数"
+// @Failure      401  {object}  errors.ErrorResponse
+// @Failure      500  {object}  errors.ErrorResponse
+// @Router       /notifications/unread-count [get]
+func (h *NotificationHandler) GetUnreadCount(c echo.Context) error {
+	// ユーザーIDを取得
+	userID, err := middleware.GetUserID(c)
+	if err != nil {
+		return c.JSON(http.StatusUnauthorized, errors.Unauthorized("認証が必要です"))
+	}
+
+	// サービス層を呼び出し
+	count, err := h.notificationService.GetUnreadCount(userID)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, errors.InternalError("未読通知数の取得に失敗しました"))
+	}
+
+	return c.JSON(http.StatusOK, map[string]int64{"count": count})
+}

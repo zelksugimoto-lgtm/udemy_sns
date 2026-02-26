@@ -333,6 +333,35 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/errors.ErrorResponse"
+  /notifications/unread-count:
+    get:
+      security:
+        - BearerAuth: []
+      description: ログイン中のユーザーの未読通知数を取得
+      tags:
+        - notifications
+      summary: 未読通知数取得
+      responses:
+        "200":
+          description: "count: 未読通知数"
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties:
+                  type: integer
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/errors.ErrorResponse"
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/errors.ErrorResponse"
   "/notifications/{id}/read":
     patch:
       security:
@@ -870,6 +899,8 @@ paths:
                 $ref: "#/components/schemas/errors.ErrorResponse"
   /users:
     get:
+      security:
+        - BearerAuth: []
       description: キーワードでユーザーを検索
       tags:
         - users
@@ -952,6 +983,8 @@ paths:
                 $ref: "#/components/schemas/errors.ErrorResponse"
   "/users/{username}":
     get:
+      security:
+        - BearerAuth: []
       description: ユーザー名からプロフィール情報を取得
       tags:
         - users
@@ -1067,6 +1100,8 @@ paths:
                 $ref: "#/components/schemas/errors.ErrorResponse"
   "/users/{username}/followers":
     get:
+      security:
+        - BearerAuth: []
       description: ユーザーのフォロワー一覧を取得
       tags:
         - follows
@@ -1094,7 +1129,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/response.FollowListResponse"
+                $ref: "#/components/schemas/response.UserListResponse"
         "404":
           description: Not Found
           content:
@@ -1109,6 +1144,8 @@ paths:
                 $ref: "#/components/schemas/errors.ErrorResponse"
   "/users/{username}/following":
     get:
+      security:
+        - BearerAuth: []
       description: ユーザーがフォロー中のユーザー一覧を取得
       tags:
         - follows
@@ -1136,7 +1173,51 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/response.FollowListResponse"
+                $ref: "#/components/schemas/response.UserListResponse"
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/errors.ErrorResponse"
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/errors.ErrorResponse"
+  "/users/{username}/likes":
+    get:
+      security:
+        - BearerAuth: []
+      description: 指定したユーザーがいいねした投稿一覧を取得
+      tags:
+        - users
+      summary: ユーザーがいいねした投稿一覧取得
+      parameters:
+        - description: ユーザー名
+          name: username
+          in: path
+          required: true
+          schema:
+            type: string
+        - description: "取得件数（デフォルト: 20）"
+          name: limit
+          in: query
+          schema:
+            type: integer
+        - description: "オフセット（デフォルト: 0）"
+          name: offset
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/response.PostListResponse"
         "404":
           description: Not Found
           content:
@@ -1406,6 +1487,9 @@ components:
         likes_count:
           type: integer
           example: 5
+        parent_comment_id:
+          type: string
+          example: 550e8400-e29b-41d4-a716-446655440000
         post_id:
           type: string
           example: 550e8400-e29b-41d4-a716-446655440000
@@ -1414,15 +1498,6 @@ components:
           example: 2025-01-01T00:00:00Z
         user:
           $ref: "#/components/schemas/response.UserSimple"
-    response.FollowListResponse:
-      type: object
-      properties:
-        pagination:
-          $ref: "#/components/schemas/response.PaginationResponse"
-        users:
-          type: array
-          items:
-            $ref: "#/components/schemas/response.UserSimple"
     response.NotificationListResponse:
       type: object
       properties:
@@ -1452,6 +1527,9 @@ components:
         message:
           type: string
           example: "@johndoe liked your post"
+        post_id:
+          type: string
+          example: 550e8400-e29b-41d4-a716-446655440000
         target_id:
           type: string
           example: 550e8400-e29b-41d4-a716-446655440000
@@ -1500,6 +1578,9 @@ components:
         id:
           type: string
           example: 550e8400-e29b-41d4-a716-446655440000
+        is_bookmarked:
+          type: boolean
+          example: false
         is_liked:
           type: boolean
           example: false
@@ -1550,6 +1631,9 @@ components:
         id:
           type: string
           example: 550e8400-e29b-41d4-a716-446655440000
+        is_following:
+          type: boolean
+          example: false
         posts_count:
           type: integer
           example: 25
@@ -1589,12 +1673,18 @@ components:
         avatar_url:
           type: string
           example: https://example.com/avatar.jpg
+        bio:
+          type: string
+          example: Hello, I'm John!
         display_name:
           type: string
           example: John Doe
         id:
           type: string
           example: 550e8400-e29b-41d4-a716-446655440000
+        is_following:
+          type: boolean
+          example: false
         username:
           type: string
           example: johndoe

@@ -6,6 +6,7 @@ type UpdateProfileRequest = components['schemas']['request.UpdateProfileRequest'
 type UserProfileResponse = components['schemas']['response.UserProfileResponse'];
 type UserListResponse = components['schemas']['response.UserListResponse'];
 type UserResponse = components['schemas']['response.UserResponse'];
+type PostListResponse = components['schemas']['response.PostListResponse'];
 
 interface PaginationParams {
   limit?: number;
@@ -24,14 +25,17 @@ export const updateProfile = async (data: UpdateProfileRequest): Promise<UserRes
   return response.data;
 };
 
+interface SearchParams extends PaginationParams {
+  query: string;
+}
+
 // ユーザー検索
 export const searchUsers = async (
-  query: string,
-  params: PaginationParams = {}
+  params: SearchParams
 ): Promise<UserListResponse> => {
   const response = await apiClient.get<UserListResponse>('/users', {
     params: {
-      q: query,
+      q: params.query,
       limit: params.limit || PAGINATION.DEFAULT_LIMIT,
       offset: params.offset || PAGINATION.DEFAULT_OFFSET,
     },
@@ -69,6 +73,20 @@ export const getFollowing = async (
   params: PaginationParams = {}
 ): Promise<UserListResponse> => {
   const response = await apiClient.get<UserListResponse>(`/users/${username}/following`, {
+    params: {
+      limit: params.limit || PAGINATION.DEFAULT_LIMIT,
+      offset: params.offset || PAGINATION.DEFAULT_OFFSET,
+    },
+  });
+  return response.data;
+};
+
+// ユーザーがいいねした投稿一覧取得
+export const getUserLikedPosts = async (
+  username: string,
+  params: PaginationParams = {}
+): Promise<PostListResponse> => {
+  const response = await apiClient.get<PostListResponse>(`/users/${username}/likes`, {
     params: {
       limit: params.limit || PAGINATION.DEFAULT_LIMIT,
       offset: params.offset || PAGINATION.DEFAULT_OFFSET,

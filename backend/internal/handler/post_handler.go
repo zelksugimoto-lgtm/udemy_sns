@@ -87,8 +87,14 @@ func (h *PostHandler) GetPost(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, errors.BadRequest("無効な投稿IDです"))
 	}
 
+	// オプショナルな認証情報を取得
+	var currentUserID *uuid.UUID
+	if userID, ok := c.Get("user_id").(uuid.UUID); ok {
+		currentUserID = &userID
+	}
+
 	// サービス層を呼び出し
-	post, err := h.postService.GetPost(postID)
+	post, err := h.postService.GetPost(postID, currentUserID)
 	if err != nil {
 		if err.Error() == "record not found" || err.Error() == "投稿が見つかりません" {
 			return c.JSON(http.StatusNotFound, errors.NotFound("投稿が見つかりません"))
@@ -270,8 +276,14 @@ func (h *PostHandler) GetUserPosts(c echo.Context) error {
 		offset = 0
 	}
 
+	// オプショナルな認証情報を取得
+	var currentUserID *uuid.UUID
+	if userID, ok := c.Get("user_id").(uuid.UUID); ok {
+		currentUserID = &userID
+	}
+
 	// サービス層を呼び出し
-	result, err := h.postService.GetUserPosts(username, limit, offset)
+	result, err := h.postService.GetUserPosts(username, limit, offset, currentUserID)
 	if err != nil {
 		if err.Error() == "ユーザーが見つかりません" {
 			return c.JSON(http.StatusNotFound, errors.NotFound("ユーザーが見つかりません"))

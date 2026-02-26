@@ -13,11 +13,12 @@ import (
 // PostService 投稿サービスのインターフェース
 type PostService interface {
 	CreatePost(userID uuid.UUID, req *request.CreatePostRequest) (*response.PostResponse, error)
-	GetPost(postID uuid.UUID) (*response.PostResponse, error)
+	GetPost(postID uuid.UUID, currentUserID *uuid.UUID) (*response.PostResponse, error)
 	UpdatePost(userID uuid.UUID, postID uuid.UUID, req *request.UpdatePostRequest) (*response.PostResponse, error)
 	DeletePost(userID uuid.UUID, postID uuid.UUID) error
 	GetTimeline(userID uuid.UUID, limit, offset int) (*response.PostListResponse, error)
-	GetUserPosts(username string, limit, offset int) (*response.PostListResponse, error)
+	GetUserPosts(username string, limit, offset int, currentUserID *uuid.UUID) (*response.PostListResponse, error)
+	GetUserLikedPosts(username string, limit, offset int, currentUserID *uuid.UUID) (*response.PostListResponse, error)
 }
 
 type postService struct {
@@ -67,7 +68,7 @@ func (s *postService) CreatePost(userID uuid.UUID, req *request.CreatePostReques
 }
 
 // GetPost 投稿取得
-func (s *postService) GetPost(postID uuid.UUID) (*response.PostResponse, error) {
+func (s *postService) GetPost(postID uuid.UUID, currentUserID *uuid.UUID) (*response.PostResponse, error) {
 	post, err := s.postRepo.FindByID(postID)
 	if err != nil {
 		return nil, err
@@ -80,7 +81,14 @@ func (s *postService) GetPost(postID uuid.UUID) (*response.PostResponse, error) 
 	likesCount, _ := s.postRepo.CountLikes(postID)
 	commentsCount, _ := s.postRepo.CountComments(postID)
 
-	return mapPostToPostResponse(post, &post.User, int(likesCount), int(commentsCount), false, false), nil
+	// いいね・ブックマーク状態を確認
+	var isLiked, isBookmarked bool
+	if currentUserID != nil {
+		isLiked, _ = s.likeRepo.Exists(*currentUserID, "Post", postID)
+		isBookmarked, _ = s.bookmarkRepo.Exists(*currentUserID, postID)
+	}
+
+	return mapPostToPostResponse(post, &post.User, int(likesCount), int(commentsCount), isLiked, isBookmarked), nil
 }
 
 // UpdatePost 投稿更新
@@ -159,18 +167,21 @@ func (s *postService) GetTimeline(userID uuid.UUID, limit, offset int) (*respons
 		postResponses[i] = *mapPostToPostResponse(&post, &post.User, int(likesCount), int(commentsCount), isLiked, isBookmarked)
 	}
 
+	hasMore := offset+limit < int(total)
+
 	return &response.PostListResponse{
 		Posts: postResponses,
 		Pagination: response.PaginationResponse{
-			Total:  int(total),
-			Limit:  limit,
-			Offset: offset,
+			Total:   int(total),
+			Limit:   limit,
+			Offset:  offset,
+			HasMore: hasMore,
 		},
 	}, nil
 }
 
 // GetUserPosts ユーザーの投稿一覧取得
-func (s *postService) GetUserPosts(username string, limit, offset int) (*response.PostListResponse, error) {
+func (s *postService) GetUserPosts(username string, limit, offset int, currentUserID *uuid.UUID) (*response.PostListResponse, error) {
 	user, err := s.userRepo.FindByUsername(username)
 	if err != nil {
 		return nil, err
@@ -190,15 +201,69 @@ func (s *postService) GetUserPosts(username string, limit, offset int) (*respons
 		likesCount, _ := s.postRepo.CountLikes(post.ID)
 		commentsCount, _ := s.postRepo.CountComments(post.ID)
 
-		postResponses[i] = *mapPostToPostResponse(&post, &post.User, int(likesCount), int(commentsCount), false, false)
+		// いいね・ブックマーク状態を確認
+		var isLiked, isBookmarked bool
+		if currentUserID != nil {
+			isLiked, _ = s.likeRepo.Exists(*currentUserID, "Post", post.ID)
+			isBookmarked, _ = s.bookmarkRepo.Exists(*currentUserID, post.ID)
+		}
+
+		postResponses[i] = *mapPostToPostResponse(&post, &post.User, int(likesCount), int(commentsCount), isLiked, isBookmarked)
 	}
+
+	hasMore := offset+limit < int(total)
 
 	return &response.PostListResponse{
 		Posts: postResponses,
 		Pagination: response.PaginationResponse{
-			Total:  int(total),
-			Limit:  limit,
-			Offset: offset,
+			Total:   int(total),
+			Limit:   limit,
+			Offset:  offset,
+			HasMore: hasMore,
+		},
+	}, nil
+}
+
+// GetUserLikedPosts ユーザーがいいねした投稿一覧取得
+func (s *postService) GetUserLikedPosts(username string, limit, offset int, currentUserID *uuid.UUID) (*response.PostListResponse, error) {
+	user, err := s.userRepo.FindByUsername(username)
+	if err != nil {
+		return nil, err
+	}
+	if user == nil {
+		return nil, errors.New("ユーザーが見つかりません")
+	}
+
+	posts, total, err := s.postRepo.FindLikedByUser(user.ID, limit, offset)
+	if err != nil {
+		return nil, err
+	}
+
+	// PostResponseに変換
+	postResponses := make([]response.PostResponse, len(posts))
+	for i, post := range posts {
+		likesCount, _ := s.postRepo.CountLikes(post.ID)
+		commentsCount, _ := s.postRepo.CountComments(post.ID)
+
+		// いいね・ブックマーク状態を確認
+		var isLiked, isBookmarked bool
+		if currentUserID != nil {
+			isLiked, _ = s.likeRepo.Exists(*currentUserID, "Post", post.ID)
+			isBookmarked, _ = s.bookmarkRepo.Exists(*currentUserID, post.ID)
+		}
+
+		postResponses[i] = *mapPostToPostResponse(&post, &post.User, int(likesCount), int(commentsCount), isLiked, isBookmarked)
+	}
+
+	hasMore := offset+limit < int(total)
+
+	return &response.PostListResponse{
+		Posts: postResponses,
+		Pagination: response.PaginationResponse{
+			Total:   int(total),
+			Limit:   limit,
+			Offset:  offset,
+			HasMore: hasMore,
 		},
 	}, nil
 }

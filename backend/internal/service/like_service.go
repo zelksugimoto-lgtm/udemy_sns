@@ -17,9 +17,10 @@ type LikeService interface {
 }
 
 type likeService struct {
-	likeRepo    repository.LikeRepository
-	postRepo    repository.PostRepository
-	commentRepo repository.CommentRepository
+	likeRepo            repository.LikeRepository
+	postRepo            repository.PostRepository
+	commentRepo         repository.CommentRepository
+	notificationService NotificationService
 }
 
 // NewLikeService いいねサービスのコンストラクタ
@@ -27,11 +28,13 @@ func NewLikeService(
 	likeRepo repository.LikeRepository,
 	postRepo repository.PostRepository,
 	commentRepo repository.CommentRepository,
+	notificationService NotificationService,
 ) LikeService {
 	return &likeService{
-		likeRepo:    likeRepo,
-		postRepo:    postRepo,
-		commentRepo: commentRepo,
+		likeRepo:            likeRepo,
+		postRepo:            postRepo,
+		commentRepo:         commentRepo,
+		notificationService: notificationService,
 	}
 }
 
@@ -61,7 +64,15 @@ func (s *likeService) LikePost(userID uuid.UUID, postID uuid.UUID) error {
 		LikeableID:   postID,
 	}
 
-	return s.likeRepo.Create(like)
+	// いいねを作成
+	if err := s.likeRepo.Create(like); err != nil {
+		return err
+	}
+
+	// 通知を作成（自分自身の投稿へのいいねは除外される）
+	s.notificationService.CreateLikeNotification(userID, post.UserID, "Post", postID)
+
+	return nil
 }
 
 // UnlikePost 投稿のいいねを解除
@@ -75,7 +86,24 @@ func (s *likeService) UnlikePost(userID uuid.UUID, postID uuid.UUID) error {
 		return errors.New("いいねしていません")
 	}
 
-	return s.likeRepo.Delete(userID, "Post", postID)
+	// 投稿を取得して通知削除のためのuser_idを取得
+	post, err := s.postRepo.FindByID(postID)
+	if err != nil {
+		return err
+	}
+	if post == nil {
+		return errors.New("投稿が見つかりません")
+	}
+
+	// いいね解除
+	if err := s.likeRepo.Delete(userID, "Post", postID); err != nil {
+		return err
+	}
+
+	// 通知を削除
+	s.notificationService.DeleteNotificationByAction(userID, post.UserID, "like", "Post", postID)
+
+	return nil
 }
 
 // LikeComment コメントにいいね
@@ -104,7 +132,15 @@ func (s *likeService) LikeComment(userID uuid.UUID, commentID uuid.UUID) error {
 		LikeableID:   commentID,
 	}
 
-	return s.likeRepo.Create(like)
+	// いいねを作成
+	if err := s.likeRepo.Create(like); err != nil {
+		return err
+	}
+
+	// 通知を作成（自分自身のコメントへのいいねは除外される）
+	s.notificationService.CreateLikeNotification(userID, comment.UserID, "Comment", commentID)
+
+	return nil
 }
 
 // UnlikeComment コメントのいいねを解除
@@ -118,5 +154,22 @@ func (s *likeService) UnlikeComment(userID uuid.UUID, commentID uuid.UUID) error
 		return errors.New("いいねしていません")
 	}
 
-	return s.likeRepo.Delete(userID, "Comment", commentID)
+	// コメントを取得して通知削除のためのuser_idを取得
+	comment, err := s.commentRepo.FindByID(commentID)
+	if err != nil {
+		return err
+	}
+	if comment == nil {
+		return errors.New("コメントが見つかりません")
+	}
+
+	// いいね解除
+	if err := s.likeRepo.Delete(userID, "Comment", commentID); err != nil {
+		return err
+	}
+
+	// 通知を削除
+	s.notificationService.DeleteNotificationByAction(userID, comment.UserID, "like", "Comment", commentID)
+
+	return nil
 }

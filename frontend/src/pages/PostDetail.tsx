@@ -82,7 +82,7 @@ const PostDetail: React.FC = () => {
           alignItems: 'center',
           gap: 2,
           p: 2,
-          borderBottom: 1,
+          borderBottom: '1px solid',
           borderColor: 'divider',
         }}
       >
@@ -98,7 +98,7 @@ const PostDetail: React.FC = () => {
       <PostCard post={post} showActions={true} isDetailView={true} />
 
       {/* Comment Form */}
-      <Box sx={{ p: 2, borderBottom: 1, borderColor: 'divider' }}>
+      <Box sx={{ p: 2, borderBottom: '1px solid', borderColor: 'divider' }}>
         <CommentForm postId={id!} />
       </Box>
 

@@ -11,6 +11,7 @@ import Bookmarks from './pages/Bookmarks';
 import Notifications from './pages/Notifications';
 import Settings from './pages/Settings';
 import Profile from './pages/Profile';
+import Follow from './pages/Follow';
 
 // React Query クライアント作成
 const queryClient = new QueryClient({
@@ -35,6 +36,7 @@ const App: React.FC = () => {
               <Route path="/register" element={<Register />} />
               <Route path="/posts/:id" element={<PostDetail />} />
               <Route path="/users/:username" element={<Profile />} />
+              <Route path="/users/:username/:tab" element={<Follow />} />
               <Route path="/bookmarks" element={<Bookmarks />} />
               <Route path="/notifications" element={<Notifications />} />
               <Route path="/settings" element={<Settings />} />

@@ -19,6 +19,7 @@ export const lightTheme = createTheme({
       primary: '#14171A',
       secondary: '#657786',
     },
+    divider: '#E1E8ED',
     error: {
       main: '#E0245E',
     },

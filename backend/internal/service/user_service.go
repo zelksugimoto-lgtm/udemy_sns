@@ -12,9 +12,9 @@ import (
 
 // UserService ユーザーサービスのインターフェース
 type UserService interface {
-	GetProfile(username string) (*response.UserProfileResponse, error)
+	GetProfile(username string, currentUserID *uuid.UUID) (*response.UserProfileResponse, error)
 	UpdateProfile(userID uuid.UUID, req *request.UpdateProfileRequest) (*response.UserResponse, error)
-	SearchUsers(query string, limit, offset int) (*response.UserListResponse, error)
+	SearchUsers(query string, limit, offset int, currentUserID *uuid.UUID) (*response.UserListResponse, error)
 }
 
 type userService struct {
@@ -37,7 +37,7 @@ func NewUserService(
 }
 
 // GetProfile プロフィール取得
-func (s *userService) GetProfile(username string) (*response.UserProfileResponse, error) {
+func (s *userService) GetProfile(username string, currentUserID *uuid.UUID) (*response.UserProfileResponse, error) {
 	user, err := s.userRepo.FindByUsername(username)
 	if err != nil {
 		return nil, err
@@ -64,6 +64,15 @@ func (s *userService) GetProfile(username string) (*response.UserProfileResponse
 		return nil, err
 	}
 
+	// フォロー状態確認
+	var isFollowing bool
+	if currentUserID != nil && *currentUserID != user.ID {
+		isFollowing, err = s.followRepo.Exists(*currentUserID, user.ID)
+		if err != nil {
+			return nil, err
+		}
+	}
+
 	return &response.UserProfileResponse{
 		ID:             user.ID,
 		Username:       user.Username,
@@ -74,6 +83,7 @@ func (s *userService) GetProfile(username string) (*response.UserProfileResponse
 		FollowersCount: int(followersCount),
 		FollowingCount: int(followingCount),
 		PostsCount:     int(postsCount),
+		IsFollowing:    &isFollowing,
 		CreatedAt:      user.CreatedAt,
 	}, nil
 }
@@ -119,7 +129,7 @@ func (s *userService) UpdateProfile(userID uuid.UUID, req *request.UpdateProfile
 }
 
 // SearchUsers ユーザー検索
-func (s *userService) SearchUsers(query string, limit, offset int) (*response.UserListResponse, error) {
+func (s *userService) SearchUsers(query string, limit, offset int, currentUserID *uuid.UUID) (*response.UserListResponse, error) {
 	users, total, err := s.userRepo.Search(query, limit, offset)
 	if err != nil {
 		return nil, err
@@ -127,25 +137,35 @@ func (s *userService) SearchUsers(query string, limit, offset int) (*response.Us
 
 	userSimples := make([]response.UserSimple, len(users))
 	for i, user := range users {
-		userSimples[i] = mapUserToUserSimple(&user)
+		userSimples[i] = s.mapUserToUserSimple(&user, currentUserID)
 	}
+
+	hasMore := offset+limit < int(total)
 
 	return &response.UserListResponse{
 		Users: userSimples,
 		Pagination: response.PaginationResponse{
-			Total:  int(total),
-			Limit:  limit,
-			Offset: offset,
+			Total:   int(total),
+			Limit:   limit,
+			Offset:  offset,
+			HasMore: hasMore,
 		},
 	}, nil
 }
 
 // mapUserToUserSimple UserをUserSimpleにマッピング
-func mapUserToUserSimple(user *model.User) response.UserSimple {
+func (s *userService) mapUserToUserSimple(user *model.User, currentUserID *uuid.UUID) response.UserSimple {
+	var isFollowing bool
+	if currentUserID != nil && *currentUserID != user.ID {
+		isFollowing, _ = s.followRepo.Exists(*currentUserID, user.ID)
+	}
+
 	return response.UserSimple{
 		ID:          user.ID,
 		Username:    user.Username,
 		DisplayName: user.DisplayName,
+		Bio:         user.Bio,
 		AvatarURL:   user.AvatarURL,
+		IsFollowing: &isFollowing,
 	}
 }

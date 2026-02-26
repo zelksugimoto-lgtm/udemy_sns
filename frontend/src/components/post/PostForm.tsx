@@ -73,7 +73,7 @@ const PostForm: React.FC = () => {
       elevation={0}
       sx={{
         p: 2,
-        borderBottom: 1,
+        borderBottom: '1px solid',
         borderColor: 'divider',
       }}
     >

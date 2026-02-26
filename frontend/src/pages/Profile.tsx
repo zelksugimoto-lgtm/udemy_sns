@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import {
   Box,
   Avatar,
@@ -10,7 +10,7 @@ import {
   Tabs,
   Tab,
 } from '@mui/material';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '../contexts/AuthContext';
 import Layout from '../components/common/Layout';
 import PostCard from '../components/post/PostCard';
@@ -21,8 +21,34 @@ import * as bookmarksApi from '../api/endpoints/bookmarks';
 const Profile: React.FC = () => {
   const { username } = useParams<{ username: string }>();
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const queryClient = useQueryClient();
   const { user: currentUser, isAuthenticated, isLoading: authLoading } = useAuth();
-  const [tabValue, setTabValue] = useState(0);
+
+  // プロフィール情報から自分のプロフィールかどうかを判定
+  const isOwnProfile = currentUser?.username === username;
+
+  // URLのクエリパラメータからタブを取得
+  const getTabFromParam = (tab: string | null): number => {
+    switch (tab) {
+      case 'posts':
+        return 0;
+      case 'likes':
+        return 1;
+      case 'bookmarks':
+        return isOwnProfile ? 2 : 0;
+      default:
+        return 0;
+    }
+  };
+
+  const [tabValue, setTabValue] = useState(() => getTabFromParam(searchParams.get('tab')));
+
+  // URLパラメータが変更されたらタブも変更
+  useEffect(() => {
+    const tab = searchParams.get('tab');
+    setTabValue(getTabFromParam(tab));
+  }, [searchParams, isOwnProfile]);
 
   useEffect(() => {
     if (!authLoading && !isAuthenticated) {
@@ -39,18 +65,53 @@ const Profile: React.FC = () => {
   const { data: postsData, isLoading: postsLoading } = useQuery({
     queryKey: ['userPosts', username],
     queryFn: () => postsApi.getUserPosts(username!, { limit: 20, offset: 0 }),
-    enabled: !!username,
+    enabled: !!username && tabValue === 0,
   });
 
-  // プロフィール情報から自分のプロフィールかどうかを判定
-  const isOwnProfile = currentUser?.username === username;
+  // いいねした投稿一覧取得
+  const { data: likedPostsData, isLoading: likedPostsLoading } = useQuery({
+    queryKey: ['userLikedPosts', username],
+    queryFn: () => usersApi.getUserLikedPosts(username!, { limit: 20, offset: 0 }),
+    enabled: !!username && tabValue === 1,
+  });
 
   // ブックマーク一覧取得（自分のプロフィールの場合のみ）
   const { data: bookmarksData, isLoading: bookmarksLoading } = useQuery({
     queryKey: ['bookmarks'],
     queryFn: () => bookmarksApi.getBookmarks({ limit: 20, offset: 0 }),
-    enabled: isOwnProfile,
+    enabled: isOwnProfile && tabValue === 2,
   });
+
+  // フォロー/フォロー解除ミューテーション
+  const followMutation = useMutation({
+    mutationFn: () => usersApi.followUser(username!),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['profile', username] });
+    },
+  });
+
+  const unfollowMutation = useMutation({
+    mutationFn: () => usersApi.unfollowUser(username!),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['profile', username] });
+    },
+  });
+
+  const handleFollowToggle = () => {
+    if (profile?.is_following) {
+      unfollowMutation.mutate();
+    } else {
+      followMutation.mutate();
+    }
+  };
+
+  // タブ変更時にURLも更新
+  const handleTabChange = (_: React.SyntheticEvent, newValue: number) => {
+    setTabValue(newValue);
+    const tabNames = ['posts', 'likes', 'bookmarks'];
+    const tabName = tabNames[newValue];
+    setSearchParams({ tab: tabName });
+  };
 
   if (authLoading || profileLoading) {
     return (
@@ -73,6 +134,7 @@ const Profile: React.FC = () => {
   }
 
   const posts = postsData?.posts || [];
+  const likedPosts = likedPostsData?.posts || [];
   const bookmarkedPosts = bookmarksData?.posts || [];
 
   return (
@@ -86,7 +148,13 @@ const Profile: React.FC = () => {
           {isOwnProfile ? (
             <Button variant="outlined" onClick={() => navigate('/settings')}>プロフィール編集</Button>
           ) : (
-            <Button variant="contained">フォロー</Button>
+            <Button
+              variant={profile.is_following ? "outlined" : "contained"}
+              onClick={handleFollowToggle}
+              disabled={followMutation.isPending || unfollowMutation.isPending}
+            >
+              {profile.is_following ? 'フォロー解除' : 'フォロー'}
+            </Button>
           )}
         </Box>
         <Typography variant="h5" sx={{ fontWeight: 700, mb: 0.5 }}>{profile.display_name}</Typography>
@@ -94,13 +162,25 @@ const Profile: React.FC = () => {
         {profile.bio && (<Typography variant="body1" sx={{ mb: 2, whiteSpace: 'pre-wrap' }}>{profile.bio}</Typography>)}
         <Box sx={{ display: 'flex', gap: 3, mb: 2 }}>
           <Typography variant="body2"><strong>{profile.posts_count || 0}</strong> 投稿</Typography>
-          <Typography variant="body2"><strong>{profile.following_count || 0}</strong> フォロー中</Typography>
-          <Typography variant="body2"><strong>{profile.followers_count || 0}</strong> フォロワー</Typography>
+          <Typography
+            variant="body2"
+            sx={{ cursor: 'pointer', '&:hover': { textDecoration: 'underline' } }}
+            onClick={() => navigate(`/users/${username}/following`)}
+          >
+            <strong>{profile.following_count || 0}</strong> フォロー中
+          </Typography>
+          <Typography
+            variant="body2"
+            sx={{ cursor: 'pointer', '&:hover': { textDecoration: 'underline' } }}
+            onClick={() => navigate(`/users/${username}/followers`)}
+          >
+            <strong>{profile.followers_count || 0}</strong> フォロワー
+          </Typography>
         </Box>
-        <Tabs value={tabValue} onChange={(_, newValue) => setTabValue(newValue)}>
+        <Tabs value={tabValue} onChange={handleTabChange}>
           <Tab label="投稿" />
-          <Tab label="いいね" disabled />
-          <Tab label="ブックマーク" disabled={!isOwnProfile} />
+          <Tab label="いいね" />
+          {isOwnProfile && <Tab label="ブックマーク" />}
         </Tabs>
       </Box>
       <Box>
@@ -116,6 +196,21 @@ const Profile: React.FC = () => {
               </Box>
             ) : (
               posts.map((post) => <PostCard key={post.id} post={post} />)
+            )}
+          </>
+        )}
+        {tabValue === 1 && (
+          <>
+            {likedPostsLoading ? (
+              <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', py: 4 }}>
+                <CircularProgress />
+              </Box>
+            ) : likedPosts.length === 0 ? (
+              <Box sx={{ p: 4, textAlign: 'center' }}>
+                <Typography variant="body1" color="text.secondary">いいねした投稿がありません</Typography>
+              </Box>
+            ) : (
+              likedPosts.map((post) => <PostCard key={post.id} post={post} />)
             )}
           </>
         )}

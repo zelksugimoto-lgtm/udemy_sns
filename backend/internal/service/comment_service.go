@@ -18,10 +18,11 @@ type CommentService interface {
 }
 
 type commentService struct {
-	commentRepo repository.CommentRepository
-	postRepo    repository.PostRepository
-	userRepo    repository.UserRepository
-	likeRepo    repository.LikeRepository
+	commentRepo         repository.CommentRepository
+	postRepo            repository.PostRepository
+	userRepo            repository.UserRepository
+	likeRepo            repository.LikeRepository
+	notificationService NotificationService
 }
 
 // NewCommentService コメントサービスのコンストラクタ
@@ -30,12 +31,14 @@ func NewCommentService(
 	postRepo repository.PostRepository,
 	userRepo repository.UserRepository,
 	likeRepo repository.LikeRepository,
+	notificationService NotificationService,
 ) CommentService {
 	return &commentService{
-		commentRepo: commentRepo,
-		postRepo:    postRepo,
-		userRepo:    userRepo,
-		likeRepo:    likeRepo,
+		commentRepo:         commentRepo,
+		postRepo:            postRepo,
+		userRepo:            userRepo,
+		likeRepo:            likeRepo,
+		notificationService: notificationService,
 	}
 }
 
@@ -58,8 +61,9 @@ func (s *commentService) CreateComment(userID uuid.UUID, postID uuid.UUID, req *
 	}
 
 	// 親コメントが指定されている場合、存在確認
+	var parentComment *model.Comment
 	if req.ParentCommentID != nil {
-		parentComment, err := s.commentRepo.FindByID(*req.ParentCommentID)
+		parentComment, err = s.commentRepo.FindByID(*req.ParentCommentID)
 		if err != nil {
 			return nil, err
 		}
@@ -70,6 +74,15 @@ func (s *commentService) CreateComment(userID uuid.UUID, postID uuid.UUID, req *
 
 	if err := s.commentRepo.Create(comment); err != nil {
 		return nil, err
+	}
+
+	// 通知を作成
+	if parentComment != nil {
+		// 返信通知（親コメントの投稿者に通知）
+		s.notificationService.CreateReplyNotification(userID, parentComment.UserID, parentComment.ID, postID)
+	} else {
+		// コメント通知（投稿者に通知）
+		s.notificationService.CreateCommentNotification(userID, post.UserID, postID)
 	}
 
 	// ユーザー情報を取得
@@ -97,32 +110,55 @@ func (s *commentService) GetComments(postID uuid.UUID, limit, offset int) (*resp
 		return nil, err
 	}
 
-	// CommentResponseに変換
+	// CommentResponseに変換（ツリー構造）
 	commentResponses := make([]response.CommentResponse, len(comments))
 	for i, comment := range comments {
-		likesCount, _ := s.commentRepo.CountLikes(comment.ID)
-
-		// 子コメントを変換
-		var childComments []response.CommentResponse
-		if len(comment.ChildComments) > 0 {
-			childComments = make([]response.CommentResponse, len(comment.ChildComments))
-			for j, child := range comment.ChildComments {
-				childLikesCount, _ := s.commentRepo.CountLikes(child.ID)
-				childComments[j] = *mapCommentToCommentResponse(&child, &child.User, int(childLikesCount), false, nil)
-			}
-		}
-
-		commentResponses[i] = *mapCommentToCommentResponse(&comment, &comment.User, int(likesCount), false, childComments)
+		commentResponses[i] = s.buildCommentResponse(&comment)
 	}
+
+	hasMore := offset+limit < int(total)
 
 	return &response.CommentListResponse{
 		Comments: commentResponses,
 		Pagination: response.PaginationResponse{
-			Total:  int(total),
-			Limit:  limit,
-			Offset: offset,
+			Total:   int(total),
+			Limit:   limit,
+			Offset:  offset,
+			HasMore: hasMore,
 		},
 	}, nil
+}
+
+// buildCommentResponse コメントをレスポンス形式に変換（再帰的に子コメントも変換）
+func (s *commentService) buildCommentResponse(comment *model.Comment) response.CommentResponse {
+	likesCount, _ := s.commentRepo.CountLikes(comment.ID)
+
+	// 子コメントを再帰的に変換
+	var childResponses []response.CommentResponse
+	if len(comment.ChildComments) > 0 {
+		childResponses = make([]response.CommentResponse, len(comment.ChildComments))
+		for i, childComment := range comment.ChildComments {
+			childResponses[i] = s.buildCommentResponse(&childComment)
+		}
+	}
+
+	return response.CommentResponse{
+		ID:            comment.ID,
+		PostID:        comment.PostID,
+		Content:       comment.Content,
+		LikesCount:    int(likesCount),
+		IsLiked:       false, // TODO: ログインユーザーのいいね状態を確認
+		User: response.UserSimple{
+			ID:          comment.User.ID,
+			Username:    comment.User.Username,
+			DisplayName: comment.User.DisplayName,
+			AvatarURL:   comment.User.AvatarURL,
+		},
+		ParentCommentID: comment.ParentCommentID,
+		ChildComments:   childResponses,
+		CreatedAt:       comment.CreatedAt,
+		UpdatedAt:       comment.UpdatedAt,
+	}
 }
 
 // DeleteComment コメント削除

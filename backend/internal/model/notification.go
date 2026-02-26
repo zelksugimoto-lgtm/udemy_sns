@@ -10,6 +10,7 @@ type Notification struct {
 	Type       string     `gorm:"type:varchar(50);not null;index" json:"type"`                                    // like, comment, follow, mention
 	TargetType *string    `gorm:"type:varchar(50);index:idx_notifications_target" json:"target_type,omitempty"`  // Post, Comment
 	TargetID   *uuid.UUID `gorm:"type:uuid;index:idx_notifications_target" json:"target_id,omitempty"`           // 対象のID
+	PostID     *uuid.UUID `gorm:"type:uuid;index" json:"post_id,omitempty"`                                       // 関連する投稿ID（コメント・返信通知用）
 	Message    string     `gorm:"type:text;not null" json:"message"`                                              // 通知メッセージ
 	IsRead     bool       `gorm:"not null;default:false;index" json:"is_read"`                                    // 既読フラグ
 

@@ -40,14 +40,28 @@ const PostCard: React.FC<PostCardProps> = ({ post, showActions = true, isDetailV
   const queryClient = useQueryClient();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
-  const isLiked = post.is_liked || false;
-  const isBookmarked = post.is_bookmarked || false;
+  // ローカル状態で管理（楽観的更新用）
+  const [isLiked, setIsLiked] = useState(post.is_liked || false);
+  const [isBookmarked, setIsBookmarked] = useState(post.is_bookmarked || false);
+  const [likesCount, setLikesCount] = useState(post.likes_count || 0);
+
   const isOwnPost = user?.id === post.user?.id;
+
+  // propsが更新されたらローカル状態も更新
+  React.useEffect(() => {
+    setIsLiked(post.is_liked || false);
+    setIsBookmarked(post.is_bookmarked || false);
+    setLikesCount(post.likes_count || 0);
+  }, [post.id, post.is_liked, post.is_bookmarked, post.likes_count]);
 
   // いいね機能（楽観的更新）
   const likeMutation = useMutation({
     mutationFn: () => postsApi.likePost(post.id),
     onMutate: async () => {
+      // ローカル状態を即座に更新
+      setIsLiked(true);
+      setLikesCount((prev) => prev + 1);
+
       await queryClient.cancelQueries({ queryKey: ['timeline'] });
       await queryClient.cancelQueries({ queryKey: ['post', post.id] });
       await queryClient.cancelQueries({ queryKey: ['userPosts'] });
@@ -89,16 +103,34 @@ const PostCard: React.FC<PostCardProps> = ({ post, showActions = true, isDetailV
         }
       });
     },
-    onError: () => {
+    onSuccess: () => {
+      // 成功時はサーバーから最新データを取得
       queryClient.invalidateQueries({ queryKey: ['timeline'] });
       queryClient.invalidateQueries({ queryKey: ['post', post.id] });
       queryClient.invalidateQueries({ queryKey: ['userPosts'] });
+      queryClient.invalidateQueries({ queryKey: ['userLikedPosts'] });
+      queryClient.invalidateQueries({ queryKey: ['bookmarks'] });
+    },
+    onError: () => {
+      // エラー時は元に戻す
+      setIsLiked(post.is_liked || false);
+      setLikesCount(post.likes_count || 0);
+
+      queryClient.invalidateQueries({ queryKey: ['timeline'] });
+      queryClient.invalidateQueries({ queryKey: ['post', post.id] });
+      queryClient.invalidateQueries({ queryKey: ['userPosts'] });
+      queryClient.invalidateQueries({ queryKey: ['userLikedPosts'] });
+      queryClient.invalidateQueries({ queryKey: ['bookmarks'] });
     },
   });
 
   const unlikeMutation = useMutation({
     mutationFn: () => postsApi.unlikePost(post.id),
     onMutate: async () => {
+      // ローカル状態を即座に更新
+      setIsLiked(false);
+      setLikesCount((prev) => Math.max(prev - 1, 0));
+
       await queryClient.cancelQueries({ queryKey: ['timeline'] });
       await queryClient.cancelQueries({ queryKey: ['post', post.id] });
       await queryClient.cancelQueries({ queryKey: ['userPosts'] });
@@ -140,10 +172,24 @@ const PostCard: React.FC<PostCardProps> = ({ post, showActions = true, isDetailV
         }
       });
     },
-    onError: () => {
+    onSuccess: () => {
+      // 成功時はサーバーから最新データを取得
       queryClient.invalidateQueries({ queryKey: ['timeline'] });
       queryClient.invalidateQueries({ queryKey: ['post', post.id] });
       queryClient.invalidateQueries({ queryKey: ['userPosts'] });
+      queryClient.invalidateQueries({ queryKey: ['userLikedPosts'] });
+      queryClient.invalidateQueries({ queryKey: ['bookmarks'] });
+    },
+    onError: () => {
+      // エラー時は元に戻す
+      setIsLiked(post.is_liked || false);
+      setLikesCount(post.likes_count || 0);
+
+      queryClient.invalidateQueries({ queryKey: ['timeline'] });
+      queryClient.invalidateQueries({ queryKey: ['post', post.id] });
+      queryClient.invalidateQueries({ queryKey: ['userPosts'] });
+      queryClient.invalidateQueries({ queryKey: ['userLikedPosts'] });
+      queryClient.invalidateQueries({ queryKey: ['bookmarks'] });
     },
   });
 
@@ -151,6 +197,9 @@ const PostCard: React.FC<PostCardProps> = ({ post, showActions = true, isDetailV
   const bookmarkMutation = useMutation({
     mutationFn: () => postsApi.bookmarkPost(post.id),
     onMutate: async () => {
+      // ローカル状態を即座に更新
+      setIsBookmarked(true);
+
       await queryClient.cancelQueries({ queryKey: ['timeline'] });
       await queryClient.cancelQueries({ queryKey: ['post', post.id] });
       await queryClient.cancelQueries({ queryKey: ['userPosts'] });
@@ -188,10 +237,22 @@ const PostCard: React.FC<PostCardProps> = ({ post, showActions = true, isDetailV
         }
       });
     },
-    onError: () => {
+    onSuccess: () => {
+      // 成功時はサーバーから最新データを取得
       queryClient.invalidateQueries({ queryKey: ['timeline'] });
       queryClient.invalidateQueries({ queryKey: ['post', post.id] });
       queryClient.invalidateQueries({ queryKey: ['userPosts'] });
+      queryClient.invalidateQueries({ queryKey: ['userLikedPosts'] });
+      queryClient.invalidateQueries({ queryKey: ['bookmarks'] });
+    },
+    onError: () => {
+      // エラー時は元に戻す
+      setIsBookmarked(post.is_bookmarked || false);
+
+      queryClient.invalidateQueries({ queryKey: ['timeline'] });
+      queryClient.invalidateQueries({ queryKey: ['post', post.id] });
+      queryClient.invalidateQueries({ queryKey: ['userPosts'] });
+      queryClient.invalidateQueries({ queryKey: ['userLikedPosts'] });
       queryClient.invalidateQueries({ queryKey: ['bookmarks'] });
     },
   });
@@ -199,6 +260,9 @@ const PostCard: React.FC<PostCardProps> = ({ post, showActions = true, isDetailV
   const unbookmarkMutation = useMutation({
     mutationFn: () => postsApi.unbookmarkPost(post.id),
     onMutate: async () => {
+      // ローカル状態を即座に更新
+      setIsBookmarked(false);
+
       await queryClient.cancelQueries({ queryKey: ['timeline'] });
       await queryClient.cancelQueries({ queryKey: ['post', post.id] });
       await queryClient.cancelQueries({ queryKey: ['userPosts'] });
@@ -236,10 +300,22 @@ const PostCard: React.FC<PostCardProps> = ({ post, showActions = true, isDetailV
         }
       });
     },
-    onError: () => {
+    onSuccess: () => {
+      // 成功時はサーバーから最新データを取得
       queryClient.invalidateQueries({ queryKey: ['timeline'] });
       queryClient.invalidateQueries({ queryKey: ['post', post.id] });
       queryClient.invalidateQueries({ queryKey: ['userPosts'] });
+      queryClient.invalidateQueries({ queryKey: ['userLikedPosts'] });
+      queryClient.invalidateQueries({ queryKey: ['bookmarks'] });
+    },
+    onError: () => {
+      // エラー時は元に戻す
+      setIsBookmarked(post.is_bookmarked || false);
+
+      queryClient.invalidateQueries({ queryKey: ['timeline'] });
+      queryClient.invalidateQueries({ queryKey: ['post', post.id] });
+      queryClient.invalidateQueries({ queryKey: ['userPosts'] });
+      queryClient.invalidateQueries({ queryKey: ['userLikedPosts'] });
       queryClient.invalidateQueries({ queryKey: ['bookmarks'] });
     },
   });
@@ -325,7 +401,7 @@ const PostCard: React.FC<PostCardProps> = ({ post, showActions = true, isDetailV
     <Card
       elevation={0}
       sx={{
-        borderBottom: 1,
+        borderBottom: '1px solid',
         borderColor: 'divider',
         borderRadius: 0,
         cursor: isDetailView ? 'default' : 'pointer',
@@ -412,7 +488,7 @@ const PostCard: React.FC<PostCardProps> = ({ post, showActions = true, isDetailV
               {isLiked ? <FavoriteIcon fontSize="small" /> : <FavoriteBorderIcon fontSize="small" />}
             </IconButton>
             <Typography variant="caption" color="text.secondary">
-              {post.likes_count || 0}
+              {likesCount}
             </Typography>
           </Box>
 

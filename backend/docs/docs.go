@@ -479,6 +479,49 @@ const docTemplate = `{
                 }
             }
         },
+        "/notifications/unread-count": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "ログイン中のユーザーの未読通知数を取得",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "notifications"
+                ],
+                "summary": "未読通知数取得",
+                "responses": {
+                    "200": {
+                        "description": "count: 未読通知数",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "integer"
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/errors.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/errors.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/notifications/{id}/read": {
             "patch": {
                 "security": [
@@ -1218,6 +1261,11 @@ const docTemplate = `{
         },
         "/users": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "キーワードでユーザーを検索",
                 "consumes": [
                     "application/json"
@@ -1331,6 +1379,11 @@ const docTemplate = `{
         },
         "/users/{username}": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "ユーザー名からプロフィール情報を取得",
                 "consumes": [
                     "application/json"
@@ -1489,6 +1542,11 @@ const docTemplate = `{
         },
         "/users/{username}/followers": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "ユーザーのフォロワー一覧を取得",
                 "consumes": [
                     "application/json"
@@ -1525,7 +1583,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/response.FollowListResponse"
+                            "$ref": "#/definitions/response.UserListResponse"
                         }
                     },
                     "404": {
@@ -1545,6 +1603,11 @@ const docTemplate = `{
         },
         "/users/{username}/following": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "ユーザーがフォロー中のユーザー一覧を取得",
                 "consumes": [
                     "application/json"
@@ -1581,7 +1644,68 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/response.FollowListResponse"
+                            "$ref": "#/definitions/response.UserListResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/errors.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/errors.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/users/{username}/likes": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "指定したユーザーがいいねした投稿一覧を取得",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "users"
+                ],
+                "summary": "ユーザーがいいねした投稿一覧取得",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ユーザー名",
+                        "name": "username",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "取得件数（デフォルト: 20）",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "オフセット（デフォルト: 0）",
+                        "name": "offset",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.PostListResponse"
                         }
                     },
                     "404": {
@@ -1939,6 +2063,10 @@ const docTemplate = `{
                     "type": "integer",
                     "example": 5
                 },
+                "parent_comment_id": {
+                    "type": "string",
+                    "example": "550e8400-e29b-41d4-a716-446655440000"
+                },
                 "post_id": {
                     "type": "string",
                     "example": "550e8400-e29b-41d4-a716-446655440000"
@@ -1949,20 +2077,6 @@ const docTemplate = `{
                 },
                 "user": {
                     "$ref": "#/definitions/response.UserSimple"
-                }
-            }
-        },
-        "response.FollowListResponse": {
-            "type": "object",
-            "properties": {
-                "pagination": {
-                    "$ref": "#/definitions/response.PaginationResponse"
-                },
-                "users": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/response.UserSimple"
-                    }
                 }
             }
         },
@@ -2005,6 +2119,10 @@ const docTemplate = `{
                 "message": {
                     "type": "string",
                     "example": "@johndoe liked your post"
+                },
+                "post_id": {
+                    "type": "string",
+                    "example": "550e8400-e29b-41d4-a716-446655440000"
                 },
                 "target_id": {
                     "type": "string",
@@ -2148,6 +2266,10 @@ const docTemplate = `{
                     "type": "string",
                     "example": "550e8400-e29b-41d4-a716-446655440000"
                 },
+                "is_following": {
+                    "type": "boolean",
+                    "example": false
+                },
                 "posts_count": {
                     "type": "integer",
                     "example": 25
@@ -2202,6 +2324,10 @@ const docTemplate = `{
                     "type": "string",
                     "example": "https://example.com/avatar.jpg"
                 },
+                "bio": {
+                    "type": "string",
+                    "example": "Hello, I'm John!"
+                },
                 "display_name": {
                     "type": "string",
                     "example": "John Doe"
@@ -2209,6 +2335,10 @@ const docTemplate = `{
                 "id": {
                     "type": "string",
                     "example": "550e8400-e29b-41d4-a716-446655440000"
+                },
+                "is_following": {
+                    "type": "boolean",
+                    "example": false
                 },
                 "username": {
                     "type": "string",

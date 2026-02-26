@@ -15,6 +15,19 @@ type NotificationService interface {
 	MarkAsRead(userID uuid.UUID, notificationID uuid.UUID) error
 	MarkAllAsRead(userID uuid.UUID) error
 	CreateNotification(notification *model.Notification) error
+
+	// 通知生成ヘルパー
+	CreateLikeNotification(actorID, targetUserID uuid.UUID, targetType string, targetID uuid.UUID) error
+	CreateCommentNotification(actorID, postOwnerID uuid.UUID, postID uuid.UUID) error
+	CreateReplyNotification(actorID, parentCommentOwnerID uuid.UUID, parentCommentID uuid.UUID, postID uuid.UUID) error
+	CreateFollowNotification(actorID, targetUserID uuid.UUID) error
+
+	// 通知削除ヘルパー
+	DeleteNotificationByAction(actorID, userID uuid.UUID, notifType, targetType string, targetID uuid.UUID) error
+	DeleteNotificationsByTarget(targetType string, targetID uuid.UUID) error
+
+	// 未読数取得
+	GetUnreadCount(userID uuid.UUID) (int64, error)
 }
 
 type notificationService struct {
@@ -62,17 +75,21 @@ func (s *notificationService) GetNotifications(userID uuid.UUID, limit, offset i
 			Actor:      actor,
 			TargetType: notification.TargetType,
 			TargetID:   notification.TargetID,
+			PostID:     notification.PostID,
 			CreatedAt:  notification.CreatedAt,
 		}
 	}
+
+	hasMore := offset+limit < int(total)
 
 	return &response.NotificationListResponse{
 		Notifications: notificationResponses,
 		UnreadCount:   int(unreadCount),
 		Pagination: response.PaginationResponse{
-			Total:  int(total),
-			Limit:  limit,
-			Offset: offset,
+			Total:   int(total),
+			Limit:   limit,
+			Offset:  offset,
+			HasMore: hasMore,
 		},
 	}, nil
 }

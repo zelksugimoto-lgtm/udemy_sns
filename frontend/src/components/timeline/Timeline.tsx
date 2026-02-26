@@ -21,7 +21,7 @@ const Timeline: React.FC = () => {
     queryFn: ({ pageParam = 0 }) =>
       postsApi.getTimeline({ limit: PAGINATION.DEFAULT_LIMIT, offset: pageParam }),
     getNextPageParam: (lastPage, allPages) => {
-      if (!lastPage.has_more) {
+      if (!lastPage.pagination.has_more) {
         return undefined;
       }
       return allPages.length * PAGINATION.DEFAULT_LIMIT;
@@ -102,12 +102,17 @@ const Timeline: React.FC = () => {
         <Box
           sx={{
             display: 'flex',
+            flexDirection: 'column',
             justifyContent: 'center',
             alignItems: 'center',
-            py: 2,
+            py: 3,
+            gap: 1,
           }}
         >
-          <CircularProgress size={24} />
+          <CircularProgress size={32} />
+          <Typography variant="body2" color="text.secondary">
+            読み込み中...
+          </Typography>
         </Box>
       )}
 

@@ -19,6 +19,7 @@ export const darkTheme = createTheme({
       primary: '#FFFFFF',
       secondary: '#8B98A5',
     },
+    divider: 'rgba(255, 255, 255, 0.08)',
     error: {
       main: '#E0245E',
     },

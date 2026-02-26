@@ -84,7 +84,20 @@ const CommentForm: React.FC<CommentFormProps> = ({ postId, parentCommentId, onSu
         {...register('content')}
         error={!!errors.content}
         helperText={errors.content?.message || `${remainingChars} / ${CHAR_LIMITS.COMMENT_CONTENT}`}
-        sx={{ mb: 1 }}
+        sx={{
+          mb: 1,
+          '& .MuiOutlinedInput-root': {
+            '& fieldset': {
+              borderColor: 'divider',
+            },
+            '&:hover fieldset': {
+              borderColor: 'divider',
+            },
+            '&.Mui-focused fieldset': {
+              borderColor: 'primary.main',
+            },
+          },
+        }}
       />
 
       <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>

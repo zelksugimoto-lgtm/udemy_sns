@@ -585,6 +585,65 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/notifications/unread-count": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * 未読通知数取得
+         * @description ログイン中のユーザーの未読通知数を取得
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description count: 未読通知数 */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            [key: string]: number;
+                        };
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["errors.ErrorResponse"];
+                    };
+                };
+                /** @description Internal Server Error */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["errors.ErrorResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/notifications/{id}/read": {
         parameters: {
             query?: never;
@@ -1810,7 +1869,7 @@ export interface paths {
                         [name: string]: unknown;
                     };
                     content: {
-                        "application/json": components["schemas"]["response.FollowListResponse"];
+                        "application/json": components["schemas"]["response.UserListResponse"];
                     };
                 };
                 /** @description Not Found */
@@ -1875,7 +1934,72 @@ export interface paths {
                         [name: string]: unknown;
                     };
                     content: {
-                        "application/json": components["schemas"]["response.FollowListResponse"];
+                        "application/json": components["schemas"]["response.UserListResponse"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["errors.ErrorResponse"];
+                    };
+                };
+                /** @description Internal Server Error */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["errors.ErrorResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/users/{username}/likes": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * ユーザーがいいねした投稿一覧取得
+         * @description 指定したユーザーがいいねした投稿一覧を取得
+         */
+        get: {
+            parameters: {
+                query?: {
+                    /** @description 取得件数（デフォルト: 20） */
+                    limit?: number;
+                    /** @description オフセット（デフォルト: 0） */
+                    offset?: number;
+                };
+                header?: never;
+                path: {
+                    /** @description ユーザー名 */
+                    username: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["response.PostListResponse"];
                     };
                 };
                 /** @description Not Found */
@@ -2083,14 +2207,12 @@ export interface components {
             /** @example 5 */
             likes_count?: number;
             /** @example 550e8400-e29b-41d4-a716-446655440000 */
+            parent_comment_id?: string;
+            /** @example 550e8400-e29b-41d4-a716-446655440000 */
             post_id?: string;
             /** @example 2025-01-01T00:00:00Z */
             updated_at?: string;
             user?: components["schemas"]["response.UserSimple"];
-        };
-        "response.FollowListResponse": {
-            pagination?: components["schemas"]["response.PaginationResponse"];
-            users?: components["schemas"]["response.UserSimple"][];
         };
         "response.NotificationListResponse": {
             notifications?: components["schemas"]["response.NotificationResponse"][];
@@ -2108,6 +2230,8 @@ export interface components {
             is_read?: boolean;
             /** @example @johndoe liked your post */
             message?: string;
+            /** @example 550e8400-e29b-41d4-a716-446655440000 */
+            post_id?: string;
             /** @example 550e8400-e29b-41d4-a716-446655440000 */
             target_id?: string;
             /** @example Post */
@@ -2171,6 +2295,8 @@ export interface components {
             header_url?: string;
             /** @example 550e8400-e29b-41d4-a716-446655440000 */
             id?: string;
+            /** @example false */
+            is_following?: boolean;
             /** @example 25 */
             posts_count?: number;
             /** @example johndoe */
@@ -2197,10 +2323,14 @@ export interface components {
         "response.UserSimple": {
             /** @example https://example.com/avatar.jpg */
             avatar_url?: string;
+            /** @example Hello, I'm John! */
+            bio?: string;
             /** @example John Doe */
             display_name?: string;
             /** @example 550e8400-e29b-41d4-a716-446655440000 */
             id?: string;
+            /** @example false */
+            is_following?: boolean;
             /** @example johndoe */
             username?: string;
         };

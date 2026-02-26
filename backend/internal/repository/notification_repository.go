@@ -16,6 +16,8 @@ type NotificationRepository interface {
 	MarkAsRead(id uuid.UUID) error
 	MarkAllAsRead(userID uuid.UUID) error
 	CountUnread(userID uuid.UUID) (int64, error)
+	DeleteByAction(actorID, userID uuid.UUID, notifType, targetType string, targetID uuid.UUID) error
+	DeleteByTarget(targetType string, targetID uuid.UUID) error
 }
 
 type notificationRepository struct {
@@ -85,4 +87,25 @@ func (r *notificationRepository) CountUnread(userID uuid.UUID) (int64, error) {
 	var count int64
 	err := r.db.Model(&model.Notification{}).Where("user_id = ? AND is_read = ?", userID, false).Count(&count).Error
 	return count, err
+}
+
+// DeleteByAction アクション取り消し時に通知を削除（論理削除）
+func (r *notificationRepository) DeleteByAction(actorID, userID uuid.UUID, notifType, targetType string, targetID uuid.UUID) error {
+	query := r.db.Where("actor_id = ? AND user_id = ? AND type = ?", actorID, userID, notifType)
+
+	// targetTypeとtargetIDが指定されている場合のみ条件に追加
+	if targetType != "" {
+		query = query.Where("target_type = ?", targetType)
+	}
+	if targetID != uuid.Nil {
+		query = query.Where("target_id = ?", targetID)
+	}
+
+	return query.Delete(&model.Notification{}).Error
+}
+
+// DeleteByTarget 対象削除時に関連通知を削除（論理削除）
+func (r *notificationRepository) DeleteByTarget(targetType string, targetID uuid.UUID) error {
+	return r.db.Where("target_type = ? AND target_id = ?", targetType, targetID).
+		Delete(&model.Notification{}).Error
 }

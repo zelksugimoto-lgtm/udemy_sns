@@ -15,6 +15,7 @@ type NotificationResponse struct {
 	Actor      *UserSimple `json:"actor,omitempty"`
 	TargetType *string     `json:"target_type,omitempty" example:"Post"`
 	TargetID   *uuid.UUID  `json:"target_id,omitempty" example:"550e8400-e29b-41d4-a716-446655440000"`
+	PostID     *uuid.UUID  `json:"post_id,omitempty" example:"550e8400-e29b-41d4-a716-446655440000"`
 	CreatedAt  time.Time   `json:"created_at" example:"2025-01-01T00:00:00Z"`
 }
 

@@ -35,6 +35,7 @@ type UserProfileResponse struct {
 	FollowersCount int       `json:"followers_count" example:"100"`
 	FollowingCount int       `json:"following_count" example:"50"`
 	PostsCount     int       `json:"posts_count" example:"25"`
+	IsFollowing    *bool     `json:"is_following" example:"false"`
 	CreatedAt      time.Time `json:"created_at" example:"2025-01-01T00:00:00Z"`
 }
 
@@ -49,7 +50,9 @@ type UserSimple struct {
 	ID          uuid.UUID `json:"id" example:"550e8400-e29b-41d4-a716-446655440000"`
 	Username    string    `json:"username" example:"johndoe"`
 	DisplayName string    `json:"display_name" example:"John Doe"`
+	Bio         string    `json:"bio,omitempty" example:"Hello, I'm John!"`
 	AvatarURL   string    `json:"avatar_url,omitempty" example:"https://example.com/avatar.jpg"`
+	IsFollowing *bool     `json:"is_following" example:"false"`
 }
 
 // PaginationResponse はページネーション情報

@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
 	"github.com/yourusername/sns-app/internal/middleware"
 	"github.com/yourusername/sns-app/internal/service"
@@ -107,10 +108,11 @@ func (h *FollowHandler) Unfollow(c echo.Context) error {
 // @Tags         follows
 // @Accept       json
 // @Produce      json
+// @Security     BearerAuth
 // @Param        username  path      string  true   "ユーザー名"
 // @Param        limit     query     int     false  "取得件数（デフォルト: 20）"
 // @Param        offset    query     int     false  "オフセット（デフォルト: 0）"
-// @Success      200       {object}  response.FollowListResponse
+// @Success      200       {object}  response.UserListResponse
 // @Failure      404       {object}  errors.ErrorResponse
 // @Failure      500       {object}  errors.ErrorResponse
 // @Router       /users/{username}/followers [get]
@@ -130,8 +132,15 @@ func (h *FollowHandler) GetFollowers(c echo.Context) error {
 		offset = 0
 	}
 
+	// 認証ユーザーIDを取得（任意）
+	var currentUserID *uuid.UUID
+	userID, err := middleware.GetUserID(c)
+	if err == nil {
+		currentUserID = &userID
+	}
+
 	// サービス層を呼び出し
-	result, err := h.followService.GetFollowers(username, limit, offset)
+	result, err := h.followService.GetFollowers(username, limit, offset, currentUserID)
 	if err != nil {
 		if err.Error() == "ユーザーが見つかりません" {
 			return c.JSON(http.StatusNotFound, errors.NotFound("ユーザーが見つかりません"))
@@ -148,10 +157,11 @@ func (h *FollowHandler) GetFollowers(c echo.Context) error {
 // @Tags         follows
 // @Accept       json
 // @Produce      json
+// @Security     BearerAuth
 // @Param        username  path      string  true   "ユーザー名"
 // @Param        limit     query     int     false  "取得件数（デフォルト: 20）"
 // @Param        offset    query     int     false  "オフセット（デフォルト: 0）"
-// @Success      200       {object}  response.FollowListResponse
+// @Success      200       {object}  response.UserListResponse
 // @Failure      404       {object}  errors.ErrorResponse
 // @Failure      500       {object}  errors.ErrorResponse
 // @Router       /users/{username}/following [get]
@@ -171,8 +181,15 @@ func (h *FollowHandler) GetFollowing(c echo.Context) error {
 		offset = 0
 	}
 
+	// 認証ユーザーIDを取得（任意）
+	var currentUserID *uuid.UUID
+	userID, err := middleware.GetUserID(c)
+	if err == nil {
+		currentUserID = &userID
+	}
+
 	// サービス層を呼び出し
-	result, err := h.followService.GetFollowing(username, limit, offset)
+	result, err := h.followService.GetFollowing(username, limit, offset, currentUserID)
 	if err != nil {
 		if err.Error() == "ユーザーが見つかりません" {
 			return c.JSON(http.StatusNotFound, errors.NotFound("ユーザーが見つかりません"))

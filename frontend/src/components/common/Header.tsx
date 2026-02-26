@@ -20,20 +20,32 @@ import {
   Brightness7 as LightModeIcon,
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
 import { useAuth } from '../../contexts/AuthContext';
 import { useTheme } from '../../contexts/ThemeContext';
 import { THEMES } from '../../utils/constants';
+import * as notificationsApi from '../../api/endpoints/notifications';
 import Sidebar from './Sidebar';
 
 const Header: React.FC = () => {
   const navigate = useNavigate();
-  const { user, logout } = useAuth();
+  const { user, logout, isAuthenticated } = useAuth();
   const { currentTheme, setTheme } = useTheme();
   const muiTheme = useMuiTheme();
   const isMobile = useMediaQuery(muiTheme.breakpoints.down('md'));
 
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [mobileOpen, setMobileOpen] = useState(false);
+
+  // 未読通知数を5秒ごとにポーリング
+  const { data: unreadCount = 0 } = useQuery({
+    queryKey: ['unreadCount'],
+    queryFn: notificationsApi.getUnreadCount,
+    enabled: isAuthenticated,
+    refetchInterval: 5000, // 5秒ごとにポーリング（本番環境では180000 = 3分に変更）
+    refetchIntervalInBackground: true,
+    staleTime: 4000,
+  });
 
   const handleMenu = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
@@ -72,7 +84,7 @@ const Header: React.FC = () => {
           zIndex: (theme) => theme.zIndex.drawer + 1,
           backgroundColor: 'background.paper',
           color: 'text.primary',
-          borderBottom: 1,
+          borderBottom: '1px solid',
           borderColor: 'divider',
         }}
         elevation={0}
@@ -117,7 +129,11 @@ const Header: React.FC = () => {
             onClick={() => navigate('/notifications')}
             sx={{ mr: 1 }}
           >
-            <Badge badgeContent={0} color="error">
+            <Badge
+              badgeContent={unreadCount > 99 ? '99+' : unreadCount}
+              color="error"
+              max={99}
+            >
               <NotificationsIcon />
             </Badge>
           </IconButton>

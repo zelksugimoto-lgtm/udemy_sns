@@ -5,7 +5,6 @@ import {
   ListItemButton,
   ListItemIcon,
   ListItemText,
-  Button,
   Box,
 } from '@mui/material';
 import {
@@ -14,7 +13,6 @@ import {
   Bookmark as BookmarkIcon,
   Person as PersonIcon,
   Settings as SettingsIcon,
-  Add as AddIcon,
 } from '@mui/icons-material';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
@@ -48,8 +46,8 @@ const Sidebar: React.FC<SidebarProps> = ({ onNavigate }) => {
   ];
 
   return (
-    <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
-      <List sx={{ flex: 1 }}>
+    <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column', py: 2 }}>
+      <List>
         {menuItems.map((item) => (
           <ListItem key={item.text} disablePadding>
             <ListItemButton
@@ -83,25 +81,6 @@ const Sidebar: React.FC<SidebarProps> = ({ onNavigate }) => {
           </ListItem>
         ))}
       </List>
-
-      {/* Post Button */}
-      <Box sx={{ p: 2 }}>
-        <Button
-          variant="contained"
-          fullWidth
-          size="large"
-          startIcon={<AddIcon />}
-          onClick={() => handleNavigation('/')}
-          sx={{
-            borderRadius: 25,
-            textTransform: 'none',
-            fontWeight: 700,
-            py: 1.5,
-          }}
-        >
-          投稿
-        </Button>
-      </Box>
     </Box>
   );
 };

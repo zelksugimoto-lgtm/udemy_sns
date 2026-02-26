@@ -134,12 +134,13 @@ const CommentCard: React.FC<CommentCardProps> = ({ comment, postId, level = 0 })
   return (
     <Box
       sx={{
+        pl: level * 4,
         p: 2,
         pb: 1,
-        pl: level > 0 ? 2 + level * 4 : 2,
-        borderLeft: level > 0 ? 1 : 0,
+        borderBottom: '1px solid',
         borderColor: 'divider',
-        borderBottom: 1,
+        borderLeft: level > 0 ? '2px solid' : 'none',
+        borderLeftColor: 'primary.main',
       }}
     >
       <Box sx={{ display: 'flex', gap: 2 }}>
@@ -236,6 +237,20 @@ const CommentCard: React.FC<CommentCardProps> = ({ comment, postId, level = 0 })
           )}
         </Box>
       </Box>
+
+      {/* Child Comments (Replies) - ツリー構造で表示 */}
+      {comment.child_comments && comment.child_comments.length > 0 && (
+        <Box>
+          {comment.child_comments.map((childComment) => (
+            <CommentCard
+              key={childComment.id}
+              comment={childComment}
+              postId={postId}
+              level={level + 1}
+            />
+          ))}
+        </Box>
+      )}
     </Box>
   );
 };

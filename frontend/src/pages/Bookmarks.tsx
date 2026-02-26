@@ -17,7 +17,7 @@ const Bookmarks: React.FC = () => {
       <Box
         sx={{
           p: 2,
-          borderBottom: 1,
+          borderBottom: '1px solid',
           borderColor: 'divider',
         }}
       >

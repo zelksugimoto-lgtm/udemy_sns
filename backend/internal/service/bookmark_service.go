@@ -19,16 +19,19 @@ type BookmarkService interface {
 type bookmarkService struct {
 	bookmarkRepo repository.BookmarkRepository
 	postRepo     repository.PostRepository
+	likeRepo     repository.LikeRepository
 }
 
 // NewBookmarkService ブックマークサービスのコンストラクタ
 func NewBookmarkService(
 	bookmarkRepo repository.BookmarkRepository,
 	postRepo repository.PostRepository,
+	likeRepo repository.LikeRepository,
 ) BookmarkService {
 	return &bookmarkService{
 		bookmarkRepo: bookmarkRepo,
 		postRepo:     postRepo,
+		likeRepo:     likeRepo,
 	}
 }
 
@@ -87,14 +90,17 @@ func (s *bookmarkService) GetBookmarks(userID uuid.UUID, limit, offset int) (*re
 		likesCount, _ := s.postRepo.CountLikes(bookmark.PostID)
 		commentsCount, _ := s.postRepo.CountComments(bookmark.PostID)
 
+		// いいね状態を確認
+		isLiked, _ := s.likeRepo.Exists(userID, "Post", bookmark.PostID)
+
 		posts[i] = response.PostResponse{
 			ID:            bookmark.Post.ID,
 			Content:       bookmark.Post.Content,
 			Visibility:    bookmark.Post.Visibility,
 			LikesCount:    int(likesCount),
 			CommentsCount: int(commentsCount),
-			IsLiked:       false, // ブックマーク一覧では計算しない
-			IsBookmarked:  true,  // ブックマーク一覧なので常にtrue
+			IsLiked:       isLiked, // いいね状態を取得
+			IsBookmarked:  true,    // ブックマーク一覧なので常にtrue
 			User: response.UserSimple{
 				ID:          bookmark.Post.User.ID,
 				Username:    bookmark.Post.User.Username,
@@ -106,12 +112,15 @@ func (s *bookmarkService) GetBookmarks(userID uuid.UUID, limit, offset int) (*re
 		}
 	}
 
+	hasMore := offset+limit < int(total)
+
 	return &response.BookmarkListResponse{
 		Posts: posts,
 		Pagination: response.PaginationResponse{
-			Total:  int(total),
-			Limit:  limit,
-			Offset: offset,
+			Total:   int(total),
+			Limit:   limit,
+			Offset:  offset,
+			HasMore: hasMore,
 		},
 	}, nil
 }

@@ -72,7 +72,7 @@ const Settings: React.FC = () => {
       <Box
         sx={{
           p: 2,
-          borderBottom: 1,
+          borderBottom: '1px solid',
           borderColor: 'divider',
         }}
       >
@@ -83,7 +83,7 @@ const Settings: React.FC = () => {
 
       <Box sx={{ p: 2 }}>
         {/* Profile Settings */}
-        <Paper elevation={0} sx={{ p: 3, mb: 3, border: 1, borderColor: 'divider' }}>
+        <Paper elevation={0} sx={{ p: 3, mb: 3, border: '1px solid', borderColor: 'divider' }}>
           <Typography variant="h6" gutterBottom>
             プロフィール設定
           </Typography>
@@ -143,7 +143,7 @@ const Settings: React.FC = () => {
         </Paper>
 
         {/* Theme Settings */}
-        <Paper elevation={0} sx={{ p: 3, border: 1, borderColor: 'divider' }}>
+        <Paper elevation={0} sx={{ p: 3, border: '1px solid', borderColor: 'divider' }}>
           <Typography variant="h6" gutterBottom>
             テーマ設定
           </Typography>

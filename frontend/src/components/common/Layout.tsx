@@ -3,6 +3,7 @@ import { Box, useMediaQuery, useTheme } from '@mui/material';
 import Header from './Header';
 import Sidebar from './Sidebar';
 import RightSidebar from './RightSidebar';
+import FloatingPostButton from './FloatingPostButton';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -15,7 +16,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
       <Header />
-      <Box sx={{ display: 'flex', flex: 1, pt: { xs: 7, md: 8 } }}>
+      <Box sx={{ display: 'flex', flex: 1, pt: { xs: 7, md: 8 }, justifyContent: 'center' }}>
         {/* Sidebar - PC only */}
         {!isMobile && (
           <Box
@@ -23,13 +24,8 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
             sx={{
               width: 240,
               flexShrink: 0,
-              borderRight: 1,
+              borderRight: '1px solid',
               borderColor: 'divider',
-              position: 'fixed',
-              height: 'calc(100vh - 64px)',
-              top: 64,
-              left: 0,
-              overflowY: 'auto',
             }}
           >
             <Sidebar />
@@ -41,9 +37,8 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           component="main"
           sx={{
             flex: 1,
-            ml: { xs: 0, md: '240px' },
-            maxWidth: { xs: '100%', md: '600px', lg: '600px' },
-            borderRight: { xs: 0, md: 1 },
+            maxWidth: { xs: '100%', md: '600px', lg: '650px' },
+            borderRight: { xs: 'none', md: '1px solid' },
             borderColor: 'divider',
             minHeight: 'calc(100vh - 64px)',
           }}
@@ -57,7 +52,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
             component="aside"
             sx={{
               display: { xs: 'none', lg: 'block' },
-              width: 350,
+              width: 280,
               flexShrink: 0,
             }}
           >
@@ -65,6 +60,9 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           </Box>
         )}
       </Box>
+
+      {/* Floating Post Button - Mobile only */}
+      {isMobile && <FloatingPostButton />}
     </Box>
   );
 };

@@ -44,23 +44,26 @@ func (r *commentRepository) FindByID(id uuid.UUID) (*model.Comment, error) {
 	return &comment, nil
 }
 
-// FindByPostID 投稿IDでコメントを取得
+// FindByPostID 投稿IDでコメントを取得（ツリー構造：親コメントのみを取得し、子コメントを再帰的にプリロード）
 func (r *commentRepository) FindByPostID(postID uuid.UUID, limit, offset int) ([]model.Comment, int64, error) {
 	var comments []model.Comment
 	var total int64
 
-	query := r.db.Model(&model.Comment{}).Where("post_id = ? AND parent_comment_id IS NULL", postID)
+	// 親コメント（parent_comment_id が NULL）のみを取得
+	query := r.db.Model(&model.Comment{}).
+		Where("post_id = ? AND parent_comment_id IS NULL", postID)
 
-	// 総数取得
+	// 総数取得（親コメントのみ）
 	if err := query.Count(&total).Error; err != nil {
 		return nil, 0, err
 	}
 
-	// ページネーション適用（親コメントのみ、子コメントもプリロード）
+	// ページネーション適用（親コメントのみ、子コメントを再帰的にプリロード）
 	err := query.Preload("User").
-		Preload("ChildComments").
-		Preload("ChildComments.User").
-		Order("created_at DESC").
+		Preload("ChildComments.User").                          // 子コメントのユーザー
+		Preload("ChildComments.ChildComments.User").            // 孫コメントのユーザー
+		Preload("ChildComments.ChildComments.ChildComments.User"). // ひ孫コメントのユーザー
+		Order("created_at ASC").
 		Limit(limit).Offset(offset).
 		Find(&comments).Error
 

@@ -74,6 +74,66 @@ func AuthMiddleware() echo.MiddlewareFunc {
 	}
 }
 
+// OptionalAuthMiddleware オプションのJWT認証ミドルウェア（認証失敗でもエラーを返さない）
+func OptionalAuthMiddleware() echo.MiddlewareFunc {
+	return func(next echo.HandlerFunc) echo.HandlerFunc {
+		return func(c echo.Context) error {
+			// Authorization ヘッダーを取得
+			authHeader := c.Request().Header.Get("Authorization")
+			if authHeader == "" {
+				// 認証ヘッダーがない場合はそのまま次へ
+				return next(c)
+			}
+
+			// "Bearer "プレフィックスを確認
+			if !strings.HasPrefix(authHeader, "Bearer ") {
+				// 無効な形式でもそのまま次へ
+				return next(c)
+			}
+
+			// トークンを抽出
+			tokenString := strings.TrimPrefix(authHeader, "Bearer ")
+
+			// JWTシークレットを取得
+			secret := os.Getenv("JWT_SECRET")
+			if secret == "" {
+				secret = "your-secret-key"
+			}
+
+			// トークンをパース
+			token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
+				if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+					return nil, http.ErrAbortHandler
+				}
+				return []byte(secret), nil
+			})
+
+			if err != nil {
+				// パースエラーでもそのまま次へ
+				return next(c)
+			}
+
+			// クレームを取得
+			if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
+				userIDStr, ok := claims["user_id"].(string)
+				if !ok {
+					return next(c)
+				}
+
+				userID, err := uuid.Parse(userIDStr)
+				if err != nil {
+					return next(c)
+				}
+
+				// コンテキストにユーザーIDを設定
+				c.Set("user_id", userID)
+			}
+
+			return next(c)
+		}
+	}
+}
+
 // GetUserID コンテキストからユーザーIDを取得
 func GetUserID(c echo.Context) (uuid.UUID, error) {
 	userID, ok := c.Get("user_id").(uuid.UUID)

@@ -13,6 +13,7 @@ type PostRepository interface {
 	Create(post *model.Post) error
 	FindByID(id uuid.UUID) (*model.Post, error)
 	FindByUserID(userID uuid.UUID, limit, offset int) ([]model.Post, int64, error)
+	FindLikedByUser(userID uuid.UUID, limit, offset int) ([]model.Post, int64, error)
 	Update(post *model.Post) error
 	Delete(id uuid.UUID) error
 	GetTimeline(userID uuid.UUID, followingIDs []uuid.UUID, limit, offset int) ([]model.Post, int64, error)
@@ -130,4 +131,32 @@ func (r *postRepository) CountComments(postID uuid.UUID) (int64, error) {
 	var count int64
 	err := r.db.Model(&model.Comment{}).Where("post_id = ?", postID).Count(&count).Error
 	return count, err
+}
+
+// FindLikedByUser ユーザーがいいねした投稿を取得
+func (r *postRepository) FindLikedByUser(userID uuid.UUID, limit, offset int) ([]model.Post, int64, error) {
+	var posts []model.Post
+	var total int64
+
+	// いいねテーブルとJOINして、該当ユーザーがいいねした投稿を取得
+	query := r.db.Model(&model.Post{}).
+		Joins("INNER JOIN likes ON likes.likeable_id = posts.id AND likes.likeable_type = ?", "Post").
+		Where("likes.user_id = ?", userID)
+
+	// 総数取得
+	if err := query.Count(&total).Error; err != nil {
+		return nil, 0, err
+	}
+
+	// ページネーション適用
+	err := query.Preload("User").
+		Order("likes.created_at DESC").
+		Limit(limit).Offset(offset).
+		Find(&posts).Error
+
+	if err != nil {
+		return nil, 0, err
+	}
+
+	return posts, total, nil
 }

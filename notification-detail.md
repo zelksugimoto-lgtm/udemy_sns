@@ -1,0 +1,74 @@
+- generic [ref=e274]:
+  - banner [ref=e275]:
+    - generic [ref=e276]:
+      - generic [ref=e277] [cursor=pointer]: SNS App
+      - button [ref=e278] [cursor=pointer]:
+        - img [ref=e279]
+      - button [ref=e281] [cursor=pointer]:
+        - img [ref=e283]
+      - button "account of current user" [ref=e286] [cursor=pointer]:
+        - generic [ref=e287]: D
+  - generic [ref=e288]:
+    - complementary [ref=e289]:
+      - list [ref=e291]:
+        - listitem [ref=e292]:
+          - button "ホーム" [ref=e293] [cursor=pointer]:
+            - img [ref=e295]
+            - generic [ref=e298]: ホーム
+        - listitem [ref=e299]:
+          - button "通知" [ref=e300] [cursor=pointer]:
+            - img [ref=e302]
+            - generic [ref=e305]: 通知
+        - listitem [ref=e306]:
+          - button "ブックマーク" [ref=e307] [cursor=pointer]:
+            - img [ref=e309]
+            - generic [ref=e312]: ブックマーク
+        - listitem [ref=e313]:
+          - button "プロフィール" [ref=e314] [cursor=pointer]:
+            - img [ref=e316]
+            - generic [ref=e319]: プロフィール
+        - listitem [ref=e320]:
+          - button "設定" [ref=e321] [cursor=pointer]:
+            - img [ref=e323]
+            - generic [ref=e326]: 設定
+    - main [ref=e327]:
+      - heading "通知" [level=6] [ref=e329]
+      - list [ref=e330]:
+        - listitem [ref=e331] [cursor=pointer]:
+          - generic [ref=e333]:
+            - generic [ref=e334]: C
+            - img [ref=e336]
+          - generic [ref=e338]:
+            - generic [ref=e340]: Charlieがあなたをフォローしました
+            - paragraph [ref=e341]: 1 minute ago
+        - listitem [ref=e342] [cursor=pointer]:
+          - generic [ref=e344]:
+            - generic [ref=e345]: C
+            - img [ref=e347]
+          - generic [ref=e349]:
+            - generic [ref=e351]: Charlieがあなたの投稿にいいねしました
+            - paragraph [ref=e352]: 1 minute ago
+        - listitem [ref=e353] [cursor=pointer]:
+          - generic [ref=e355]:
+            - generic [ref=e356]: C
+            - img [ref=e358]
+          - generic [ref=e360]:
+            - generic [ref=e362]: Charlieがあなたの投稿にコメントしました
+            - paragraph [ref=e363]: 2 minutes ago
+    - complementary [ref=e364]:
+      - generic [ref=e365]:
+        - generic [ref=e368]:
+          - img [ref=e370]
+          - textbox "ユーザーを検索" [ref=e372]
+          - group
+        - generic [ref=e373]:
+          - generic [ref=e374]:
+            - link "利用規約" [ref=e375] [cursor=pointer]:
+              - /url: "#"
+            - generic [ref=e376]: ·
+            - link "プライバシーポリシー" [ref=e377] [cursor=pointer]:
+              - /url: "#"
+            - generic [ref=e378]: ·
+            - link "ヘルプ" [ref=e379] [cursor=pointer]:
+              - /url: "#"
+          - generic [ref=e380]: © 2025 SNS App

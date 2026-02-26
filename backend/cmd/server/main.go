@@ -77,16 +77,16 @@ func main() {
 	authService := service.NewAuthService(userRepo)
 	userService := service.NewUserService(userRepo, followRepo, postRepo)
 	postService := service.NewPostService(postRepo, userRepo, followRepo, likeRepo, bookmarkRepo)
-	commentService := service.NewCommentService(commentRepo, postRepo, userRepo, likeRepo)
-	likeService := service.NewLikeService(likeRepo, postRepo, commentRepo)
-	bookmarkService := service.NewBookmarkService(bookmarkRepo, postRepo)
-	followService := service.NewFollowService(followRepo, userRepo)
 	notificationService := service.NewNotificationService(notificationRepo)
+	commentService := service.NewCommentService(commentRepo, postRepo, userRepo, likeRepo, notificationService)
+	likeService := service.NewLikeService(likeRepo, postRepo, commentRepo, notificationService)
+	bookmarkService := service.NewBookmarkService(bookmarkRepo, postRepo, likeRepo)
+	followService := service.NewFollowService(followRepo, userRepo, notificationService)
 	reportService := service.NewReportService(reportRepo, postRepo, commentRepo, userRepo)
 
 	// Handlers
 	authHandler := handler.NewAuthHandler(authService)
-	userHandler := handler.NewUserHandler(userService)
+	userHandler := handler.NewUserHandler(userService, postService)
 	postHandler := handler.NewPostHandler(postService)
 	commentHandler := handler.NewCommentHandler(commentService)
 	likeHandler := handler.NewLikeHandler(likeService)
@@ -106,14 +106,14 @@ func main() {
 
 	// User routes
 	users := api.Group("/users")
-	users.GET("", userHandler.SearchUsers)
-	users.GET("/:username", userHandler.GetProfile)
+	users.GET("", userHandler.SearchUsers, appMiddleware.OptionalAuthMiddleware())
+	users.GET("/:username", userHandler.GetProfile, appMiddleware.OptionalAuthMiddleware())
 	users.PATCH("/me", userHandler.UpdateProfile, appMiddleware.AuthMiddleware())
 
 	// Post routes
 	posts := api.Group("/posts")
 	posts.POST("", postHandler.CreatePost, appMiddleware.AuthMiddleware())
-	posts.GET("/:id", postHandler.GetPost)
+	posts.GET("/:id", postHandler.GetPost, appMiddleware.OptionalAuthMiddleware())
 	posts.PATCH("/:id", postHandler.UpdatePost, appMiddleware.AuthMiddleware())
 	posts.DELETE("/:id", postHandler.DeletePost, appMiddleware.AuthMiddleware())
 
@@ -121,11 +121,12 @@ func main() {
 	api.GET("/timeline", postHandler.GetTimeline, appMiddleware.AuthMiddleware())
 
 	// User posts
-	users.GET("/:username/posts", postHandler.GetUserPosts)
+	users.GET("/:username/posts", postHandler.GetUserPosts, appMiddleware.OptionalAuthMiddleware())
+	users.GET("/:username/likes", userHandler.GetUserLikedPosts, appMiddleware.OptionalAuthMiddleware())
 
 	// Comment routes
 	posts.POST("/:id/comments", commentHandler.CreateComment, appMiddleware.AuthMiddleware())
-	posts.GET("/:id/comments", commentHandler.GetComments)
+	posts.GET("/:id/comments", commentHandler.GetComments, appMiddleware.OptionalAuthMiddleware())
 	api.DELETE("/comments/:id", commentHandler.DeleteComment, appMiddleware.AuthMiddleware())
 
 	// Like routes
@@ -142,12 +143,13 @@ func main() {
 	// Follow routes
 	users.POST("/:username/follow", followHandler.Follow, appMiddleware.AuthMiddleware())
 	users.DELETE("/:username/follow", followHandler.Unfollow, appMiddleware.AuthMiddleware())
-	users.GET("/:username/followers", followHandler.GetFollowers)
-	users.GET("/:username/following", followHandler.GetFollowing)
+	users.GET("/:username/followers", followHandler.GetFollowers, appMiddleware.OptionalAuthMiddleware())
+	users.GET("/:username/following", followHandler.GetFollowing, appMiddleware.OptionalAuthMiddleware())
 
 	// Notification routes
 	notifications := api.Group("/notifications", appMiddleware.AuthMiddleware())
 	notifications.GET("", notificationHandler.GetNotifications)
+	notifications.GET("/unread-count", notificationHandler.GetUnreadCount)
 	notifications.PATCH("/:id/read", notificationHandler.MarkAsRead)
 	notifications.POST("/read-all", notificationHandler.MarkAllAsRead)
 

@@ -13,23 +13,26 @@ import (
 type FollowService interface {
 	Follow(followerID uuid.UUID, username string) error
 	Unfollow(followerID uuid.UUID, username string) error
-	GetFollowers(username string, limit, offset int) (*response.FollowListResponse, error)
-	GetFollowing(username string, limit, offset int) (*response.FollowListResponse, error)
+	GetFollowers(username string, limit, offset int, currentUserID *uuid.UUID) (*response.UserListResponse, error)
+	GetFollowing(username string, limit, offset int, currentUserID *uuid.UUID) (*response.UserListResponse, error)
 }
 
 type followService struct {
-	followRepo repository.FollowRepository
-	userRepo   repository.UserRepository
+	followRepo          repository.FollowRepository
+	userRepo            repository.UserRepository
+	notificationService NotificationService
 }
 
 // NewFollowService フォローサービスのコンストラクタ
 func NewFollowService(
 	followRepo repository.FollowRepository,
 	userRepo repository.UserRepository,
+	notificationService NotificationService,
 ) FollowService {
 	return &followService{
-		followRepo: followRepo,
-		userRepo:   userRepo,
+		followRepo:          followRepo,
+		userRepo:            userRepo,
+		notificationService: notificationService,
 	}
 }
 
@@ -63,7 +66,15 @@ func (s *followService) Follow(followerID uuid.UUID, username string) error {
 		FollowedID: user.ID,
 	}
 
-	return s.followRepo.Create(follow)
+	// フォローを作成
+	if err := s.followRepo.Create(follow); err != nil {
+		return err
+	}
+
+	// 通知を作成（自分自身のフォローは除外される）
+	s.notificationService.CreateFollowNotification(followerID, user.ID)
+
+	return nil
 }
 
 // Unfollow フォロー解除
@@ -86,11 +97,19 @@ func (s *followService) Unfollow(followerID uuid.UUID, username string) error {
 		return errors.New("フォローしていません")
 	}
 
-	return s.followRepo.Delete(followerID, user.ID)
+	// フォロー解除
+	if err := s.followRepo.Delete(followerID, user.ID); err != nil {
+		return err
+	}
+
+	// 通知を削除
+	s.notificationService.DeleteNotificationByAction(followerID, user.ID, "follow", "", uuid.Nil)
+
+	return nil
 }
 
 // GetFollowers フォロワー一覧取得
-func (s *followService) GetFollowers(username string, limit, offset int) (*response.FollowListResponse, error) {
+func (s *followService) GetFollowers(username string, limit, offset int, currentUserID *uuid.UUID) (*response.UserListResponse, error) {
 	// ユーザーを取得
 	user, err := s.userRepo.FindByUsername(username)
 	if err != nil {
@@ -108,26 +127,36 @@ func (s *followService) GetFollowers(username string, limit, offset int) (*respo
 	// UserSimpleに変換
 	users := make([]response.UserSimple, len(follows))
 	for i, follow := range follows {
+		var isFollowing bool
+		if currentUserID != nil && *currentUserID != follow.Follower.ID {
+			isFollowing, _ = s.followRepo.Exists(*currentUserID, follow.Follower.ID)
+		}
+
 		users[i] = response.UserSimple{
 			ID:          follow.Follower.ID,
 			Username:    follow.Follower.Username,
 			DisplayName: follow.Follower.DisplayName,
+			Bio:         follow.Follower.Bio,
 			AvatarURL:   follow.Follower.AvatarURL,
+			IsFollowing: &isFollowing,
 		}
 	}
 
-	return &response.FollowListResponse{
+	hasMore := offset+limit < int(total)
+
+	return &response.UserListResponse{
 		Users: users,
 		Pagination: response.PaginationResponse{
-			Total:  int(total),
-			Limit:  limit,
-			Offset: offset,
+			Total:   int(total),
+			Limit:   limit,
+			Offset:  offset,
+			HasMore: hasMore,
 		},
 	}, nil
 }
 
 // GetFollowing フォロー中一覧取得
-func (s *followService) GetFollowing(username string, limit, offset int) (*response.FollowListResponse, error) {
+func (s *followService) GetFollowing(username string, limit, offset int, currentUserID *uuid.UUID) (*response.UserListResponse, error) {
 	// ユーザーを取得
 	user, err := s.userRepo.FindByUsername(username)
 	if err != nil {
@@ -145,20 +174,30 @@ func (s *followService) GetFollowing(username string, limit, offset int) (*respo
 	// UserSimpleに変換
 	users := make([]response.UserSimple, len(follows))
 	for i, follow := range follows {
+		var isFollowing bool
+		if currentUserID != nil && *currentUserID != follow.Followed.ID {
+			isFollowing, _ = s.followRepo.Exists(*currentUserID, follow.Followed.ID)
+		}
+
 		users[i] = response.UserSimple{
 			ID:          follow.Followed.ID,
 			Username:    follow.Followed.Username,
 			DisplayName: follow.Followed.DisplayName,
+			Bio:         follow.Followed.Bio,
 			AvatarURL:   follow.Followed.AvatarURL,
+			IsFollowing: &isFollowing,
 		}
 	}
 
-	return &response.FollowListResponse{
+	hasMore := offset+limit < int(total)
+
+	return &response.UserListResponse{
 		Users: users,
 		Pagination: response.PaginationResponse{
-			Total:  int(total),
-			Limit:  limit,
-			Offset: offset,
+			Total:   int(total),
+			Limit:   limit,
+			Offset:  offset,
+			HasMore: hasMore,
 		},
 	}, nil
 }
