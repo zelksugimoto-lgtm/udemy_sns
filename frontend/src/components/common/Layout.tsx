@@ -25,7 +25,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
               width: 240,
               flexShrink: 0,
               borderRight: '1px solid',
-              borderColor: 'divider',
+              borderColor: '#E1E8ED',
             }}
           >
             <Sidebar />
@@ -39,7 +39,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
             flex: 1,
             maxWidth: { xs: '100%', md: '600px', lg: '650px' },
             borderRight: { xs: 'none', md: '1px solid' },
-            borderColor: 'divider',
+            borderColor: { xs: 'transparent', md: '#E1E8ED' },
             minHeight: 'calc(100vh - 64px)',
           }}
         >

@@ -46,7 +46,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onNavigate }) => {
   ];
 
   return (
-    <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column', py: 2 }}>
+    <Box sx={{ position: 'sticky', top: 80, height: 'calc(100vh - 80px)', display: 'flex', flexDirection: 'column', py: 2 }}>
       <List>
         {menuItems.map((item) => (
           <ListItem key={item.text} disablePadding>
