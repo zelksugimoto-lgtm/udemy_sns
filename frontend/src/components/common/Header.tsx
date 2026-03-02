@@ -37,14 +37,14 @@ const Header: React.FC = () => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [mobileOpen, setMobileOpen] = useState(false);
 
-  // 未読通知数を5秒ごとにポーリング
+  // 未読通知数を3分ごとにポーリング
   const { data: unreadCount = 0 } = useQuery({
     queryKey: ['unreadCount'],
     queryFn: notificationsApi.getUnreadCount,
     enabled: isAuthenticated,
-    refetchInterval: 5000, // 5秒ごとにポーリング（本番環境では180000 = 3分に変更）
+    refetchInterval: 180000, // 3分ごとにポーリング
     refetchIntervalInBackground: true,
-    staleTime: 4000,
+    staleTime: 170000, // 2分50秒
   });
 
   const handleMenu = (event: React.MouseEvent<HTMLElement>) => {
