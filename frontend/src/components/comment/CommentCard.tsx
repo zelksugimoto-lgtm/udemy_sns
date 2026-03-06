@@ -51,7 +51,7 @@ const CommentCard: React.FC<CommentCardProps> = ({ comment, postId, level = 0 })
           ...old,
           comments: old.comments?.map((c: any) =>
             c.id === comment.id
-              ? { ...c, is_liked: true, like_count: (c.like_count || 0) + 1 }
+              ? { ...c, is_liked: true, likes_count: (c.likes_count || 0) + 1 }
               : c
           ),
         };
@@ -73,7 +73,7 @@ const CommentCard: React.FC<CommentCardProps> = ({ comment, postId, level = 0 })
           ...old,
           comments: old.comments?.map((c: any) =>
             c.id === comment.id
-              ? { ...c, is_liked: false, like_count: Math.max((c.like_count || 0) - 1, 0) }
+              ? { ...c, is_liked: false, likes_count: Math.max((c.likes_count || 0) - 1, 0) }
               : c
           ),
         };
@@ -212,7 +212,7 @@ const CommentCard: React.FC<CommentCardProps> = ({ comment, postId, level = 0 })
                 )}
               </IconButton>
               <Typography variant="caption" color="text.secondary">
-                {comment.like_count || 0}
+                {comment.likes_count || 0}
               </Typography>
             </Box>
 

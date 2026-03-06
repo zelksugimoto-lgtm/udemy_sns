@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "vite",
     "dev:test": "vite --mode test",
-    "build": "tsc && vite build",
+    "build": "vite build",
+    "type-check": "tsc",
     "preview": "vite preview",
     "generate:types": "openapi-typescript ../backend/docs/openapi.yaml -o src/api/generated/schema.ts",
     "test:e2e": "playwright test",
