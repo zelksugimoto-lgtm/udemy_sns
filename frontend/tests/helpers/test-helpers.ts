@@ -12,8 +12,8 @@ export function generateRandomUser() {
   const timestamp = Date.now();
   const random = Math.random().toString(36).substring(7);
   return {
-    email: `test_${timestamp}_${random}@example.com`,
-    username: `test_${timestamp}_${random}`,
+    email: `test${timestamp}${random}@example.com`,
+    username: `test${timestamp}${random}`,
     displayName: `Test User ${timestamp}`,
     password: 'testpassword123',
   };
