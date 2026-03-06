@@ -109,6 +109,7 @@ const Settings: React.FC = () => {
               error={!!errors.display_name}
               helperText={errors.display_name?.message}
               sx={{ mb: 2 }}
+              inputProps={{ 'data-testid': 'settings-displayname' }}
             />
 
             <TextField
@@ -120,6 +121,7 @@ const Settings: React.FC = () => {
               error={!!errors.bio}
               helperText={errors.bio?.message}
               sx={{ mb: 2 }}
+              inputProps={{ 'data-testid': 'settings-bio' }}
             />
 
             <Button
@@ -132,6 +134,7 @@ const Settings: React.FC = () => {
                 fontWeight: 700,
                 px: 3,
               }}
+              data-testid="settings-submit"
             >
               {updateProfileMutation.isPending ? (
                 <CircularProgress size={20} color="inherit" />

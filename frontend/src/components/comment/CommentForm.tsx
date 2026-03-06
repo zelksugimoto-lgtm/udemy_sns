@@ -84,6 +84,7 @@ const CommentForm: React.FC<CommentFormProps> = ({ postId, parentCommentId, onSu
         {...register('content')}
         error={!!errors.content}
         helperText={errors.content?.message || `${remainingChars} / ${CHAR_LIMITS.COMMENT_CONTENT}`}
+        inputProps={{ 'data-testid': 'comment-form-content' }}
         sx={{
           mb: 1,
           '& .MuiOutlinedInput-root': {
@@ -111,6 +112,7 @@ const CommentForm: React.FC<CommentFormProps> = ({ postId, parentCommentId, onSu
             fontWeight: 700,
             px: 3,
           }}
+          data-testid="comment-form-submit"
         >
           {createCommentMutation.isPending ? (
             <CircularProgress size={20} color="inherit" />

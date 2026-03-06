@@ -68,6 +68,7 @@ const Login: React.FC = () => {
             error={!!errors.email}
             helperText={errors.email?.message}
             sx={{ mb: 2 }}
+            inputProps={{ 'data-testid': 'login-email' }}
           />
 
           <TextField
@@ -79,6 +80,7 @@ const Login: React.FC = () => {
             error={!!errors.password}
             helperText={errors.password?.message}
             sx={{ mb: 3 }}
+            inputProps={{ 'data-testid': 'login-password' }}
           />
 
           <Button
@@ -88,6 +90,7 @@ const Login: React.FC = () => {
             size="large"
             disabled={isLoading}
             sx={{ mb: 2 }}
+            data-testid="login-submit"
           >
             {isLoading ? <CircularProgress size={24} /> : 'ログイン'}
           </Button>

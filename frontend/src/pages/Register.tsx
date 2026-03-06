@@ -68,6 +68,7 @@ const Register: React.FC = () => {
             error={!!errors.email}
             helperText={errors.email?.message}
             sx={{ mb: 2 }}
+            inputProps={{ 'data-testid': 'register-email' }}
           />
 
           <TextField
@@ -78,6 +79,7 @@ const Register: React.FC = () => {
             error={!!errors.username}
             helperText={errors.username?.message || '英数字とアンダースコアのみ使用可能'}
             sx={{ mb: 2 }}
+            inputProps={{ 'data-testid': 'register-username' }}
           />
 
           <TextField
@@ -87,6 +89,7 @@ const Register: React.FC = () => {
             error={!!errors.display_name}
             helperText={errors.display_name?.message}
             sx={{ mb: 2 }}
+            inputProps={{ 'data-testid': 'register-displayname' }}
           />
 
           <TextField
@@ -98,6 +101,7 @@ const Register: React.FC = () => {
             error={!!errors.password}
             helperText={errors.password?.message || '8文字以上'}
             sx={{ mb: 3 }}
+            inputProps={{ 'data-testid': 'register-password' }}
           />
 
           <Button
@@ -107,6 +111,7 @@ const Register: React.FC = () => {
             size="large"
             disabled={isLoading}
             sx={{ mb: 2 }}
+            data-testid="register-submit"
           >
             {isLoading ? <CircularProgress size={24} /> : '登録'}
           </Button>

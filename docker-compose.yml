@@ -20,6 +20,8 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    profiles:
+      - dev
 
   api:
     build:
@@ -59,6 +61,73 @@ services:
         condition: service_healthy
     networks:
       - sns_network
+    profiles:
+      - dev
+
+  # テスト環境用データベース
+  db_test:
+    image: postgres:15-alpine
+    container_name: sns_db_test
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: social_media_db_test
+      TZ: Asia/Tokyo
+    ports:
+      - "5433:5432"
+    networks:
+      - sns_network_test
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    profiles:
+      - test
+    tmpfs:
+      - /var/lib/postgresql/data  # テスト用DBはtmpfs（メモリ）を使用
+
+  # テスト環境用APIサーバー
+  api_test:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: sns_api_test
+    ports:
+      - "8081:8081"
+    environment:
+      # Database
+      DB_HOST: db_test
+      DB_PORT: 5432
+      DB_USER: postgres
+      DB_PASSWORD: password
+      DB_NAME: social_media_db_test
+
+      # Server
+      PORT: 8081
+      ENV: test
+
+      # JWT
+      JWT_SECRET: test-secret-key
+      JWT_EXPIRATION: 168h
+
+      # File Upload (Phase 2で使用)
+      MAX_VIDEO_SIZE_MB: 20
+      MAX_IMAGE_SIZE_MB: 5
+      MAX_UPLOAD_FILES: 4
+
+      # Timezone
+      TZ: Asia/Tokyo
+    volumes:
+      - ./backend:/app
+      - /app/tmp
+    depends_on:
+      db_test:
+        condition: service_healthy
+    networks:
+      - sns_network_test
+    profiles:
+      - test
 
 volumes:
   postgres_data:
@@ -66,4 +135,6 @@ volumes:
 
 networks:
   sns_network:
+    driver: bridge
+  sns_network_test:
     driver: bridge

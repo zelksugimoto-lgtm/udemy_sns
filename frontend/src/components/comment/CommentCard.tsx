@@ -142,6 +142,7 @@ const CommentCard: React.FC<CommentCardProps> = ({ comment, postId, level = 0 })
         borderLeft: level > 0 ? '2px solid' : 'none',
         borderLeftColor: 'primary.main',
       }}
+      data-testid="comment-card"
     >
       <Box sx={{ display: 'flex', gap: 2 }}>
         {/* Avatar */}
@@ -172,7 +173,7 @@ const CommentCard: React.FC<CommentCardProps> = ({ comment, postId, level = 0 })
             </Typography>
 
             <Box sx={{ ml: 'auto' }}>
-              <IconButton size="small" onClick={handleMenuOpen}>
+              <IconButton size="small" onClick={handleMenuOpen} data-testid="comment-menu-button">
                 <MoreVertIcon fontSize="small" />
               </IconButton>
               <Menu
@@ -181,7 +182,7 @@ const CommentCard: React.FC<CommentCardProps> = ({ comment, postId, level = 0 })
                 onClose={handleMenuClose}
               >
                 {isOwnComment ? (
-                  <MenuItem onClick={handleDelete}>削除</MenuItem>
+                  <MenuItem onClick={handleDelete} data-testid="comment-delete-button">削除</MenuItem>
                 ) : (
                   <MenuItem onClick={handleMenuClose}>通報</MenuItem>
                 )}
@@ -190,7 +191,7 @@ const CommentCard: React.FC<CommentCardProps> = ({ comment, postId, level = 0 })
           </Box>
 
           {/* Content */}
-          <Typography variant="body2" sx={{ whiteSpace: 'pre-wrap', mb: 1 }}>
+          <Typography variant="body2" sx={{ whiteSpace: 'pre-wrap', mb: 1 }} data-testid="comment-content">
             {comment.content}
           </Typography>
 
@@ -202,6 +203,7 @@ const CommentCard: React.FC<CommentCardProps> = ({ comment, postId, level = 0 })
                 size="small"
                 color={isLiked ? 'error' : 'default'}
                 onClick={handleLikeToggle}
+                data-testid="comment-like-button"
               >
                 {isLiked ? (
                   <FavoriteIcon fontSize="small" />
@@ -219,6 +221,7 @@ const CommentCard: React.FC<CommentCardProps> = ({ comment, postId, level = 0 })
               <IconButton
                 size="small"
                 onClick={() => setShowReplyForm(!showReplyForm)}
+                data-testid="comment-reply-button"
               >
                 <ReplyIcon fontSize="small" />
               </IconButton>

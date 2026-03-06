@@ -10,6 +10,7 @@ import (
 	"github.com/yourusername/sns-app/internal/middleware"
 	"github.com/yourusername/sns-app/internal/service"
 	"github.com/yourusername/sns-app/pkg/errors"
+	"github.com/yourusername/sns-app/pkg/validator"
 )
 
 type PostHandler struct {
@@ -48,15 +49,14 @@ func (h *PostHandler) CreatePost(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, errors.BadRequest("無効なリクエストです"))
 	}
 
-	// バリデーション
-	if req.Content == "" {
-		return c.JSON(http.StatusBadRequest, errors.BadRequest("投稿内容は必須です"))
-	}
+	// デフォルト値設定
 	if req.Visibility == "" {
 		req.Visibility = "public" // デフォルトは公開
 	}
-	if req.Visibility != "public" && req.Visibility != "followers" && req.Visibility != "private" {
-		return c.JSON(http.StatusBadRequest, errors.BadRequest("無効な公開範囲です"))
+
+	// バリデーション
+	if err := validator.Validate(&req); err != nil {
+		return c.JSON(http.StatusBadRequest, errors.BadRequest(err.Error()))
 	}
 
 	// サービス層を呼び出し

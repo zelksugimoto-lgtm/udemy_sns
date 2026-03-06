@@ -34,15 +34,16 @@ const Sidebar: React.FC<SidebarProps> = ({ onNavigate }) => {
   };
 
   const menuItems = [
-    { text: 'ホーム', icon: <HomeIcon />, path: '/' },
-    { text: '通知', icon: <NotificationsIcon />, path: '/notifications' },
-    { text: 'ブックマーク', icon: <BookmarkIcon />, path: '/bookmarks' },
+    { text: 'ホーム', icon: <HomeIcon />, path: '/', testId: 'nav-home' },
+    { text: '通知', icon: <NotificationsIcon />, path: '/notifications', testId: 'nav-notifications' },
+    { text: 'ブックマーク', icon: <BookmarkIcon />, path: '/bookmarks', testId: 'nav-bookmarks' },
     {
       text: 'プロフィール',
       icon: <PersonIcon />,
       path: user?.username ? `/users/${user.username}` : '/profile',
+      testId: 'nav-profile',
     },
-    { text: '設定', icon: <SettingsIcon />, path: '/settings' },
+    { text: '設定', icon: <SettingsIcon />, path: '/settings', testId: 'nav-settings' },
   ];
 
   return (
@@ -63,6 +64,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onNavigate }) => {
                   },
                 },
               }}
+              data-testid={item.testId}
             >
               <ListItemIcon
                 sx={{

@@ -5,11 +5,16 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "dev:test": "vite --mode test",
     "build": "tsc && vite build",
     "preview": "vite preview",
-    "generate:types": "openapi-typescript ../backend/docs/openapi.yaml -o src/api/generated/schema.ts"
+    "generate:types": "openapi-typescript ../backend/docs/openapi.yaml -o src/api/generated/schema.ts",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
+    "test:e2e:debug": "playwright test --debug"
   },
   "devDependencies": {
+    "@playwright/test": "^1.48.0",
     "@types/node": "^25.3.0",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",

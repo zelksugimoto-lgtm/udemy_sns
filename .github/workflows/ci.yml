@@ -1,0 +1,244 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  # ==========================================
+  # バックエンド単体テスト
+  # ==========================================
+  backend-test:
+    name: Backend Unit Tests
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:15-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: password
+          POSTGRES_DB: social_media_db_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    env:
+      # Database
+      DB_HOST: localhost
+      DB_PORT: 5432
+      DB_USER: postgres
+      DB_PASSWORD: password
+      DB_NAME: social_media_db_test
+      # JWT
+      JWT_SECRET: test-secret-key
+      JWT_EXPIRATION: 168h
+      # Server
+      PORT: 8080
+      ENV: test
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.23'
+          cache-dependency-path: backend/go.sum
+
+      - name: Cache Go modules
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cache/go-build
+            ~/go/pkg/mod
+          key: ${{ runner.os }}-go-${{ hashFiles('backend/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-
+
+      - name: Download Go dependencies
+        working-directory: backend
+        run: go mod download
+
+      - name: Run tests
+        working-directory: backend
+        run: go test -v -cover ./...
+
+  # ==========================================
+  # フロントエンドビルド確認
+  # ==========================================
+  frontend-build:
+    name: Frontend Build Check
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install dependencies
+        working-directory: frontend
+        run: npm ci
+
+      - name: Build frontend
+        working-directory: frontend
+        run: npm run build
+
+  # ==========================================
+  # E2Eテスト
+  # ==========================================
+  e2e-test:
+    name: E2E Tests
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:15-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: password
+          POSTGRES_DB: social_media_db_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    env:
+      # Database
+      DB_HOST: localhost
+      DB_PORT: 5432
+      DB_USER: postgres
+      DB_PASSWORD: password
+      DB_NAME: social_media_db_test
+      # JWT
+      JWT_SECRET: test-secret-key
+      JWT_EXPIRATION: 168h
+      # Server
+      PORT: 8081
+      ENV: test
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # ==========================================
+      # バックエンドAPIサーバーのセットアップと起動
+      # ==========================================
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.23'
+          cache-dependency-path: backend/go.sum
+
+      - name: Cache Go modules
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cache/go-build
+            ~/go/pkg/mod
+          key: ${{ runner.os }}-go-${{ hashFiles('backend/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-
+
+      - name: Download Go dependencies
+        working-directory: backend
+        run: go mod download
+
+      - name: Build backend
+        working-directory: backend
+        run: go build -o ../bin/server ./cmd/server
+
+      - name: Start backend server in background
+        run: |
+          ./bin/server &
+          echo "Backend server started with PID: $!"
+
+      - name: Wait for backend to be ready
+        run: |
+          echo "Waiting for backend server to be ready..."
+          for i in {1..30}; do
+            if curl -s http://localhost:8081/health > /dev/null 2>&1; then
+              echo "Backend server is ready!"
+              exit 0
+            fi
+            echo "Attempt $i/30: Backend not ready yet, waiting..."
+            sleep 2
+          done
+          echo "Backend server failed to start within timeout"
+          exit 1
+
+      # ==========================================
+      # フロントエンドのセットアップとE2Eテスト実行
+      # ==========================================
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install frontend dependencies
+        working-directory: frontend
+        run: npm ci
+
+      - name: Install Playwright browsers
+        working-directory: frontend
+        run: npx playwright install chromium --with-deps
+
+      - name: Start frontend dev server in background
+        working-directory: frontend
+        run: |
+          npm run dev:test &
+          echo "Frontend dev server started with PID: $!"
+
+      - name: Wait for frontend to be ready
+        run: |
+          echo "Waiting for frontend dev server to be ready..."
+          for i in {1..30}; do
+            if curl -s http://localhost:3001 > /dev/null 2>&1; then
+              echo "Frontend dev server is ready!"
+              exit 0
+            fi
+            echo "Attempt $i/30: Frontend not ready yet, waiting..."
+            sleep 2
+          done
+          echo "Frontend dev server failed to start within timeout"
+          exit 1
+
+      - name: Run E2E tests
+        working-directory: frontend
+        run: npx playwright test
+
+      - name: Upload Playwright report on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: frontend/playwright-report/
+          retention-days: 7
+
+      - name: Upload Playwright screenshots on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-screenshots
+          path: frontend/test-results/
+          retention-days: 7

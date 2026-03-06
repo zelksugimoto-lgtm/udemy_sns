@@ -105,6 +105,7 @@ const PostForm: React.FC = () => {
             InputProps={{
               disableUnderline: true,
             }}
+            inputProps={{ 'data-testid': 'post-form-content' }}
             sx={{
               '& .MuiInputBase-input': {
                 fontSize: '1.1rem',
@@ -138,6 +139,7 @@ const PostForm: React.FC = () => {
                 fontWeight: 700,
                 px: 3,
               }}
+              data-testid="post-form-submit"
             >
               {createPostMutation.isPending ? (
                 <CircularProgress size={20} color="inherit" />

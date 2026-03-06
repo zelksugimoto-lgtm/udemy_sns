@@ -410,6 +410,7 @@ const PostCard: React.FC<PostCardProps> = ({ post, showActions = true, isDetailV
         },
       }}
       onClick={handlePostClick}
+      data-testid="post-card"
     >
       <CardContent sx={{ p: 2, pb: 1 }}>
         <Box sx={{ display: 'flex', gap: 2 }}>
@@ -441,7 +442,7 @@ const PostCard: React.FC<PostCardProps> = ({ post, showActions = true, isDetailV
               </Typography>
 
               <Box sx={{ ml: 'auto' }}>
-                <IconButton size="small" onClick={handleMenuOpen}>
+                <IconButton size="small" onClick={handleMenuOpen} data-testid="post-menu-button">
                   <MoreVertIcon fontSize="small" />
                 </IconButton>
                 <Menu
@@ -450,7 +451,7 @@ const PostCard: React.FC<PostCardProps> = ({ post, showActions = true, isDetailV
                   onClose={handleMenuClose}
                 >
                   {isOwnPost ? (
-                    <MenuItem onClick={handleDelete}>削除</MenuItem>
+                    <MenuItem onClick={handleDelete} data-testid="post-delete-button">削除</MenuItem>
                   ) : (
                     <MenuItem onClick={handleMenuClose}>通報</MenuItem>
                   )}
@@ -459,7 +460,7 @@ const PostCard: React.FC<PostCardProps> = ({ post, showActions = true, isDetailV
             </Box>
 
             {/* Content */}
-            <Typography variant="body1" sx={{ whiteSpace: 'pre-wrap', mb: 1 }}>
+            <Typography variant="body1" sx={{ whiteSpace: 'pre-wrap', mb: 1 }} data-testid="post-content">
               {post.content}
             </Typography>
           </Box>
@@ -470,7 +471,7 @@ const PostCard: React.FC<PostCardProps> = ({ post, showActions = true, isDetailV
         <CardActions sx={{ px: 2, pb: 1, justifyContent: 'space-around' }}>
           {/* Comment */}
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-            <IconButton size="small" color="default">
+            <IconButton size="small" color="default" data-testid="post-comment-button">
               <CommentIcon fontSize="small" />
             </IconButton>
             <Typography variant="caption" color="text.secondary">
@@ -484,6 +485,7 @@ const PostCard: React.FC<PostCardProps> = ({ post, showActions = true, isDetailV
               size="small"
               color={isLiked ? 'error' : 'default'}
               onClick={handleLikeToggle}
+              data-testid="post-like-button"
             >
               {isLiked ? <FavoriteIcon fontSize="small" /> : <FavoriteBorderIcon fontSize="small" />}
             </IconButton>

@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ThemeProvider } from './contexts/ThemeContext';
 import { AuthProvider } from './contexts/AuthContext';
+import ProtectedRoute from './components/common/ProtectedRoute';
 import Home from './pages/Home';
 import Login from './pages/Login';
 import Register from './pages/Register';
@@ -31,15 +32,18 @@ const App: React.FC = () => {
         <AuthProvider>
           <Router>
             <Routes>
-              <Route path="/" element={<Home />} />
+              {/* 認証不要なルート */}
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
-              <Route path="/posts/:id" element={<PostDetail />} />
-              <Route path="/users/:username" element={<Profile />} />
-              <Route path="/users/:username/:tab" element={<Follow />} />
-              <Route path="/bookmarks" element={<Bookmarks />} />
-              <Route path="/notifications" element={<Notifications />} />
-              <Route path="/settings" element={<Settings />} />
+
+              {/* 認証が必要なルート */}
+              <Route path="/" element={<ProtectedRoute><Home /></ProtectedRoute>} />
+              <Route path="/posts/:id" element={<ProtectedRoute><PostDetail /></ProtectedRoute>} />
+              <Route path="/users/:username" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+              <Route path="/users/:username/:tab" element={<ProtectedRoute><Follow /></ProtectedRoute>} />
+              <Route path="/bookmarks" element={<ProtectedRoute><Bookmarks /></ProtectedRoute>} />
+              <Route path="/notifications" element={<ProtectedRoute><Notifications /></ProtectedRoute>} />
+              <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
             </Routes>
           </Router>
         </AuthProvider>

@@ -152,6 +152,7 @@ const Profile: React.FC = () => {
               variant={profile.is_following ? "outlined" : "contained"}
               onClick={handleFollowToggle}
               disabled={followMutation.isPending || unfollowMutation.isPending}
+              data-testid={profile.is_following ? "profile-unfollow-button" : "profile-follow-button"}
             >
               {profile.is_following ? 'フォロー解除' : 'フォロー'}
             </Button>
@@ -166,6 +167,7 @@ const Profile: React.FC = () => {
             variant="body2"
             sx={{ cursor: 'pointer', '&:hover': { textDecoration: 'underline' } }}
             onClick={() => navigate(`/users/${username}/following`)}
+            data-testid="profile-following-count"
           >
             <strong>{profile.following_count || 0}</strong> フォロー中
           </Typography>
@@ -173,6 +175,7 @@ const Profile: React.FC = () => {
             variant="body2"
             sx={{ cursor: 'pointer', '&:hover': { textDecoration: 'underline' } }}
             onClick={() => navigate(`/users/${username}/followers`)}
+            data-testid="profile-followers-count"
           >
             <strong>{profile.followers_count || 0}</strong> フォロワー
           </Typography>

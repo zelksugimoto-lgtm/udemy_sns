@@ -148,6 +148,7 @@ const Header: React.FC = () => {
                 aria-haspopup="true"
                 onClick={handleMenu}
                 color="inherit"
+                data-testid="header-user-menu"
               >
                 <Avatar
                   alt={user.display_name}
@@ -176,7 +177,7 @@ const Header: React.FC = () => {
                 <MenuItem onClick={() => { navigate('/settings'); handleClose(); }}>
                   設定
                 </MenuItem>
-                <MenuItem onClick={handleLogout}>ログアウト</MenuItem>
+                <MenuItem onClick={handleLogout} data-testid="header-logout">ログアウト</MenuItem>
               </Menu>
             </Box>
           )}

@@ -8,6 +8,7 @@ import (
 	"github.com/yourusername/sns-app/internal/middleware"
 	"github.com/yourusername/sns-app/internal/service"
 	"github.com/yourusername/sns-app/pkg/errors"
+	"github.com/yourusername/sns-app/pkg/validator"
 )
 
 type AuthHandler struct {
@@ -39,8 +40,8 @@ func (h *AuthHandler) Register(c echo.Context) error {
 	}
 
 	// バリデーション
-	if req.Email == "" || req.Username == "" || req.DisplayName == "" || req.Password == "" {
-		return c.JSON(http.StatusBadRequest, errors.BadRequest("必須項目が不足しています"))
+	if err := validator.Validate(&req); err != nil {
+		return c.JSON(http.StatusBadRequest, errors.BadRequest(err.Error()))
 	}
 
 	result, err := h.authService.Register(&req)
@@ -73,8 +74,8 @@ func (h *AuthHandler) Login(c echo.Context) error {
 	}
 
 	// バリデーション
-	if req.Email == "" || req.Password == "" {
-		return c.JSON(http.StatusBadRequest, errors.BadRequest("必須項目が不足しています"))
+	if err := validator.Validate(&req); err != nil {
+		return c.JSON(http.StatusBadRequest, errors.BadRequest(err.Error()))
 	}
 
 	result, err := h.authService.Login(&req)

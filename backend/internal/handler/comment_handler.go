@@ -10,6 +10,7 @@ import (
 	"github.com/yourusername/sns-app/internal/middleware"
 	"github.com/yourusername/sns-app/internal/service"
 	"github.com/yourusername/sns-app/pkg/errors"
+	"github.com/yourusername/sns-app/pkg/validator"
 )
 
 type CommentHandler struct {
@@ -58,8 +59,8 @@ func (h *CommentHandler) CreateComment(c echo.Context) error {
 	}
 
 	// バリデーション
-	if req.Content == "" {
-		return c.JSON(http.StatusBadRequest, errors.BadRequest("コメント内容は必須です"))
+	if err := validator.Validate(&req); err != nil {
+		return c.JSON(http.StatusBadRequest, errors.BadRequest(err.Error()))
 	}
 
 	// サービス層を呼び出し
