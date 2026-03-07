@@ -49,7 +49,7 @@ func CleanupTestData(t *testing.T, db *gorm.DB) {
 	// 外部キー制約を考慮して逆順に削除
 	tables := []string{
 		"notifications", "reports", "bookmarks", "likes",
-		"comments", "follows", "posts", "users",
+		"comments", "follows", "posts", "refresh_tokens", "users",
 	}
 
 	// TRUNCATEを使用して高速かつ確実にデータを削除

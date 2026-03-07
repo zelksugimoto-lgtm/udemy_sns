@@ -134,6 +134,7 @@ jobs:
       # Server
       PORT: 8081
       ENV: test
+      FRONTEND_URL: http://localhost:3001
 
     steps:
       - name: Checkout code
