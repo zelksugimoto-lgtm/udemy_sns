@@ -1,40 +1,19 @@
 package config
 
 import (
-	"context"
 	"fmt"
-	"log"
 	"os"
 	"sync/atomic"
-	"time"
 
+	"github.com/rs/zerolog/log"
 	"github.com/yourusername/sns-app/internal/model"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 )
 
-// クエリカウンター（リクエスト単位でリセット可能）
+// クエリカウンター（テスト用、リクエスト単位でリセット可能）
 var queryCounter int32
-
-// カスタムロガー（クエリ番号を表示）
-type CustomLogger struct {
-	logger.Interface
-}
-
-func (l *CustomLogger) Trace(ctx context.Context, begin time.Time, fc func() (sql string, rowsAffected int64), err error) {
-	// クエリカウンターをインクリメント
-	count := atomic.AddInt32(&queryCounter, 1)
-
-	sql, rows := fc()
-	elapsed := time.Since(begin)
-
-	// クエリ番号と実行時間を表示
-	log.Printf("[Query #%d] [%.2fms] Rows: %d | SQL: %s", count, float64(elapsed.Microseconds())/1000, rows, sql)
-
-	// 元のロガーにも渡す
-	l.Interface.Trace(ctx, begin, fc, err)
-}
 
 // ResetQueryCounter クエリカウンターをリセット
 func ResetQueryCounter() {
@@ -62,11 +41,9 @@ func InitDB() (*gorm.DB, error) {
 		host, port, user, password, dbname, sslmode,
 	)
 
-	// GORM設定（カスタムロガーを使用）
+	// GORM設定（クエリログは無効化）
 	config := &gorm.Config{
-		Logger: &CustomLogger{
-			Interface: logger.Default.LogMode(logger.Info),
-		},
+		Logger: logger.Default.LogMode(logger.Silent),
 	}
 
 	// データベース接続
@@ -75,14 +52,14 @@ func InitDB() (*gorm.DB, error) {
 		return nil, fmt.Errorf("データベース接続エラー: %w", err)
 	}
 
-	log.Println("データベース接続成功")
+	log.Debug().Str("host", host).Str("dbname", dbname).Msg("データベース接続成功")
 
 	return db, nil
 }
 
 // AutoMigrate データベースマイグレーションを実行
 func AutoMigrate(db *gorm.DB) error {
-	log.Println("データベースマイグレーション開始...")
+	log.Debug().Msg("データベースマイグレーション開始")
 
 	err := db.AutoMigrate(
 		&model.User{},
@@ -100,7 +77,7 @@ func AutoMigrate(db *gorm.DB) error {
 		return fmt.Errorf("マイグレーションエラー: %w", err)
 	}
 
-	log.Println("データベースマイグレーション完了")
+	log.Debug().Msg("データベースマイグレーション完了")
 
 	return nil
 }

@@ -1,18 +1,19 @@
 package main
 
 import (
-	"log"
 	"net/http"
 	"os"
 
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
+	"github.com/rs/zerolog/log"
 	echoSwagger "github.com/swaggo/echo-swagger"
 	"github.com/yourusername/sns-app/internal/config"
 	"github.com/yourusername/sns-app/internal/handler"
 	appMiddleware "github.com/yourusername/sns-app/internal/middleware"
 	"github.com/yourusername/sns-app/internal/repository"
 	"github.com/yourusername/sns-app/internal/service"
+	appLogger "github.com/yourusername/sns-app/pkg/logger"
 
 	_ "github.com/yourusername/sns-app/docs"
 )
@@ -38,22 +39,34 @@ import (
 // @description Type "Bearer" followed by a space and JWT token.
 
 func main() {
+	// ロガー初期化
+	env := os.Getenv("ENV")
+	if env == "" {
+		env = "development"
+	}
+	appLogger.Init(env)
+
+	log.Info().Str("env", env).Msg("Starting SNS Application")
+
 	// データベース接続
 	db, err := config.InitDB()
 	if err != nil {
-		log.Fatalf("データベース接続失敗: %v", err)
+		log.Fatal().Err(err).Msg("データベース接続失敗")
 	}
+	log.Info().Msg("データベース接続成功")
 
 	// マイグレーション実行
 	if err := config.AutoMigrate(db); err != nil {
-		log.Fatalf("マイグレーション失敗: %v", err)
+		log.Fatal().Err(err).Msg("マイグレーション失敗")
 	}
+	log.Info().Msg("マイグレーション完了")
 
 	e := echo.New()
 
-	// Middleware
-	e.Use(middleware.Logger())
-	e.Use(middleware.Recover())
+	// Middleware（適用順序が重要）
+	e.Use(middleware.Recover())                                   // パニック時のリカバリー
+	e.Use(appMiddleware.RequestID())                              // リクエストID生成（最優先）
+	e.Use(appMiddleware.AccessLog())                              // アクセスログ（リクエストID取得後）
 	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
 		AllowOrigins:     []string{os.Getenv("FRONTEND_URL")},
 		AllowCredentials: true,
@@ -173,6 +186,8 @@ func main() {
 		port = "8080"
 	}
 
-	log.Printf("Server starting on port %s", port)
-	e.Logger.Fatal(e.Start(":" + port))
+	log.Info().Str("port", port).Msg("Server starting")
+	if err := e.Start(":" + port); err != nil {
+		log.Fatal().Err(err).Msg("Server failed to start")
+	}
 }

@@ -245,9 +245,11 @@ npx swagger2openapi backend/docs/swagger.json -o backend/docs/openapi.yaml -y
 
 | 項目 | 要件 | 現状 |
 |------|------|------|
-| ログ | JSON形式の構造化ログ | 🟡 非構造化 |
+| ログ | JSON形式の構造化ログ（zerolog） | ✅ 達成 |
 | 自動テスト | ユニットテスト・E2Eテスト | ✅ 達成 |
 | エラーハンドリング | 適切なエラーメッセージ | ✅ 達成 |
+
+**ログ設計詳細**: `.claude/rules/07_logging.md` を参照
 
 ### 3. セキュリティ
 
@@ -264,13 +266,15 @@ npx swagger2openapi backend/docs/swagger.json -o backend/docs/openapi.yaml -y
 **High（最優先）**:
 1. N+1クエリ問題の解決（`backend/internal/service/post_service.go:160-168`）
 2. タイムアウト設定（HTTPサーバー、DB接続）
-3. CORS設定の明示化
-4. Cookie認証への移行
-5. レートリミット実装
 
 **Medium**:
-6. 構造化ログの導入（zap/logrus）
-7. セキュリティレビュープロセスの確立
+3. セキュリティレビュープロセスの確立
+
+**Completed（完了）**:
+- ✅ 構造化ログの導入（zerolog）
+- ✅ CORS設定の明示化（credentials: true対応）
+- ✅ Cookie認証への移行（HttpOnly + SameSite対応）
+- ✅ レートリミット実装（認証系5回/分、一般60回/分）
 
 詳細な実装方法とコード例は `docs/non-functional-requirements-report.md` を参照してください。
 
