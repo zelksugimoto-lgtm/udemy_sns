@@ -55,10 +55,11 @@ func (h *AuthHandler) Register(c echo.Context) error {
 
 	result, tokenPair, err := h.authService.Register(&req)
 	if err != nil {
+		// ユーザー列挙攻撃を防ぐため、既存ユーザーか否かを明示しない
 		if err.Error() == "このメールアドレスは既に使用されています" || err.Error() == "このユーザー名は既に使用されています" {
-			return c.JSON(http.StatusConflict, errors.Conflict(err.Error()))
+			return c.JSON(http.StatusBadRequest, errors.BadRequest("登録に失敗しました。入力内容を確認してください。"))
 		}
-		return c.JSON(http.StatusInternalServerError, errors.InternalError(err.Error()))
+		return c.JSON(http.StatusInternalServerError, errors.InternalError("登録処理中にエラーが発生しました"))
 	}
 
 	// Cookieを設定

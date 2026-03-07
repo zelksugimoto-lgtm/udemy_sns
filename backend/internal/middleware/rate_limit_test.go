@@ -3,6 +3,7 @@ package middleware
 import (
 	"net/http"
 	"net/http/httptest"
+	"os"
 	"strconv"
 	"testing"
 	"time"
@@ -119,6 +120,11 @@ func TestRateLimiter_ThreadSafety(t *testing.T) {
 }
 
 func TestAuthRateLimitMiddleware(t *testing.T) {
+	// テスト環境の影響を受けないように、ENV環境変数をクリア
+	originalEnv := os.Getenv("ENV")
+	os.Setenv("ENV", "")
+	defer os.Setenv("ENV", originalEnv)
+
 	tests := []struct {
 		name               string
 		requests           int
@@ -184,6 +190,11 @@ func TestAuthRateLimitMiddleware(t *testing.T) {
 }
 
 func TestGeneralRateLimitMiddleware(t *testing.T) {
+	// テスト環境の影響を受けないように、ENV環境変数をクリア
+	originalEnv := os.Getenv("ENV")
+	os.Setenv("ENV", "")
+	defer os.Setenv("ENV", originalEnv)
+
 	t.Run("正常系_60回まで許可", func(t *testing.T) {
 		e := echo.New()
 		middleware := GeneralRateLimitMiddleware()
@@ -238,6 +249,11 @@ func TestGeneralRateLimitMiddleware(t *testing.T) {
 }
 
 func TestRateLimitMiddleware_ResponseHeaders(t *testing.T) {
+	// テスト環境の影響を受けないように、ENV環境変数をクリア
+	originalEnv := os.Getenv("ENV")
+	os.Setenv("ENV", "")
+	defer os.Setenv("ENV", originalEnv)
+
 	t.Run("正常系_レスポンスヘッダーが正しく設定される", func(t *testing.T) {
 		e := echo.New()
 		middleware := AuthRateLimitMiddleware()
@@ -267,6 +283,11 @@ func TestRateLimitMiddleware_ResponseHeaders(t *testing.T) {
 }
 
 func TestRateLimitMiddleware_UserIDvsIP(t *testing.T) {
+	// テスト環境の影響を受けないように、ENV環境変数をクリア
+	originalEnv := os.Getenv("ENV")
+	os.Setenv("ENV", "")
+	defer os.Setenv("ENV", originalEnv)
+
 	t.Run("正常系_認証済みユーザーはユーザーID単位でレート制限", func(t *testing.T) {
 		e := echo.New()
 		middleware := GeneralRateLimitMiddleware()

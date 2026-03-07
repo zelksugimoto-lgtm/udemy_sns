@@ -146,12 +146,14 @@ func TestAuthHandler_Register(t *testing.T) {
 		err := handler.Register(c)
 
 		assert.NoError(t, err)
-		assert.Equal(t, http.StatusConflict, rec.Code)
+		// ユーザー列挙攻撃対策: 409ではなく400を返す
+		assert.Equal(t, http.StatusBadRequest, rec.Code)
 
 		var response map[string]interface{}
 		json.Unmarshal(rec.Body.Bytes(), &response)
 		errorObj := response["error"].(map[string]interface{})
-		assert.Contains(t, errorObj["message"], "このメールアドレスは既に使用されています")
+		// ユーザー列挙攻撃対策: 既存ユーザーか否かを明示しない
+		assert.Contains(t, errorObj["message"], "登録に失敗しました")
 	})
 
 	t.Run("異常系_ユーザー名重複", func(t *testing.T) {
@@ -175,12 +177,14 @@ func TestAuthHandler_Register(t *testing.T) {
 		err := handler.Register(c)
 
 		assert.NoError(t, err)
-		assert.Equal(t, http.StatusConflict, rec.Code)
+		// ユーザー列挙攻撃対策: 409ではなく400を返す
+		assert.Equal(t, http.StatusBadRequest, rec.Code)
 
 		var response map[string]interface{}
 		json.Unmarshal(rec.Body.Bytes(), &response)
 		errorObj := response["error"].(map[string]interface{})
-		assert.Contains(t, errorObj["message"], "このユーザー名は既に使用されています")
+		// ユーザー列挙攻撃対策: 既存ユーザーか否かを明示しない
+		assert.Contains(t, errorObj["message"], "登録に失敗しました")
 	})
 
 	t.Run("境界値_usernameが3文字", func(t *testing.T) {

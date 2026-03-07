@@ -67,10 +67,23 @@ func main() {
 	e.Use(middleware.Recover())                                   // パニック時のリカバリー
 	e.Use(appMiddleware.RequestID())                              // リクエストID生成（最優先）
 	e.Use(appMiddleware.AccessLog())                              // アクセスログ（リクエストID取得後）
+
+	// セキュリティヘッダー
+	e.Use(middleware.SecureWithConfig(middleware.SecureConfig{
+		XSSProtection:         "1; mode=block",
+		ContentTypeNosniff:    "nosniff",
+		XFrameOptions:         "DENY",
+		HSTSMaxAge:            31536000, // 1年（本番環境のみ有効）
+		ContentSecurityPolicy: "default-src 'self'",
+	}))
+
+	// CORS設定
 	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
 		AllowOrigins:     []string{os.Getenv("FRONTEND_URL")},
 		AllowCredentials: true,
 		AllowMethods:     []string{http.MethodGet, http.MethodPost, http.MethodPut, http.MethodPatch, http.MethodDelete},
+		AllowHeaders:     []string{"Origin", "Content-Type", "Authorization"},
+		MaxAge:           86400, // 24時間
 	}))
 
 	// Swagger

@@ -2,6 +2,7 @@ package repository
 
 import (
 	"errors"
+	"strings"
 
 	"github.com/google/uuid"
 	"github.com/yourusername/sns-app/internal/model"
@@ -90,7 +91,9 @@ func (r *userRepository) Search(query string, limit, offset int) ([]model.User, 
 	searchQuery := r.db.Model(&model.User{})
 
 	if query != "" {
-		searchPattern := "%" + query + "%"
+		// SQLワイルドカード文字をエスケープ
+		escapedQuery := escapeWildcards(query)
+		searchPattern := "%" + escapedQuery + "%"
 		searchQuery = searchQuery.Where(
 			"username ILIKE ? OR display_name ILIKE ?",
 			searchPattern, searchPattern,
@@ -109,4 +112,12 @@ func (r *userRepository) Search(query string, limit, offset int) ([]model.User, 
 	}
 
 	return users, total, nil
+}
+
+// escapeWildcards SQLワイルドカード文字（%, _）をエスケープ
+func escapeWildcards(s string) string {
+	s = strings.ReplaceAll(s, "\\", "\\\\") // バックスラッシュを最初にエスケープ
+	s = strings.ReplaceAll(s, "%", "\\%")
+	s = strings.ReplaceAll(s, "_", "\\_")
+	return s
 }

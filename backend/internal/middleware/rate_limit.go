@@ -3,6 +3,7 @@ package middleware
 import (
 	"net"
 	"net/http"
+	"os"
 	"strconv"
 	"strings"
 	"sync"
@@ -157,18 +158,28 @@ func RateLimitMiddleware(limiter *RateLimiter, keyFunc func(c echo.Context) stri
 }
 
 // AuthRateLimitMiddleware 認証系API用のレートリミットミドルウェア
-// IPアドレス単位で5回/分の制限
+// IPアドレス単位で5回/分の制限（テスト環境では1000回/分）
 func AuthRateLimitMiddleware() echo.MiddlewareFunc {
-	limiter := NewRateLimiter(5, 1*time.Minute)
+	limit := 5
+	// テスト環境ではレート制限を緩和
+	if os.Getenv("ENV") == "test" {
+		limit = 1000
+	}
+	limiter := NewRateLimiter(limit, 1*time.Minute)
 	return RateLimitMiddleware(limiter, func(c echo.Context) string {
 		return getClientIP(c)
 	})
 }
 
 // GeneralRateLimitMiddleware 一般API用のレートリミットミドルウェア
-// 認証済みユーザーはユーザーID単位、未認証はIPアドレス単位で60回/分の制限
+// 認証済みユーザーはユーザーID単位、未認証はIPアドレス単位で60回/分の制限（テスト環境では1000回/分）
 func GeneralRateLimitMiddleware() echo.MiddlewareFunc {
-	limiter := NewRateLimiter(60, 1*time.Minute)
+	limit := 60
+	// テスト環境ではレート制限を緩和
+	if os.Getenv("ENV") == "test" {
+		limit = 1000
+	}
+	limiter := NewRateLimiter(limit, 1*time.Minute)
 	return RateLimitMiddleware(limiter, func(c echo.Context) string {
 		// 認証済みユーザーの場合はユーザーIDを使用
 		userID := c.Get("userID")
