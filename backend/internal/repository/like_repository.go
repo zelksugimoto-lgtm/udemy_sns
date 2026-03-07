@@ -11,6 +11,7 @@ type LikeRepository interface {
 	Create(like *model.Like) error
 	Delete(userID uuid.UUID, likeableType string, likeableID uuid.UUID) error
 	Exists(userID uuid.UUID, likeableType string, likeableID uuid.UUID) (bool, error)
+	ExistsInBatch(userID uuid.UUID, likeableType string, likeableIDs []uuid.UUID) (map[uuid.UUID]bool, error)
 	FindByUserIDAndType(userID uuid.UUID, likeableType string, limit, offset int) ([]model.Like, int64, error)
 }
 
@@ -49,6 +50,27 @@ func (r *likeRepository) Exists(userID uuid.UUID, likeableType string, likeableI
 	}
 
 	return count > 0, nil
+}
+
+// ExistsInBatch 複数のいいねが存在するか一括確認
+func (r *likeRepository) ExistsInBatch(userID uuid.UUID, likeableType string, likeableIDs []uuid.UUID) (map[uuid.UUID]bool, error) {
+	var likes []model.Like
+	err := r.db.Model(&model.Like{}).
+		Where("user_id = ? AND likeable_type = ? AND likeable_id IN ?", userID, likeableType, likeableIDs).
+		Select("likeable_id").
+		Find(&likes).Error
+
+	if err != nil {
+		return nil, err
+	}
+
+	// マップに変換
+	exists := make(map[uuid.UUID]bool)
+	for _, like := range likes {
+		exists[like.LikeableID] = true
+	}
+
+	return exists, nil
 }
 
 // FindByUserIDAndType ユーザーIDとタイプでいいねを取得

@@ -11,6 +11,7 @@ type BookmarkRepository interface {
 	Create(bookmark *model.Bookmark) error
 	Delete(userID, postID uuid.UUID) error
 	Exists(userID, postID uuid.UUID) (bool, error)
+	ExistsInBatch(userID uuid.UUID, postIDs []uuid.UUID) (map[uuid.UUID]bool, error)
 	FindByUserID(userID uuid.UUID, limit, offset int) ([]model.Bookmark, int64, error)
 }
 
@@ -41,6 +42,27 @@ func (r *bookmarkRepository) Exists(userID, postID uuid.UUID) (bool, error) {
 		return false, err
 	}
 	return count > 0, nil
+}
+
+// ExistsInBatch 複数のブックマークが存在するか一括確認
+func (r *bookmarkRepository) ExistsInBatch(userID uuid.UUID, postIDs []uuid.UUID) (map[uuid.UUID]bool, error) {
+	var bookmarks []model.Bookmark
+	err := r.db.Model(&model.Bookmark{}).
+		Where("user_id = ? AND post_id IN ?", userID, postIDs).
+		Select("post_id").
+		Find(&bookmarks).Error
+
+	if err != nil {
+		return nil, err
+	}
+
+	// マップに変換
+	exists := make(map[uuid.UUID]bool)
+	for _, bookmark := range bookmarks {
+		exists[bookmark.PostID] = true
+	}
+
+	return exists, nil
 }
 
 // FindByUserID ユーザーIDでブックマークを取得

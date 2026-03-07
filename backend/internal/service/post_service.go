@@ -156,15 +156,27 @@ func (s *postService) GetTimeline(userID uuid.UUID, limit, offset int) (*respons
 		return nil, err
 	}
 
+	// 投稿IDリストを作成
+	postIDs := make([]uuid.UUID, len(posts))
+	for i, post := range posts {
+		postIDs[i] = post.ID
+	}
+
+	// 一括取得（N+1クエリ解消）
+	likesCounts, _ := s.postRepo.CountLikesInBatch(postIDs)
+	commentsCounts, _ := s.postRepo.CountCommentsInBatch(postIDs)
+	isLikedMap, _ := s.likeRepo.ExistsInBatch(userID, "Post", postIDs)
+	isBookmarkedMap, _ := s.bookmarkRepo.ExistsInBatch(userID, postIDs)
+
 	// PostResponseに変換
 	postResponses := make([]response.PostResponse, len(posts))
 	for i, post := range posts {
-		likesCount, _ := s.postRepo.CountLikes(post.ID)
-		commentsCount, _ := s.postRepo.CountComments(post.ID)
-		isLiked, _ := s.likeRepo.Exists(userID, "Post", post.ID)
-		isBookmarked, _ := s.bookmarkRepo.Exists(userID, post.ID)
+		likesCount := int(likesCounts[post.ID])
+		commentsCount := int(commentsCounts[post.ID])
+		isLiked := isLikedMap[post.ID]
+		isBookmarked := isBookmarkedMap[post.ID]
 
-		postResponses[i] = *mapPostToPostResponse(&post, &post.User, int(likesCount), int(commentsCount), isLiked, isBookmarked)
+		postResponses[i] = *mapPostToPostResponse(&post, &post.User, likesCount, commentsCount, isLiked, isBookmarked)
 	}
 
 	hasMore := offset+limit < int(total)
@@ -195,20 +207,32 @@ func (s *postService) GetUserPosts(username string, limit, offset int, currentUs
 		return nil, err
 	}
 
+	// 投稿IDリストを作成
+	postIDs := make([]uuid.UUID, len(posts))
+	for i, post := range posts {
+		postIDs[i] = post.ID
+	}
+
+	// 一括取得（N+1クエリ解消）
+	likesCounts, _ := s.postRepo.CountLikesInBatch(postIDs)
+	commentsCounts, _ := s.postRepo.CountCommentsInBatch(postIDs)
+
+	// いいね・ブックマーク状態を確認（ループ外で一度だけ実行）
+	var isLikedMap, isBookmarkedMap map[uuid.UUID]bool
+	if currentUserID != nil {
+		isLikedMap, _ = s.likeRepo.ExistsInBatch(*currentUserID, "Post", postIDs)
+		isBookmarkedMap, _ = s.bookmarkRepo.ExistsInBatch(*currentUserID, postIDs)
+	}
+
 	// PostResponseに変換
 	postResponses := make([]response.PostResponse, len(posts))
 	for i, post := range posts {
-		likesCount, _ := s.postRepo.CountLikes(post.ID)
-		commentsCount, _ := s.postRepo.CountComments(post.ID)
+		likesCount := int(likesCounts[post.ID])
+		commentsCount := int(commentsCounts[post.ID])
+		isLiked := isLikedMap[post.ID]
+		isBookmarked := isBookmarkedMap[post.ID]
 
-		// いいね・ブックマーク状態を確認
-		var isLiked, isBookmarked bool
-		if currentUserID != nil {
-			isLiked, _ = s.likeRepo.Exists(*currentUserID, "Post", post.ID)
-			isBookmarked, _ = s.bookmarkRepo.Exists(*currentUserID, post.ID)
-		}
-
-		postResponses[i] = *mapPostToPostResponse(&post, &post.User, int(likesCount), int(commentsCount), isLiked, isBookmarked)
+		postResponses[i] = *mapPostToPostResponse(&post, &post.User, likesCount, commentsCount, isLiked, isBookmarked)
 	}
 
 	hasMore := offset+limit < int(total)
@@ -239,20 +263,32 @@ func (s *postService) GetUserLikedPosts(username string, limit, offset int, curr
 		return nil, err
 	}
 
+	// 投稿IDリストを作成
+	postIDs := make([]uuid.UUID, len(posts))
+	for i, post := range posts {
+		postIDs[i] = post.ID
+	}
+
+	// 一括取得（N+1クエリ解消）
+	likesCounts, _ := s.postRepo.CountLikesInBatch(postIDs)
+	commentsCounts, _ := s.postRepo.CountCommentsInBatch(postIDs)
+
+	// いいね・ブックマーク状態を確認（ループ外で一度だけ実行）
+	var isLikedMap, isBookmarkedMap map[uuid.UUID]bool
+	if currentUserID != nil {
+		isLikedMap, _ = s.likeRepo.ExistsInBatch(*currentUserID, "Post", postIDs)
+		isBookmarkedMap, _ = s.bookmarkRepo.ExistsInBatch(*currentUserID, postIDs)
+	}
+
 	// PostResponseに変換
 	postResponses := make([]response.PostResponse, len(posts))
 	for i, post := range posts {
-		likesCount, _ := s.postRepo.CountLikes(post.ID)
-		commentsCount, _ := s.postRepo.CountComments(post.ID)
+		likesCount := int(likesCounts[post.ID])
+		commentsCount := int(commentsCounts[post.ID])
+		isLiked := isLikedMap[post.ID]
+		isBookmarked := isBookmarkedMap[post.ID]
 
-		// いいね・ブックマーク状態を確認
-		var isLiked, isBookmarked bool
-		if currentUserID != nil {
-			isLiked, _ = s.likeRepo.Exists(*currentUserID, "Post", post.ID)
-			isBookmarked, _ = s.bookmarkRepo.Exists(*currentUserID, post.ID)
-		}
-
-		postResponses[i] = *mapPostToPostResponse(&post, &post.User, int(likesCount), int(commentsCount), isLiked, isBookmarked)
+		postResponses[i] = *mapPostToPostResponse(&post, &post.User, likesCount, commentsCount, isLiked, isBookmarked)
 	}
 
 	hasMore := offset+limit < int(total)

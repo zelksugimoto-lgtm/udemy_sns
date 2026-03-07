@@ -19,6 +19,8 @@ type PostRepository interface {
 	GetTimeline(userID uuid.UUID, followingIDs []uuid.UUID, limit, offset int) ([]model.Post, int64, error)
 	CountLikes(postID uuid.UUID) (int64, error)
 	CountComments(postID uuid.UUID) (int64, error)
+	CountLikesInBatch(postIDs []uuid.UUID) (map[uuid.UUID]int64, error)
+	CountCommentsInBatch(postIDs []uuid.UUID) (map[uuid.UUID]int64, error)
 }
 
 type postRepository struct {
@@ -159,4 +161,58 @@ func (r *postRepository) FindLikedByUser(userID uuid.UUID, limit, offset int) ([
 	}
 
 	return posts, total, nil
+}
+
+// CountLikesInBatch 複数の投稿のいいね数を一括取得
+func (r *postRepository) CountLikesInBatch(postIDs []uuid.UUID) (map[uuid.UUID]int64, error) {
+	type Result struct {
+		LikeableID uuid.UUID `gorm:"column:likeable_id"`
+		Count      int64     `gorm:"column:count"`
+	}
+
+	var results []Result
+	err := r.db.Model(&model.Like{}).
+		Select("likeable_id, COUNT(*) as count").
+		Where("likeable_type = ? AND likeable_id IN ?", "Post", postIDs).
+		Group("likeable_id").
+		Scan(&results).Error
+
+	if err != nil {
+		return nil, err
+	}
+
+	// マップに変換
+	counts := make(map[uuid.UUID]int64)
+	for _, result := range results {
+		counts[result.LikeableID] = result.Count
+	}
+
+	return counts, nil
+}
+
+// CountCommentsInBatch 複数の投稿のコメント数を一括取得
+func (r *postRepository) CountCommentsInBatch(postIDs []uuid.UUID) (map[uuid.UUID]int64, error) {
+	type Result struct {
+		PostID uuid.UUID `gorm:"column:post_id"`
+		Count  int64     `gorm:"column:count"`
+	}
+
+	var results []Result
+	err := r.db.Model(&model.Comment{}).
+		Select("post_id, COUNT(*) as count").
+		Where("post_id IN ?", postIDs).
+		Group("post_id").
+		Scan(&results).Error
+
+	if err != nil {
+		return nil, err
+	}
+
+	// マップに変換
+	counts := make(map[uuid.UUID]int64)
+	for _, result := range results {
+		counts[result.PostID] = result.Count
+	}
+
+	return counts, nil
 }
