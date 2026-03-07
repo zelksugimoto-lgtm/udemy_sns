@@ -2,6 +2,7 @@ package main
 
 import (
 	"log"
+	"net/http"
 	"os"
 
 	"github.com/labstack/echo/v4"
@@ -53,7 +54,11 @@ func main() {
 	// Middleware
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
-	e.Use(middleware.CORS())
+	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
+		AllowOrigins:     []string{os.Getenv("FRONTEND_URL")},
+		AllowCredentials: true,
+		AllowMethods:     []string{http.MethodGet, http.MethodPost, http.MethodPut, http.MethodPatch, http.MethodDelete},
+	}))
 
 	// Swagger
 	e.GET("/swagger/*", echoSwagger.WrapHandler)
@@ -72,9 +77,10 @@ func main() {
 	followRepo := repository.NewFollowRepository(db)
 	notificationRepo := repository.NewNotificationRepository(db)
 	reportRepo := repository.NewReportRepository(db)
+	refreshTokenRepo := repository.NewRefreshTokenRepository(db)
 
 	// Services
-	authService := service.NewAuthService(userRepo)
+	authService := service.NewAuthService(userRepo, refreshTokenRepo)
 	userService := service.NewUserService(userRepo, followRepo, postRepo)
 	postService := service.NewPostService(postRepo, userRepo, followRepo, likeRepo, bookmarkRepo)
 	notificationService := service.NewNotificationService(notificationRepo)
@@ -98,63 +104,68 @@ func main() {
 	// API routes
 	api := e.Group("/api/v1")
 
-	// Auth routes
+	// Auth routes（認証系API: 5回/分のレート制限）
 	auth := api.Group("/auth")
-	auth.POST("/register", authHandler.Register)
-	auth.POST("/login", authHandler.Login)
-	auth.GET("/me", authHandler.GetMe, appMiddleware.AuthMiddleware())
+	auth.POST("/register", authHandler.Register, appMiddleware.AuthRateLimitMiddleware())
+	auth.POST("/login", authHandler.Login, appMiddleware.AuthRateLimitMiddleware())
+	auth.POST("/refresh", authHandler.RefreshToken, appMiddleware.AuthRateLimitMiddleware())
+	auth.POST("/logout", authHandler.Logout)
+	auth.POST("/revoke-all", authHandler.RevokeAllTokens, appMiddleware.AuthMiddleware(), appMiddleware.GeneralRateLimitMiddleware())
+	auth.GET("/me", authHandler.GetMe, appMiddleware.AuthMiddleware(), appMiddleware.GeneralRateLimitMiddleware())
 
-	// User routes
-	users := api.Group("/users")
+	// User routes（一般API: 60回/分のレート制限）
+	users := api.Group("/users", appMiddleware.GeneralRateLimitMiddleware())
 	users.GET("", userHandler.SearchUsers, appMiddleware.OptionalAuthMiddleware())
 	users.GET("/:username", userHandler.GetProfile, appMiddleware.OptionalAuthMiddleware())
 	users.PATCH("/me", userHandler.UpdateProfile, appMiddleware.AuthMiddleware())
 
-	// Post routes
-	posts := api.Group("/posts")
+	// Post routes（一般API: 60回/分のレート制限）
+	posts := api.Group("/posts", appMiddleware.GeneralRateLimitMiddleware())
 	posts.POST("", postHandler.CreatePost, appMiddleware.AuthMiddleware())
 	posts.GET("/:id", postHandler.GetPost, appMiddleware.OptionalAuthMiddleware())
 	posts.PATCH("/:id", postHandler.UpdatePost, appMiddleware.AuthMiddleware())
 	posts.DELETE("/:id", postHandler.DeletePost, appMiddleware.AuthMiddleware())
 
-	// Timeline
-	api.GET("/timeline", postHandler.GetTimeline, appMiddleware.AuthMiddleware())
+	// Timeline（一般API: 60回/分のレート制限）
+	api.GET("/timeline", postHandler.GetTimeline, appMiddleware.AuthMiddleware(), appMiddleware.GeneralRateLimitMiddleware())
 
-	// User posts
+	// User posts（usersグループに含まれるため、既にレート制限が適用されている）
 	users.GET("/:username/posts", postHandler.GetUserPosts, appMiddleware.OptionalAuthMiddleware())
 	users.GET("/:username/likes", userHandler.GetUserLikedPosts, appMiddleware.OptionalAuthMiddleware())
 
-	// Comment routes
+	// Comment routes（postsグループに含まれるため、既にレート制限が適用されている）
 	posts.POST("/:id/comments", commentHandler.CreateComment, appMiddleware.AuthMiddleware())
 	posts.GET("/:id/comments", commentHandler.GetComments, appMiddleware.OptionalAuthMiddleware())
-	api.DELETE("/comments/:id", commentHandler.DeleteComment, appMiddleware.AuthMiddleware())
 
-	// Like routes
+	// Comment like/delete routes（一般API: 60回/分のレート制限）
+	api.DELETE("/comments/:id", commentHandler.DeleteComment, appMiddleware.AuthMiddleware(), appMiddleware.GeneralRateLimitMiddleware())
+	api.POST("/comments/:id/like", likeHandler.LikeComment, appMiddleware.AuthMiddleware(), appMiddleware.GeneralRateLimitMiddleware())
+	api.DELETE("/comments/:id/like", likeHandler.UnlikeComment, appMiddleware.AuthMiddleware(), appMiddleware.GeneralRateLimitMiddleware())
+
+	// Like routes（postsグループに含まれるため、既にレート制限が適用されている）
 	posts.POST("/:id/like", likeHandler.LikePost, appMiddleware.AuthMiddleware())
 	posts.DELETE("/:id/like", likeHandler.UnlikePost, appMiddleware.AuthMiddleware())
-	api.POST("/comments/:id/like", likeHandler.LikeComment, appMiddleware.AuthMiddleware())
-	api.DELETE("/comments/:id/like", likeHandler.UnlikeComment, appMiddleware.AuthMiddleware())
 
-	// Bookmark routes
+	// Bookmark routes（一般API: 60回/分のレート制限）
 	posts.POST("/:id/bookmark", bookmarkHandler.AddBookmark, appMiddleware.AuthMiddleware())
 	posts.DELETE("/:id/bookmark", bookmarkHandler.RemoveBookmark, appMiddleware.AuthMiddleware())
-	api.GET("/bookmarks", bookmarkHandler.GetBookmarks, appMiddleware.AuthMiddleware())
+	api.GET("/bookmarks", bookmarkHandler.GetBookmarks, appMiddleware.AuthMiddleware(), appMiddleware.GeneralRateLimitMiddleware())
 
-	// Follow routes
+	// Follow routes（usersグループに含まれるため、既にレート制限が適用されている）
 	users.POST("/:username/follow", followHandler.Follow, appMiddleware.AuthMiddleware())
 	users.DELETE("/:username/follow", followHandler.Unfollow, appMiddleware.AuthMiddleware())
 	users.GET("/:username/followers", followHandler.GetFollowers, appMiddleware.OptionalAuthMiddleware())
 	users.GET("/:username/following", followHandler.GetFollowing, appMiddleware.OptionalAuthMiddleware())
 
-	// Notification routes
-	notifications := api.Group("/notifications", appMiddleware.AuthMiddleware())
+	// Notification routes（一般API: 60回/分のレート制限）
+	notifications := api.Group("/notifications", appMiddleware.AuthMiddleware(), appMiddleware.GeneralRateLimitMiddleware())
 	notifications.GET("", notificationHandler.GetNotifications)
 	notifications.GET("/unread-count", notificationHandler.GetUnreadCount)
 	notifications.PATCH("/:id/read", notificationHandler.MarkAsRead)
 	notifications.POST("/read-all", notificationHandler.MarkAllAsRead)
 
-	// Report routes
-	api.POST("/reports", reportHandler.CreateReport, appMiddleware.AuthMiddleware())
+	// Report routes（一般API: 60回/分のレート制限）
+	api.POST("/reports", reportHandler.CreateReport, appMiddleware.AuthMiddleware(), appMiddleware.GeneralRateLimitMiddleware())
 
 	// Start server
 	port := os.Getenv("PORT")

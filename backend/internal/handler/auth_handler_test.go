@@ -18,7 +18,8 @@ import (
 func setupAuthHandlerTest(t *testing.T) (*echo.Echo, *AuthHandler) {
 	db := testutil.SetupTestDB(t)
 	userRepo := repository.NewUserRepository(db)
-	authService := service.NewAuthService(userRepo)
+	refreshTokenRepo := repository.NewRefreshTokenRepository(db)
+	authService := service.NewAuthService(userRepo, refreshTokenRepo)
 	authHandler := NewAuthHandler(authService)
 
 	e := echo.New()
@@ -49,15 +50,34 @@ func TestAuthHandler_Register(t *testing.T) {
 		assert.NoError(t, err)
 		assert.Equal(t, http.StatusCreated, rec.Code)
 
+		// レスポンスボディの確認
 		var response map[string]interface{}
 		json.Unmarshal(rec.Body.Bytes(), &response)
-		assert.NotEmpty(t, response["token"])
 		assert.NotNil(t, response["user"])
 
 		user := response["user"].(map[string]interface{})
 		assert.Equal(t, "newuser@example.com", user["email"])
 		assert.Equal(t, "newuser", user["username"])
 		assert.Equal(t, "New User", user["display_name"])
+
+		// Cookieが設定されていることを確認
+		cookies := rec.Result().Cookies()
+		var accessTokenCookie, refreshTokenCookie *http.Cookie
+		for _, cookie := range cookies {
+			if cookie.Name == "access_token" {
+				accessTokenCookie = cookie
+			}
+			if cookie.Name == "refresh_token" {
+				refreshTokenCookie = cookie
+			}
+		}
+
+		assert.NotNil(t, accessTokenCookie, "access_tokenクッキーが設定されているべき")
+		assert.NotNil(t, refreshTokenCookie, "refresh_tokenクッキーが設定されているべき")
+		assert.NotEmpty(t, accessTokenCookie.Value)
+		assert.NotEmpty(t, refreshTokenCookie.Value)
+		assert.True(t, accessTokenCookie.HttpOnly, "access_tokenはHttpOnlyであるべき")
+		assert.True(t, refreshTokenCookie.HttpOnly, "refresh_tokenはHttpOnlyであるべき")
 	})
 
 	t.Run("異常系_必須項目不足", func(t *testing.T) {
@@ -382,14 +402,33 @@ func TestAuthHandler_Login(t *testing.T) {
 		assert.NoError(t, err)
 		assert.Equal(t, http.StatusOK, rec.Code)
 
+		// レスポンスボディの確認
 		var response map[string]interface{}
 		json.Unmarshal(rec.Body.Bytes(), &response)
-		assert.NotEmpty(t, response["token"])
 		assert.NotNil(t, response["user"])
 
 		userResponse := response["user"].(map[string]interface{})
 		assert.Equal(t, user.Email, userResponse["email"])
 		assert.Equal(t, user.Username, userResponse["username"])
+
+		// Cookieが設定されていることを確認
+		cookies := rec.Result().Cookies()
+		var accessTokenCookie, refreshTokenCookie *http.Cookie
+		for _, cookie := range cookies {
+			if cookie.Name == "access_token" {
+				accessTokenCookie = cookie
+			}
+			if cookie.Name == "refresh_token" {
+				refreshTokenCookie = cookie
+			}
+		}
+
+		assert.NotNil(t, accessTokenCookie, "access_tokenクッキーが設定されているべき")
+		assert.NotNil(t, refreshTokenCookie, "refresh_tokenクッキーが設定されているべき")
+		assert.NotEmpty(t, accessTokenCookie.Value)
+		assert.NotEmpty(t, refreshTokenCookie.Value)
+		assert.True(t, accessTokenCookie.HttpOnly, "access_tokenはHttpOnlyであるべき")
+		assert.True(t, refreshTokenCookie.HttpOnly, "refresh_tokenはHttpOnlyであるべき")
 	})
 
 	t.Run("異常系_必須項目不足", func(t *testing.T) {

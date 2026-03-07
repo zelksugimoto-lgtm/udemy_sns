@@ -42,6 +42,9 @@ services:
       PORT: 8080
       ENV: development
 
+      # CORS
+      FRONTEND_URL: http://localhost:3000
+
       # JWT
       JWT_SECRET: your-secret-key-change-in-production
       JWT_EXPIRATION: 168h
@@ -106,6 +109,9 @@ services:
       # Server
       PORT: 8081
       ENV: test
+
+      # CORS (E2Eテスト用)
+      FRONTEND_URL: http://localhost:3001
 
       # JWT
       JWT_SECRET: test-secret-key

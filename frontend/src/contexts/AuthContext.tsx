@@ -1,8 +1,8 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
 import type { components } from '../api/generated/schema';
 import * as authApi from '../api/endpoints/auth';
-import { tokenStorage, userStorage, clearAllStorage } from '../utils/storage';
+import { apiClient } from '../api/client';
+import { userStorage, clearAllStorage } from '../utils/storage';
 import { getErrorMessage } from '../api/client';
 
 type User = components['schemas']['response.UserResponse'];
@@ -11,12 +11,11 @@ type LoginRequest = components['schemas']['request.LoginRequest'];
 
 interface AuthContextType {
   user: User | null;
-  token: string | null;
   isAuthenticated: boolean;
   isLoading: boolean;
   login: (data: LoginRequest) => Promise<void>;
   register: (data: RegisterRequest) => Promise<void>;
-  logout: () => void;
+  logout: () => Promise<void>;
   error: string | null;
 }
 
@@ -36,31 +35,27 @@ interface AuthProviderProps {
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
-  const [token, setToken] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // 初期化: ローカルストレージからトークンとユーザー情報を復元
+  // 初期化: Cookie内のトークンが有効かAPIで確認
   useEffect(() => {
     const initAuth = async () => {
-      const savedToken = tokenStorage.get();
+      // ローカルストレージにキャッシュされたユーザー情報があれば一時的にセット
       const savedUser = userStorage.get<User>();
-
-      if (savedToken && savedUser) {
-        setToken(savedToken);
+      if (savedUser) {
         setUser(savedUser);
+      }
 
-        // トークンが有効か確認（現在のユーザー情報を取得）
-        try {
-          const currentUser = await authApi.getCurrentUser();
-          setUser(currentUser);
-          userStorage.set(currentUser);
-        } catch (err) {
-          // トークンが無効な場合はクリア
-          clearAllStorage();
-          setToken(null);
-          setUser(null);
-        }
+      // Cookie内のトークンで現在のユーザー情報を取得
+      try {
+        const currentUser = await authApi.getCurrentUser();
+        setUser(currentUser);
+        userStorage.set(currentUser);
+      } catch (err) {
+        // Cookie内のトークンが無効または存在しない
+        clearAllStorage();
+        setUser(null);
       }
 
       setIsLoading(false);
@@ -76,10 +71,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       setError(null);
       const response = await authApi.login(data);
 
-      if (response.token && response.user) {
-        setToken(response.token);
+      // トークンはCookieに自動保存されるため、userのみ保存
+      if (response.user) {
         setUser(response.user);
-        tokenStorage.set(response.token);
         userStorage.set(response.user);
       }
     } catch (err) {
@@ -98,10 +92,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       setError(null);
       const response = await authApi.register(data);
 
-      if (response.token && response.user) {
-        setToken(response.token);
+      // トークンはCookieに自動保存されるため、userのみ保存
+      if (response.user) {
         setUser(response.user);
-        tokenStorage.set(response.token);
         userStorage.set(response.user);
       }
     } catch (err) {
@@ -114,17 +107,23 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   }, []);
 
   // ログアウト
-  const logout = useCallback(() => {
-    clearAllStorage();
-    setToken(null);
-    setUser(null);
-    setError(null);
+  const logout = useCallback(async () => {
+    try {
+      // バックエンドのログアウトAPIを叩いてリフレッシュトークンを無効化
+      await apiClient.post('/auth/logout');
+    } catch (err) {
+      console.error('Logout API error:', err);
+      // エラーが発生してもローカルの状態はクリア
+    } finally {
+      clearAllStorage();
+      setUser(null);
+      setError(null);
+    }
   }, []);
 
   const value = {
     user,
-    token,
-    isAuthenticated: !!token && !!user,
+    isAuthenticated: !!user,
     isLoading,
     login,
     register,
