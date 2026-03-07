@@ -83,12 +83,19 @@ func (s *authService) Register(req *request.RegisterRequest) (*response.AuthResp
 	}
 
 	// ユーザー作成
+	// E2Eテスト環境では自動承認、それ以外はpending
+	status := "pending"
+	if os.Getenv("AUTO_APPROVE_USERS") == "true" {
+		status = "approved"
+	}
+
 	user := &model.User{
 		Email:        req.Email,
 		Username:     req.Username,
 		DisplayName:  req.DisplayName,
 		PasswordHash: string(hashedPassword),
 		Bio:          "",
+		Status:       status,
 	}
 
 	if err := s.userRepo.Create(user); err != nil {
@@ -297,6 +304,7 @@ func mapUserToUserResponse(user *model.User) *response.UserResponse {
 		Bio:         user.Bio,
 		AvatarURL:   user.AvatarURL,
 		HeaderURL:   user.HeaderURL,
+		Status:      user.Status,
 		CreatedAt:   user.CreatedAt,
 	}
 }

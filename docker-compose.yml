@@ -49,6 +49,14 @@ services:
       JWT_SECRET: your-secret-key-change-in-production
       JWT_EXPIRATION: 168h
 
+      # Admin Panel
+      ADMIN_ROOT_USERNAME: admin
+      ADMIN_ROOT_PASSWORD: admin123
+      ADMIN_SESSION_SECRET: dev-session-secret-key-12345
+
+      # E2E Testing (WARNING: Only enable in test environments!)
+      AUTO_APPROVE_USERS: false
+
       # File Upload (Phase 2で使用)
       MAX_VIDEO_SIZE_MB: 20
       MAX_IMAGE_SIZE_MB: 5
@@ -116,6 +124,14 @@ services:
       # JWT
       JWT_SECRET: test-secret-key
       JWT_EXPIRATION: 168h
+
+      # Admin Panel
+      ADMIN_ROOT_USERNAME: admin
+      ADMIN_ROOT_PASSWORD: admin123
+      ADMIN_SESSION_SECRET: test-session-secret-key-12345
+
+      # E2E Testing (E2Eテスト環境では自動承認を有効化)
+      AUTO_APPROVE_USERS: true
 
       # File Upload (Phase 2で使用)
       MAX_VIDEO_SIZE_MB: 20

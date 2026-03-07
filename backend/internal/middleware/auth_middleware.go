@@ -9,6 +9,7 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
+	"github.com/yourusername/sns-app/internal/repository"
 	pkgErrors "github.com/yourusername/sns-app/pkg/errors"
 )
 
@@ -18,7 +19,8 @@ const (
 )
 
 // AuthMiddleware JWT認証ミドルウェア（Cookie優先、AuthorizationヘッダーもサポートAuthMiddleware）
-func AuthMiddleware() echo.MiddlewareFunc {
+// ユーザーステータスチェックも行う
+func AuthMiddleware(userRepo ...repository.UserRepository) echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
 			// トークンを取得（Cookie優先）
@@ -35,6 +37,35 @@ func AuthMiddleware() echo.MiddlewareFunc {
 
 			// コンテキストにユーザーIDを設定
 			c.Set("user_id", userID)
+
+			// UserRepositoryが渡されている場合、ユーザーステータスをチェック
+			if len(userRepo) > 0 && userRepo[0] != nil {
+				user, err := userRepo[0].FindByID(userID)
+				if err != nil || user == nil {
+					return c.JSON(http.StatusUnauthorized, pkgErrors.Unauthorized("ユーザーが見つかりません"))
+				}
+
+				// ステータスチェック: pending または rejected は利用不可
+				if user.Status != "approved" {
+					// ステータスに応じたメッセージを返す
+					message := "アカウントが承認されていません"
+					if user.Status == "pending" {
+						message = "アカウントは現在承認待ちです。管理者の承認をお待ちください。"
+					} else if user.Status == "rejected" {
+						message = "アカウントは拒否されました。パスワードリセット申請をお試しください。"
+					}
+
+					// カスタムレスポンス: ステータス情報を含める
+					return c.JSON(http.StatusForbidden, map[string]interface{}{
+						"error": map[string]interface{}{
+							"code":    "ACCOUNT_NOT_APPROVED",
+							"message": message,
+							"status":  user.Status,
+							"email":   user.Email,
+						},
+					})
+				}
+			}
 
 			return next(c)
 		}

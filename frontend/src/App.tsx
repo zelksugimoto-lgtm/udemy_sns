@@ -13,6 +13,10 @@ import Notifications from './pages/Notifications';
 import Settings from './pages/Settings';
 import Profile from './pages/Profile';
 import Follow from './pages/Follow';
+import PendingApproval from './pages/PendingApproval';
+import RequestPasswordReset from './pages/RequestPasswordReset';
+import ResetRequestConfirmation from './pages/ResetRequestConfirmation';
+import ResetPassword from './pages/ResetPassword';
 
 // React Query クライアント作成
 const queryClient = new QueryClient({
@@ -35,6 +39,10 @@ const App: React.FC = () => {
               {/* 認証不要なルート */}
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
+              <Route path="/pending-approval" element={<PendingApproval />} />
+              <Route path="/password-reset/request" element={<RequestPasswordReset />} />
+              <Route path="/password-reset/confirmation" element={<ResetRequestConfirmation />} />
+              <Route path="/password-reset/reset" element={<ResetPassword />} />
 
               {/* 認証が必要なルート */}
               <Route path="/" element={<ProtectedRoute><Home /></ProtectedRoute>} />

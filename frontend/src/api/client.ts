@@ -46,7 +46,10 @@ apiClient.interceptors.response.use(
       // リフレッシュAPIへのリクエスト自体が401の場合はログアウト
       if (originalRequest.url?.includes('/auth/refresh')) {
         clearAllStorage();
-        if (window.location.pathname !== '/login' && window.location.pathname !== '/register') {
+        // 認証不要なページではリダイレクトしない
+        const publicPaths = ['/login', '/register', '/pending-approval', '/password-reset/request', '/password-reset/confirmation', '/password-reset/reset'];
+        const isPublicPath = publicPaths.some(path => window.location.pathname.startsWith(path));
+        if (!isPublicPath) {
           window.location.href = '/login';
         }
         return Promise.reject(error);
@@ -83,7 +86,10 @@ apiClient.interceptors.response.use(
         isRefreshing = false;
         onRefreshError();
         clearAllStorage();
-        if (window.location.pathname !== '/login' && window.location.pathname !== '/register') {
+        // 認証不要なページではリダイレクトしない
+        const publicPaths = ['/login', '/register', '/pending-approval', '/password-reset/request', '/password-reset/confirmation', '/password-reset/reset'];
+        const isPublicPath = publicPaths.some(path => window.location.pathname.startsWith(path));
+        if (!isPublicPath) {
           window.location.href = '/login';
         }
         return Promise.reject(refreshError);
@@ -92,6 +98,30 @@ apiClient.interceptors.response.use(
 
     // 403エラー: 権限エラー
     if (error.response?.status === 403) {
+      const data = error.response?.data as {
+        error?: {
+          code?: string;
+          message?: string;
+          status?: string;
+          email?: string;
+        }
+      };
+
+      // ACCOUNT_NOT_APPROVED エラーの場合、承認待ち画面にリダイレクト
+      if (data?.error?.code === 'ACCOUNT_NOT_APPROVED') {
+        const userStatus = data.error.status;
+        const userEmail = data.error.email;
+
+        // 既に承認待ち画面にいる場合は無限ループを防ぐためリダイレクトしない
+        if (window.location.pathname !== '/pending-approval') {
+          // ステータスに応じてリダイレクト先を変更
+          if (userStatus === 'pending' || userStatus === 'rejected') {
+            window.location.href = `/pending-approval?status=${userStatus}&email=${encodeURIComponent(userEmail || '')}`;
+          }
+        }
+        return Promise.reject(error);
+      }
+
       console.error('Permission denied');
     }
 

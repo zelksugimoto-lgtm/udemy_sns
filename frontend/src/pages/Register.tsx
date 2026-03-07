@@ -33,8 +33,23 @@ const Register: React.FC = () => {
   const onSubmit = async (data: RegisterFormData) => {
     try {
       setIsLoading(true);
-      await registerUser(data);
-      navigate('/'); // 登録成功後、ホームへ
+      const user = await registerUser(data);
+
+      // ユーザーのステータスに応じてリダイレクト先を変更
+      if (user.status === 'pending' || user.status === 'rejected') {
+        // 承認待ち画面へ
+        navigate('/pending-approval', {
+          state: { status: user.status, email: user.email },
+        });
+      } else if (user.status === 'approved') {
+        // 承認済みの場合はホームへ
+        navigate('/');
+      } else {
+        // その他のステータスの場合も承認待ち画面へ
+        navigate('/pending-approval', {
+          state: { status: user.status, email: user.email },
+        });
+      }
     } catch (err) {
       // エラーはAuthContextで管理されている
     } finally {

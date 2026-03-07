@@ -1,0 +1,68 @@
+{{define "users"}}
+{{template "_header" .}}
+{{template "_sidebar" .}}
+
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">ユーザー管理</h1>
+</div>
+
+<div class="mb-3">
+    <a href="/admin/users?status=" class="btn btn-sm {{if eq .Status ""}}btn-primary{{else}}btn-outline-primary{{end}}">全て</a>
+    <a href="/admin/users?status=pending" class="btn btn-sm {{if eq .Status "pending"}}btn-warning{{else}}btn-outline-warning{{end}}">承認待ち</a>
+    <a href="/admin/users?status=approved" class="btn btn-sm {{if eq .Status "approved"}}btn-success{{else}}btn-outline-success{{end}}">承認済み</a>
+    <a href="/admin/users?status=rejected" class="btn btn-sm {{if eq .Status "rejected"}}btn-danger{{else}}btn-outline-danger{{end}}">拒否</a>
+</div>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>ユーザー名</th>
+            <th>メールアドレス</th>
+            <th>表示名</th>
+            <th>ステータス</th>
+            <th>登録日時</th>
+            <th>操作</th>
+        </tr>
+    </thead>
+    <tbody>
+        {{range .Users}}
+        <tr>
+            <td>{{.Username}}</td>
+            <td>{{.Email}}</td>
+            <td>{{.DisplayName}}</td>
+            <td>
+                {{if eq .Status "pending"}}<span class="badge bg-warning">承認待ち</span>{{end}}
+                {{if eq .Status "approved"}}<span class="badge bg-success">承認済み</span>{{end}}
+                {{if eq .Status "rejected"}}<span class="badge bg-danger">拒否</span>{{end}}
+            </td>
+            <td>{{.CreatedAt.Format "2006-01-02 15:04"}}</td>
+            <td>
+                <a href="/admin/users/{{.ID}}" class="btn btn-sm btn-info">詳細</a>
+                {{if eq .Status "pending"}}
+                <form action="/admin/users/{{.ID}}/approve" method="POST" class="d-inline">
+                    <button type="submit" class="btn btn-sm btn-success">承認</button>
+                </form>
+                <form action="/admin/users/{{.ID}}/reject" method="POST" class="d-inline">
+                    <button type="submit" class="btn btn-sm btn-danger">拒否</button>
+                </form>
+                {{end}}
+            </td>
+        </tr>
+        {{end}}
+    </tbody>
+</table>
+
+<nav>
+    <ul class="pagination">
+        {{if gt .Page 1}}
+        <li class="page-item"><a class="page-link" href="/admin/users?status={{.Status}}&page={{sub .Page 1}}">前へ</a></li>
+        {{end}}
+        <li class="page-item disabled"><span class="page-link">{{.Page}} / {{.TotalPages}}</span></li>
+        {{if lt .Page .TotalPages}}
+        <li class="page-item"><a class="page-link" href="/admin/users?status={{.Status}}&page={{add .Page 1}}">次へ</a></li>
+        {{end}}
+    </ul>
+</nav>
+
+{{template "_footer" .}}
+{{end}}

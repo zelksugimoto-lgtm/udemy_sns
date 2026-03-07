@@ -12,6 +12,9 @@ definitions:
       message:
         example: Invalid request parameters
         type: string
+      request_id:
+        example: 550e8400-e29b-41d4-a716-446655440000
+        type: string
     type: object
   errors.ErrorResponse:
     properties:
@@ -99,6 +102,20 @@ definitions:
     - email
     - password
     type: object
+  request.PasswordResetRequestRequest:
+    properties:
+      email:
+        example: user@example.com
+        type: string
+      reason:
+        example: アカウントにアクセスできなくなりました
+        maxLength: 500
+        minLength: 10
+        type: string
+    required:
+    - email
+    - reason
+    type: object
   request.RegisterRequest:
     properties:
       display_name:
@@ -123,6 +140,19 @@ definitions:
     - email
     - password
     - username
+    type: object
+  request.ResetPasswordRequest:
+    properties:
+      new_password:
+        example: newpassword123
+        minLength: 8
+        type: string
+      token:
+        example: 1234567890abcdef
+        type: string
+    required:
+    - new_password
+    - token
     type: object
   request.UpdatePostRequest:
     properties:
@@ -381,6 +411,9 @@ definitions:
       id:
         example: 550e8400-e29b-41d4-a716-446655440000
         type: string
+      status:
+        example: approved
+        type: string
       username:
         example: johndoe
         type: string
@@ -424,7 +457,7 @@ paths:
     post:
       consumes:
       - application/json
-      description: メールアドレスとパスワードでログインし、JWTトークンを返す
+      description: メールアドレスとパスワードでログインし、HttpOnly CookieでJWTトークンを返す
       parameters:
       - description: ログイン情報
         in: body
@@ -454,6 +487,27 @@ paths:
       summary: ログイン
       tags:
       - auth
+  /auth/logout:
+    post:
+      consumes:
+      - application/json
+      description: リフレッシュトークンを無効化し、Cookieを削除
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+      summary: ログアウト
+      tags:
+      - auth
   /auth/me:
     get:
       consumes:
@@ -479,11 +533,104 @@ paths:
       summary: 現在のユーザー情報取得
       tags:
       - auth
+  /auth/password-reset:
+    post:
+      consumes:
+      - application/json
+      description: トークンを使用してパスワードをリセット
+      parameters:
+      - description: パスワードリセット情報
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/request.ResetPasswordRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+      summary: パスワードリセット
+      tags:
+      - auth
+  /auth/password-reset/request:
+    post:
+      consumes:
+      - application/json
+      description: パスワードリセット申請を作成（認証不要）
+      parameters:
+      - description: パスワードリセット申請情報
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/request.PasswordResetRequestRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+      summary: パスワードリセット申請
+      tags:
+      - auth
+  /auth/refresh:
+    post:
+      consumes:
+      - application/json
+      description: リフレッシュトークンを使用して新しいアクセストークンを発行
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+      summary: トークンリフレッシュ
+      tags:
+      - auth
   /auth/register:
     post:
       consumes:
       - application/json
-      description: 新しいユーザーを登録し、JWTトークンを返す
+      description: 新しいユーザーを登録し、HttpOnly CookieでJWTトークンを返す
       parameters:
       - description: 登録情報
         in: body
@@ -511,6 +658,33 @@ paths:
           schema:
             $ref: '#/definitions/errors.ErrorResponse'
       summary: ユーザー登録
+      tags:
+      - auth
+  /auth/revoke-all:
+    post:
+      consumes:
+      - application/json
+      description: ユーザーの全リフレッシュトークンを無効化
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: 全デバイスログアウト
       tags:
       - auth
   /bookmarks:

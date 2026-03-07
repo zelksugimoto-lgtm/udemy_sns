@@ -21,6 +21,7 @@ type UserResponse struct {
 	Bio         string    `json:"bio" example:"Hello, I'm John!"`
 	AvatarURL   string    `json:"avatar_url,omitempty" example:"https://example.com/avatar.jpg"`
 	HeaderURL   string    `json:"header_url,omitempty" example:"https://example.com/header.jpg"`
+	Status      string    `json:"status" example:"approved"`
 	CreatedAt   time.Time `json:"created_at" example:"2025-01-01T00:00:00Z"`
 }
 

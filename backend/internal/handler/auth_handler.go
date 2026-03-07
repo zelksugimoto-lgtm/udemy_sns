@@ -8,6 +8,7 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/yourusername/sns-app/internal/dto/request"
 	"github.com/yourusername/sns-app/internal/middleware"
+	"github.com/yourusername/sns-app/internal/model"
 	"github.com/yourusername/sns-app/internal/service"
 	"github.com/yourusername/sns-app/pkg/errors"
 	"github.com/yourusername/sns-app/pkg/validator"
@@ -21,12 +22,20 @@ const (
 )
 
 type AuthHandler struct {
-	authService service.AuthService
+	authService          service.AuthService
+	passwordResetService interface {
+		CreateRequest(email, reason string) (*model.PasswordResetRequest, error)
+		ResetPassword(token, newPassword string) error
+	}
 }
 
-func NewAuthHandler(authService service.AuthService) *AuthHandler {
+func NewAuthHandler(authService service.AuthService, passwordResetService interface {
+	CreateRequest(email, reason string) (*model.PasswordResetRequest, error)
+	ResetPassword(token, newPassword string) error
+}) *AuthHandler {
 	return &AuthHandler{
-		authService: authService,
+		authService:          authService,
+		passwordResetService: passwordResetService,
 	}
 }
 
@@ -210,6 +219,80 @@ func (h *AuthHandler) GetMe(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, result)
+}
+
+// RequestPasswordReset godoc
+// @Summary      パスワードリセット申請
+// @Description  パスワードリセット申請を作成（認証不要）
+// @Tags         auth
+// @Accept       json
+// @Produce      json
+// @Param        request  body      request.PasswordResetRequestRequest  true  "パスワードリセット申請情報"
+// @Success      201      {object}  map[string]string
+// @Failure      400      {object}  errors.ErrorResponse
+// @Failure      500      {object}  errors.ErrorResponse
+// @Router       /auth/password-reset/request [post]
+func (h *AuthHandler) RequestPasswordReset(c echo.Context) error {
+	var req request.PasswordResetRequestRequest
+	if err := c.Bind(&req); err != nil {
+		return c.JSON(http.StatusBadRequest, errors.BadRequest("無効なリクエストです"))
+	}
+
+	// バリデーション
+	if err := validator.Validate(&req); err != nil {
+		return c.JSON(http.StatusBadRequest, errors.BadRequest(err.Error()))
+	}
+
+	// パスワードリセット申請を作成
+	_, err := h.passwordResetService.CreateRequest(req.Email, req.Reason)
+	if err != nil {
+		// セキュリティ上、メールアドレスの存在有無を明示しない
+		// すべてのエラーを同じメッセージで返す
+		return c.JSON(http.StatusOK, map[string]string{
+			"message": "パスワードリセット申請を受け付けました。管理者が確認次第、ご連絡いたします。",
+		})
+	}
+
+	return c.JSON(http.StatusCreated, map[string]string{
+		"message": "パスワードリセット申請を受け付けました。管理者が確認次第、ご連絡いたします。",
+	})
+}
+
+// ResetPassword godoc
+// @Summary      パスワードリセット
+// @Description  トークンを使用してパスワードをリセット
+// @Tags         auth
+// @Accept       json
+// @Produce      json
+// @Param        request  body      request.ResetPasswordRequest  true  "パスワードリセット情報"
+// @Success      200      {object}  map[string]string
+// @Failure      400      {object}  errors.ErrorResponse
+// @Failure      401      {object}  errors.ErrorResponse
+// @Failure      500      {object}  errors.ErrorResponse
+// @Router       /auth/password-reset [post]
+func (h *AuthHandler) ResetPassword(c echo.Context) error {
+	var req request.ResetPasswordRequest
+	if err := c.Bind(&req); err != nil {
+		return c.JSON(http.StatusBadRequest, errors.BadRequest("無効なリクエストです"))
+	}
+
+	// バリデーション
+	if err := validator.Validate(&req); err != nil {
+		return c.JSON(http.StatusBadRequest, errors.BadRequest(err.Error()))
+	}
+
+	// パスワードリセット
+	err := h.passwordResetService.ResetPassword(req.Token, req.NewPassword)
+	if err != nil {
+		if err.Error() == "無効なトークンです" || err.Error() == "トークンの有効期限が切れています" {
+			return c.JSON(http.StatusUnauthorized, errors.Unauthorized(err.Error()))
+		}
+		return c.JSON(http.StatusInternalServerError, errors.InternalError("パスワードリセット中にエラーが発生しました"))
+	}
+
+	return c.JSON(http.StatusOK, map[string]string{
+		"message": "パスワードをリセットしました",
+	})
 }
 
 // setAuthCookies アクセストークンとリフレッシュトークンをCookieに設定

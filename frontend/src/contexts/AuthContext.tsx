@@ -13,8 +13,8 @@ interface AuthContextType {
   user: User | null;
   isAuthenticated: boolean;
   isLoading: boolean;
-  login: (data: LoginRequest) => Promise<void>;
-  register: (data: RegisterRequest) => Promise<void>;
+  login: (data: LoginRequest) => Promise<User>;
+  register: (data: RegisterRequest) => Promise<User>;
   logout: () => Promise<void>;
   error: string | null;
 }
@@ -65,7 +65,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   }, []);
 
   // ログイン
-  const login = useCallback(async (data: LoginRequest) => {
+  const login = useCallback(async (data: LoginRequest): Promise<User> => {
     try {
       setIsLoading(true);
       setError(null);
@@ -75,7 +75,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       if (response.user) {
         setUser(response.user);
         userStorage.set(response.user);
+        return response.user;
       }
+      throw new Error('ユーザー情報が取得できませんでした');
     } catch (err) {
       const message = getErrorMessage(err);
       setError(message);
@@ -86,7 +88,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   }, []);
 
   // ユーザー登録
-  const register = useCallback(async (data: RegisterRequest) => {
+  const register = useCallback(async (data: RegisterRequest): Promise<User> => {
     try {
       setIsLoading(true);
       setError(null);
@@ -96,7 +98,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       if (response.user) {
         setUser(response.user);
         userStorage.set(response.user);
+        return response.user;
       }
+      throw new Error('ユーザー情報が取得できませんでした');
     } catch (err) {
       const message = getErrorMessage(err);
       setError(message);

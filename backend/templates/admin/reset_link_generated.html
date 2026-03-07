@@ -1,0 +1,19 @@
+{{define "reset_link_generated"}}
+{{template "_header" .}}
+{{template "_sidebar" .}}
+
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">パスワードリセットリンク発行</h1>
+</div>
+
+<div class="alert alert-success">
+    <h4 class="alert-heading">リセットリンクを発行しました</h4>
+    <p>以下のリンクをユーザーに送信してください（有効期限: 24時間）</p>
+    <hr>
+    <p class="mb-0"><strong>{{.ResetLink}}</strong></p>
+</div>
+
+<a href="/admin/password-resets" class="btn btn-primary">申請一覧に戻る</a>
+
+{{template "_footer" .}}
+{{end}}

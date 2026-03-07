@@ -71,6 +71,8 @@ func AutoMigrate(db *gorm.DB) error {
 		&model.Follow{},
 		&model.Notification{},
 		&model.Report{},
+		&model.Admin{},
+		&model.PasswordResetRequest{},
 	)
 
 	if err != nil {

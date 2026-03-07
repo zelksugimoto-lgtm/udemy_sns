@@ -1,0 +1,36 @@
+{{define "admins"}}
+{{template "_header" .}}
+{{template "_sidebar" .}}
+
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">管理者管理</h1>
+    <div>
+        <a href="/admin/admins/create" class="btn btn-primary">新規管理者作成</a>
+    </div>
+</div>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>ユーザー名</th>
+            <th>メールアドレス</th>
+            <th>権限</th>
+            <th>作成日時</th>
+        </tr>
+    </thead>
+    <tbody>
+        {{range .Admins}}
+        <tr>
+            <td>{{.Username}}</td>
+            <td>{{.Email}}</td>
+            <td>
+                {{if eq .Role "root"}}<span class="badge bg-danger">Root</span>{{else}}<span class="badge bg-primary">Admin</span>{{end}}
+            </td>
+            <td>{{.CreatedAt.Format "2006-01-02 15:04"}}</td>
+        </tr>
+        {{end}}
+    </tbody>
+</table>
+
+{{template "_footer" .}}
+{{end}}

@@ -1,0 +1,24 @@
+{{define "_sidebar"}}
+            <nav class="col-md-2 d-md-block bg-light sidebar">
+                <div class="sidebar-sticky">
+                    <ul class="nav flex-column">
+                        <li class="nav-item">
+                            <a class="nav-link" href="/admin">ダッシュボード</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/admin/users">ユーザー管理</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/admin/password-resets">パスワードリセット</a>
+                        </li>
+                        {{if .IsRoot}}
+                        <li class="nav-item">
+                            <a class="nav-link" href="/admin/admins">管理者管理</a>
+                        </li>
+                        {{end}}
+                    </ul>
+                </div>
+            </nav>
+
+            <main class="col-md-10 ms-sm-auto px-md-4">
+{{end}}

@@ -1,0 +1,63 @@
+{{define "dashboard"}}
+{{template "_header" .}}
+{{template "_sidebar" .}}
+
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">ダッシュボード</h1>
+</div>
+
+<div class="row">
+    <div class="col-md-3 mb-4">
+        <div class="card text-white bg-warning">
+            <div class="card-body">
+                <h5 class="card-title">承認待ちユーザー</h5>
+                <p class="card-text display-4">{{.PendingUsers}}</p>
+                <a href="/admin/users?status=pending" class="btn btn-light btn-sm">詳細を見る</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3 mb-4">
+        <div class="card text-white bg-success">
+            <div class="card-body">
+                <h5 class="card-title">承認済みユーザー</h5>
+                <p class="card-text display-4">{{.ApprovedUsers}}</p>
+                <a href="/admin/users?status=approved" class="btn btn-light btn-sm">詳細を見る</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3 mb-4">
+        <div class="card text-white bg-danger">
+            <div class="card-body">
+                <h5 class="card-title">拒否ユーザー</h5>
+                <p class="card-text display-4">{{.RejectedUsers}}</p>
+                <a href="/admin/users?status=rejected" class="btn btn-light btn-sm">詳細を見る</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3 mb-4">
+        <div class="card text-white bg-info">
+            <div class="card-body">
+                <h5 class="card-title">投稿数</h5>
+                <p class="card-text display-4">{{.TotalPosts}}</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-6 mb-4">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">パスワードリセット申請</h5>
+                <p class="card-text">未処理の申請: {{.PendingResetRequests}} 件</p>
+                <a href="/admin/password-resets" class="btn btn-primary">申請一覧を見る</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+{{template "_footer" .}}
+{{end}}

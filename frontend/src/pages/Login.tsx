@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate, Link as RouterLink } from 'react-router-dom';
+import { useNavigate, useLocation, Link as RouterLink } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import {
@@ -19,8 +19,12 @@ import type { LoginFormData } from '../utils/validation';
 
 const Login: React.FC = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { login, error: authError } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
+
+  // location.stateからメッセージを取得
+  const successMessage = (location.state as { message?: string })?.message;
 
   const {
     register,
@@ -33,8 +37,23 @@ const Login: React.FC = () => {
   const onSubmit = async (data: LoginFormData) => {
     try {
       setIsLoading(true);
-      await login(data);
-      navigate('/'); // ログイン成功後、ホームへ
+      const user = await login(data);
+
+      // ユーザーのステータスに応じてリダイレクト先を変更
+      if (user.status === 'pending' || user.status === 'rejected') {
+        // 承認待ち画面へ
+        navigate('/pending-approval', {
+          state: { status: user.status, email: user.email },
+        });
+      } else if (user.status === 'approved') {
+        // 承認済みの場合はホームへ
+        navigate('/');
+      } else {
+        // その他のステータスの場合も承認待ち画面へ
+        navigate('/pending-approval', {
+          state: { status: user.status, email: user.email },
+        });
+      }
     } catch (err) {
       // エラーはAuthContextで管理されている
     } finally {
@@ -51,6 +70,12 @@ const Login: React.FC = () => {
         <Typography variant="body2" align="center" color="text.secondary" gutterBottom>
           SNS Application にログイン
         </Typography>
+
+        {successMessage && (
+          <Alert severity="success" sx={{ mt: 2 }}>
+            {successMessage}
+          </Alert>
+        )}
 
         {authError && (
           <Alert severity="error" sx={{ mt: 2 }}>
@@ -96,10 +121,15 @@ const Login: React.FC = () => {
           </Button>
 
           <Box textAlign="center">
-            <Typography variant="body2">
+            <Typography variant="body2" sx={{ mb: 1 }}>
               アカウントをお持ちでないですか？{' '}
               <Link component={RouterLink} to="/register">
                 新規登録
+              </Link>
+            </Typography>
+            <Typography variant="body2">
+              <Link component={RouterLink} to="/password-reset/request">
+                パスワードをお忘れの方
               </Link>
             </Typography>
           </Box>
