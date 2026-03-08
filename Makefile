@@ -1,4 +1,4 @@
-.PHONY: help dev-up dev-down dev-logs test-setup test-teardown test-backend test-e2e test
+.PHONY: help dev-up dev-down dev-logs test-setup test-teardown test-backend test-e2e test deploy-frontend
 
 # デフォルトターゲット
 help: ## 全コマンドの一覧を表示
@@ -19,6 +19,9 @@ help: ## 全コマンドの一覧を表示
 	@echo "  make test-backend  - バックエンドの単体テストを実行"
 	@echo "  make test-e2e      - フロントエンドのE2Eテストを実行"
 	@echo "  make test          - 全テストを実行（backend + e2e）"
+	@echo ""
+	@echo "デプロイ:"
+	@echo "  make deploy-frontend - フロントエンドをFirebase Hostingにデプロイ"
 	@echo ""
 	@echo "=========================================="
 
@@ -109,3 +112,10 @@ test: ## 全テストを実行（backend + e2e）
 	@echo "=========================================="
 	@echo "🎉 全テストが完了しました！"
 	@echo "=========================================="
+
+# デプロイ
+deploy-frontend: ## フロントエンドをFirebase Hostingにデプロイ
+	@echo "=========================================="
+	@echo " Firebase Hosting デプロイ"
+	@echo "=========================================="
+	@cd frontend && ./scripts/deploy.sh

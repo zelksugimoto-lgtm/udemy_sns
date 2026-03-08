@@ -1,0 +1,58 @@
+# ====================
+# Build Stage
+# ====================
+FROM golang:1.23-alpine AS builder
+
+# 必要なパッケージのインストール
+RUN apk add --no-cache git
+
+WORKDIR /app
+
+# go.modとgo.sumをコピーして依存関係をダウンロード
+COPY go.mod go.sum ./
+RUN go mod download
+
+# swaggoのインストール（OpenAPI生成用）
+RUN go install github.com/swaggo/swag/cmd/swag@v1.16.4
+
+# ソースコードをコピー
+COPY . .
+
+# Swagger/OpenAPIドキュメント生成
+RUN /go/bin/swag init -g cmd/server/main.go -o docs
+
+# バイナリをビルド（静的リンク）
+RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o /app/main ./cmd/server/main.go
+
+# ====================
+# Runtime Stage
+# ====================
+FROM alpine:3.19
+
+# 必要なランタイムパッケージのインストール
+RUN apk --no-cache add ca-certificates tzdata
+
+# タイムゾーンをAsia/Tokyoに設定
+ENV TZ=Asia/Tokyo
+
+WORKDIR /app
+
+# ビルドステージからバイナリとドキュメントをコピー
+COPY --from=builder /app/main .
+COPY --from=builder /app/docs ./docs
+
+# 非rootユーザーで実行
+RUN addgroup -g 1000 appuser && \
+    adduser -D -u 1000 -G appuser appuser && \
+    chown -R appuser:appuser /app
+USER appuser
+
+# Cloud RunのPORT環境変数を使用（デフォルト: 8080）
+ENV PORT=8080
+
+# ヘルスチェック
+HEALTHCHECK --interval=30s --timeout=5s --start-period=5s --retries=3 \
+  CMD wget --no-verbose --tries=1 --spider http://localhost:${PORT}/health || exit 1
+
+# アプリケーション起動
+CMD ["./main"]
