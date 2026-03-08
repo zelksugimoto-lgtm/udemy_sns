@@ -30,7 +30,8 @@ RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o /app/main ./cmd/s
 FROM alpine:3.19
 
 # 必要なランタイムパッケージのインストール
-RUN apk --no-cache add ca-certificates tzdata
+# curl を追加（ヘルスチェック用）
+RUN apk --no-cache add ca-certificates tzdata curl
 
 # タイムゾーンをAsia/Tokyoに設定
 ENV TZ=Asia/Tokyo
@@ -50,9 +51,9 @@ USER appuser
 # Cloud RunのPORT環境変数を使用（デフォルト: 8080）
 ENV PORT=8080
 
-# ヘルスチェック
+# ヘルスチェック（curlを使用）
 HEALTHCHECK --interval=30s --timeout=5s --start-period=5s --retries=3 \
-  CMD wget --no-verbose --tries=1 --spider http://localhost:${PORT}/health || exit 1
+  CMD curl -f http://localhost:${PORT}/health || exit 1
 
 # アプリケーション起動
 CMD ["./main"]

@@ -45,10 +45,19 @@ dev-logs: ## 開発環境のログを表示
 test-setup: ## テスト環境を起動
 	@echo "🔧 テスト環境をセットアップ中..."
 	docker compose --profile test up -d
-	@echo "⏳ テスト用DBの準備を待機中..."
-	@sleep 5
-	@echo "✅ テスト環境のセットアップが完了しました"
-	@echo "   Test API: http://localhost:8081"
+	@echo "⏳ テスト用APIサーバーの起動を待機中（最大60秒）..."
+	@for i in 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15; do \
+		if curl -s http://localhost:8081/health > /dev/null 2>&1; then \
+			echo "✅ テスト環境のセットアップが完了しました ($$i秒)"; \
+			echo "   Test API: http://localhost:8081"; \
+			exit 0; \
+		fi; \
+		if [ $$i -eq 1 ]; then echo "   初回起動時は依存関係のダウンロードとビルドに時間がかかります..."; fi; \
+		sleep 4; \
+	done; \
+	echo "❌ APIサーバーの起動に失敗しました（60秒タイムアウト）"; \
+	echo "   ログを確認してください: docker compose logs api_test"; \
+	exit 1
 
 test-teardown: ## テスト環境を停止・削除
 	@echo "🧹 テスト環境をクリーンアップ中..."

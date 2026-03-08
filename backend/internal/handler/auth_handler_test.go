@@ -10,17 +10,30 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/assert"
 	"github.com/yourusername/sns-app/internal/middleware"
+	"github.com/yourusername/sns-app/internal/model"
 	"github.com/yourusername/sns-app/internal/repository"
 	"github.com/yourusername/sns-app/internal/service"
 	"github.com/yourusername/sns-app/internal/testutil"
 )
+
+// mockPasswordResetService はテスト用のパスワードリセットサービスのモック
+type mockPasswordResetService struct{}
+
+func (m *mockPasswordResetService) CreateRequest(email, reason string) (*model.PasswordResetRequest, error) {
+	return nil, nil
+}
+
+func (m *mockPasswordResetService) ResetPassword(token, newPassword string) error {
+	return nil
+}
 
 func setupAuthHandlerTest(t *testing.T) (*echo.Echo, *AuthHandler) {
 	db := testutil.SetupTestDB(t)
 	userRepo := repository.NewUserRepository(db)
 	refreshTokenRepo := repository.NewRefreshTokenRepository(db)
 	authService := service.NewAuthService(userRepo, refreshTokenRepo)
-	authHandler := NewAuthHandler(authService)
+	passwordResetService := &mockPasswordResetService{}
+	authHandler := NewAuthHandler(authService, passwordResetService)
 
 	e := echo.New()
 	return e, authHandler
