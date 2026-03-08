@@ -195,8 +195,12 @@ func (s *StorageService) UploadFile(ctx context.Context, path string, file io.Re
 		return "", fmt.Errorf("サービスアカウントキーの解析に失敗しました: %w", err)
 	}
 
-	// 秘密鍵を取得
-	privateKeyPEM := creds["private_key"].(string)
+	// 秘密鍵を取得（安全な型アサーション）
+	privateKeyPEM, ok := creds["private_key"].(string)
+	if !ok {
+		return "", fmt.Errorf("サービスアカウントキーのprivate_keyフィールドが不正です")
+	}
+
 	block, _ := pem.Decode([]byte(privateKeyPEM))
 	if block == nil {
 		return "", fmt.Errorf("秘密鍵のデコードに失敗しました")
@@ -218,9 +222,15 @@ func (s *StorageService) UploadFile(ctx context.Context, path string, file io.Re
 		Bytes: x509.MarshalPKCS1PrivateKey(rsaKey),
 	})
 
+	// client_emailを取得（安全な型アサーション）
+	clientEmail, ok := creds["client_email"].(string)
+	if !ok {
+		return "", fmt.Errorf("サービスアカウントキーのclient_emailフィールドが不正です")
+	}
+
 	// 署名付きURLを生成（有効期限: 10年）
 	opts := &storage.SignedURLOptions{
-		GoogleAccessID: creds["client_email"].(string),
+		GoogleAccessID: clientEmail,
 		PrivateKey:     privateKeyBytes,
 		Expires:        time.Now().Add(10 * 365 * 24 * time.Hour), // 10年
 		Method:         "GET",
