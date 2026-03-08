@@ -6,6 +6,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
+	"github.com/rs/zerolog/log"
 	"github.com/yourusername/sns-app/internal/dto/request"
 	"github.com/yourusername/sns-app/internal/middleware"
 	"github.com/yourusername/sns-app/internal/service"
@@ -25,12 +26,12 @@ func NewPostHandler(postService service.PostService) *PostHandler {
 
 // CreatePost godoc
 // @Summary      投稿作成
-// @Description  新しい投稿を作成
+// @Description  新しい投稿を作成（画像・動画を最大4つまで添付可能）
 // @Tags         posts
 // @Accept       json
 // @Produce      json
 // @Security     BearerAuth
-// @Param        request  body      request.CreatePostRequest  true  "投稿内容"
+// @Param        request  body      request.CreatePostRequest  true  "投稿内容（media配列に画像URLを含めることができます）"
 // @Success      201      {object}  response.PostResponse
 // @Failure      400      {object}  errors.ErrorResponse
 // @Failure      401      {object}  errors.ErrorResponse
@@ -62,6 +63,7 @@ func (h *PostHandler) CreatePost(c echo.Context) error {
 	// サービス層を呼び出し
 	post, err := h.postService.CreatePost(userID, &req)
 	if err != nil {
+		log.Error().Err(err).Msg("投稿作成エラー")
 		return c.JSON(http.StatusInternalServerError, errors.InternalError("投稿の作成に失敗しました"))
 	}
 
@@ -70,7 +72,7 @@ func (h *PostHandler) CreatePost(c echo.Context) error {
 
 // GetPost godoc
 // @Summary      投稿取得
-// @Description  IDから投稿を取得
+// @Description  IDから投稿を取得（添付画像・動画を含む）
 // @Tags         posts
 // @Accept       json
 // @Produce      json
@@ -107,7 +109,7 @@ func (h *PostHandler) GetPost(c echo.Context) error {
 
 // UpdatePost godoc
 // @Summary      投稿更新
-// @Description  投稿内容を更新（投稿者のみ）
+// @Description  投稿内容を更新（投稿者のみ、画像の編集・削除は未対応）
 // @Tags         posts
 // @Accept       json
 // @Produce      json
@@ -208,7 +210,7 @@ func (h *PostHandler) DeletePost(c echo.Context) error {
 
 // GetTimeline godoc
 // @Summary      タイムライン取得
-// @Description  フォロー中のユーザー + 自分の投稿を時系列で取得
+// @Description  フォロー中のユーザー + 自分の投稿を時系列で取得（添付画像・動画を含む）
 // @Tags         posts
 // @Accept       json
 // @Produce      json
@@ -249,7 +251,7 @@ func (h *PostHandler) GetTimeline(c echo.Context) error {
 
 // GetUserPosts godoc
 // @Summary      ユーザーの投稿一覧取得
-// @Description  指定したユーザー名の投稿一覧を取得
+// @Description  指定したユーザー名の投稿一覧を取得（添付画像・動画を含む）
 // @Tags         posts
 // @Accept       json
 // @Produce      json

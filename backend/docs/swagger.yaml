@@ -30,6 +30,14 @@ definitions:
         example: Invalid email format
         type: string
     type: object
+  handler.FileUploadResponse:
+    properties:
+      media_type:
+        type: string
+      media_url:
+        description: Firebase Storage公開URL
+        type: string
+    type: object
   request.CreateCommentRequest:
     properties:
       content:
@@ -50,6 +58,11 @@ definitions:
         maxLength: 250
         minLength: 1
         type: string
+      media:
+        items:
+          $ref: '#/definitions/request.PostMediaRequest'
+        maxItems: 4
+        type: array
       visibility:
         enum:
         - public
@@ -115,6 +128,26 @@ definitions:
     required:
     - email
     - reason
+    type: object
+  request.PostMediaRequest:
+    properties:
+      display_order:
+        example: 0
+        maximum: 3
+        minimum: 0
+        type: integer
+      media_type:
+        enum:
+        - image
+        - video
+        example: image
+        type: string
+      media_url:
+        example: https://firebasestorage.googleapis.com/...
+        type: string
+    required:
+    - media_type
+    - media_url
     type: object
   request.RegisterRequest:
     properties:
@@ -311,6 +344,24 @@ definitions:
           $ref: '#/definitions/response.PostResponse'
         type: array
     type: object
+  response.PostMediaResponse:
+    properties:
+      display_order:
+        example: 0
+        type: integer
+      id:
+        example: 550e8400-e29b-41d4-a716-446655440000
+        type: string
+      media_type:
+        example: image
+        type: string
+      media_url:
+        example: https://firebasestorage.googleapis.com/...
+        type: string
+      thumbnail_url:
+        example: https://firebasestorage.googleapis.com/...
+        type: string
+    type: object
   response.PostResponse:
     properties:
       comments_count:
@@ -334,6 +385,10 @@ definitions:
       likes_count:
         example: 10
         type: integer
+      media:
+        items:
+          $ref: '#/definitions/response.PostMediaResponse'
+        type: array
       updated_at:
         example: "2025-01-01T00:00:00Z"
         type: string
@@ -948,9 +1003,9 @@ paths:
     post:
       consumes:
       - application/json
-      description: 新しい投稿を作成
+      description: 新しい投稿を作成（画像・動画を最大4つまで添付可能）
       parameters:
-      - description: 投稿内容
+      - description: 投稿内容（media配列に画像URLを含めることができます）
         in: body
         name: request
         required: true
@@ -1020,7 +1075,7 @@ paths:
     get:
       consumes:
       - application/json
-      description: IDから投稿を取得
+      description: IDから投稿を取得（添付画像・動画を含む）
       parameters:
       - description: 投稿ID
         in: path
@@ -1048,7 +1103,7 @@ paths:
     patch:
       consumes:
       - application/json
-      description: 投稿内容を更新（投稿者のみ）
+      description: 投稿内容を更新（投稿者のみ、画像の編集・削除は未対応）
       parameters:
       - description: 投稿ID
         in: path
@@ -1354,7 +1409,7 @@ paths:
     get:
       consumes:
       - application/json
-      description: フォロー中のユーザー + 自分の投稿を時系列で取得
+      description: フォロー中のユーザー + 自分の投稿を時系列で取得（添付画像・動画を含む）
       parameters:
       - description: '取得件数（デフォルト: 20）'
         in: query
@@ -1384,6 +1439,45 @@ paths:
       summary: タイムライン取得
       tags:
       - posts
+  /upload/image:
+    post:
+      consumes:
+      - multipart/form-data
+      description: 画像をFirebase Storageにアップロードし、URLを返す
+      parameters:
+      - description: アップロードする画像ファイル
+        in: formData
+        name: file
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.FileUploadResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+        "413":
+          description: Request Entity Too Large
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: 画像アップロード
+      tags:
+      - upload
   /users:
     get:
       consumes:
@@ -1648,7 +1742,7 @@ paths:
     get:
       consumes:
       - application/json
-      description: 指定したユーザー名の投稿一覧を取得
+      description: 指定したユーザー名の投稿一覧を取得（添付画像・動画を含む）
       parameters:
       - description: ユーザー名
         in: path

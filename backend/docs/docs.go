@@ -798,7 +798,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "新しい投稿を作成",
+                "description": "新しい投稿を作成（画像・動画を最大4つまで添付可能）",
                 "consumes": [
                     "application/json"
                 ],
@@ -811,7 +811,7 @@ const docTemplate = `{
                 "summary": "投稿作成",
                 "parameters": [
                     {
-                        "description": "投稿内容",
+                        "description": "投稿内容（media配列に画像URLを含めることができます）",
                         "name": "request",
                         "in": "body",
                         "required": true,
@@ -850,7 +850,7 @@ const docTemplate = `{
         },
         "/posts/{id}": {
             "get": {
-                "description": "IDから投稿を取得",
+                "description": "IDから投稿を取得（添付画像・動画を含む）",
                 "consumes": [
                     "application/json"
                 ],
@@ -953,7 +953,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "投稿内容を更新（投稿者のみ）",
+                "description": "投稿内容を更新（投稿者のみ、画像の編集・削除は未対応）",
                 "consumes": [
                     "application/json"
                 ],
@@ -1429,7 +1429,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "フォロー中のユーザー + 自分の投稿を時系列で取得",
+                "description": "フォロー中のユーザー + 自分の投稿を時系列で取得（添付画像・動画を含む）",
                 "consumes": [
                     "application/json"
                 ],
@@ -1463,6 +1463,67 @@ const docTemplate = `{
                     },
                     "401": {
                         "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/errors.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/errors.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/upload/image": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "画像をFirebase Storageにアップロードし、URLを返す",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "upload"
+                ],
+                "summary": "画像アップロード",
+                "parameters": [
+                    {
+                        "type": "file",
+                        "description": "アップロードする画像ファイル",
+                        "name": "file",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/handler.FileUploadResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/errors.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/errors.ErrorResponse"
+                        }
+                    },
+                    "413": {
+                        "description": "Request Entity Too Large",
                         "schema": {
                             "$ref": "#/definitions/errors.ErrorResponse"
                         }
@@ -1942,7 +2003,7 @@ const docTemplate = `{
         },
         "/users/{username}/posts": {
             "get": {
-                "description": "指定したユーザー名の投稿一覧を取得",
+                "description": "指定したユーザー名の投稿一覧を取得（添付画像・動画を含む）",
                 "consumes": [
                     "application/json"
                 ],
@@ -2042,6 +2103,18 @@ const docTemplate = `{
                 }
             }
         },
+        "handler.FileUploadResponse": {
+            "type": "object",
+            "properties": {
+                "media_type": {
+                    "type": "string"
+                },
+                "media_url": {
+                    "description": "Firebase Storage公開URL",
+                    "type": "string"
+                }
+            }
+        },
         "request.CreateCommentRequest": {
             "type": "object",
             "required": [
@@ -2072,6 +2145,13 @@ const docTemplate = `{
                     "maxLength": 250,
                     "minLength": 1,
                     "example": "Hello, world!"
+                },
+                "media": {
+                    "type": "array",
+                    "maxItems": 4,
+                    "items": {
+                        "$ref": "#/definitions/request.PostMediaRequest"
+                    }
                 },
                 "visibility": {
                     "type": "string",
@@ -2155,6 +2235,33 @@ const docTemplate = `{
                     "maxLength": 500,
                     "minLength": 10,
                     "example": "アカウントにアクセスできなくなりました"
+                }
+            }
+        },
+        "request.PostMediaRequest": {
+            "type": "object",
+            "required": [
+                "media_type",
+                "media_url"
+            ],
+            "properties": {
+                "display_order": {
+                    "type": "integer",
+                    "maximum": 3,
+                    "minimum": 0,
+                    "example": 0
+                },
+                "media_type": {
+                    "type": "string",
+                    "enum": [
+                        "image",
+                        "video"
+                    ],
+                    "example": "image"
+                },
+                "media_url": {
+                    "type": "string",
+                    "example": "https://firebasestorage.googleapis.com/..."
                 }
             }
         },
@@ -2431,6 +2538,31 @@ const docTemplate = `{
                 }
             }
         },
+        "response.PostMediaResponse": {
+            "type": "object",
+            "properties": {
+                "display_order": {
+                    "type": "integer",
+                    "example": 0
+                },
+                "id": {
+                    "type": "string",
+                    "example": "550e8400-e29b-41d4-a716-446655440000"
+                },
+                "media_type": {
+                    "type": "string",
+                    "example": "image"
+                },
+                "media_url": {
+                    "type": "string",
+                    "example": "https://firebasestorage.googleapis.com/..."
+                },
+                "thumbnail_url": {
+                    "type": "string",
+                    "example": "https://firebasestorage.googleapis.com/..."
+                }
+            }
+        },
         "response.PostResponse": {
             "type": "object",
             "properties": {
@@ -2461,6 +2593,12 @@ const docTemplate = `{
                 "likes_count": {
                     "type": "integer",
                     "example": 10
+                },
+                "media": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/response.PostMediaResponse"
+                    }
                 },
                 "updated_at": {
                     "type": "string",

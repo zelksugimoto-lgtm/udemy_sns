@@ -87,22 +87,34 @@ test-e2e: ## フロントエンドのE2Eテストを実行
 	@echo " E2Eテスト実行"
 	@echo "=========================================="
 	@echo ""
-	@echo "⚠️  重要: E2Eテストを実行する前に、別ターミナルで"
-	@echo "   フロントエンド開発サーバーを**テストモード**で起動してください:"
-	@echo ""
-	@echo "   cd frontend && npm run dev:test"
-	@echo ""
-	@echo "   テストサーバー: http://localhost:3001 (ポート3001)"
-	@echo "   開発サーバー:   http://localhost:3000 (ポート3000)"
-	@echo "   ※ 両方を同時に起動できます"
-	@echo ""
-	@read -p "フロントエンドサーバー（テストモード: 3001）が起動していますか？ (y/N): " confirm && [ "$$confirm" = "y" ] || [ "$$confirm" = "Y" ] || (echo "キャンセルしました" && exit 1)
 	@$(MAKE) test-setup
+	@echo ""
+	@echo "🚀 フロントエンド開発サーバー（テストモード）を起動中..."
+	@cd frontend && npm run dev:test > /tmp/frontend-test-server.log 2>&1 & echo $$! > /tmp/frontend-test-server.pid
+	@echo "⏳ フロントエンドサーバーの起動を待機中（最大60秒）..."
+	@for i in 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15; do \
+		if curl -s http://localhost:3001 > /dev/null 2>&1; then \
+			echo "✅ フロントエンドサーバーが起動しました ($$i秒)"; \
+			echo "   Frontend: http://localhost:3001"; \
+			break; \
+		fi; \
+		if [ $$i -eq 1 ]; then echo "   初回起動時は依存関係のダウンロードとビルドに時間がかかります..."; fi; \
+		if [ $$i -eq 15 ]; then \
+			echo "❌ フロントエンドサーバーの起動に失敗しました（60秒タイムアウト）"; \
+			echo "   ログを確認してください: /tmp/frontend-test-server.log"; \
+			if [ -f /tmp/frontend-test-server.pid ]; then kill $$(cat /tmp/frontend-test-server.pid) 2>/dev/null || true; rm -f /tmp/frontend-test-server.pid; fi; \
+			$(MAKE) test-teardown; \
+			exit 1; \
+		fi; \
+		sleep 4; \
+	done
 	@echo ""
 	@echo "🎭 Playwrightテストを実行中..."
 	@echo ""
-	@cd frontend && npm run test:e2e || (echo "❌ E2Eテストが失敗しました" && cd .. && $(MAKE) test-teardown && exit 1)
+	@cd frontend && npm run test:e2e || (echo "❌ E2Eテストが失敗しました" && cd .. && if [ -f /tmp/frontend-test-server.pid ]; then kill $$(cat /tmp/frontend-test-server.pid) 2>/dev/null || true; rm -f /tmp/frontend-test-server.pid; fi && $(MAKE) test-teardown && exit 1)
 	@echo ""
+	@echo "🛑 フロントエンドサーバーを停止中..."
+	@if [ -f /tmp/frontend-test-server.pid ]; then kill $$(cat /tmp/frontend-test-server.pid) 2>/dev/null || true; rm -f /tmp/frontend-test-server.pid; fi
 	@echo "=========================================="
 	@echo "✅ E2Eテストが完了しました"
 	@echo "=========================================="

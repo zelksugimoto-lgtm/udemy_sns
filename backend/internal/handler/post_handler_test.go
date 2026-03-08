@@ -19,11 +19,13 @@ func setupPostHandlerTest(t *testing.T) (*echo.Echo, *PostHandler) {
 
 	userRepo := repository.NewUserRepository(db)
 	postRepo := repository.NewPostRepository(db)
+	postMediaRepo := repository.NewPostMediaRepository(db)
 	followRepo := repository.NewFollowRepository(db)
 	likeRepo := repository.NewLikeRepository(db)
 	bookmarkRepo := repository.NewBookmarkRepository(db)
 
-	postService := service.NewPostService(postRepo, userRepo, followRepo, likeRepo, bookmarkRepo)
+	storageService := service.NewStorageService("test-bucket")
+	postService := service.NewPostService(postRepo, postMediaRepo, userRepo, followRepo, likeRepo, bookmarkRepo, storageService)
 	postHandler := NewPostHandler(postService)
 
 	e := echo.New()
