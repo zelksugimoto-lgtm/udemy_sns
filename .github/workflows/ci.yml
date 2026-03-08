@@ -44,6 +44,8 @@ jobs:
       # Server
       PORT: 8080
       ENV: test
+      # Test: Auto-approve users for testing
+      AUTO_APPROVE_USERS: true
 
     steps:
       - name: Checkout code
@@ -135,6 +137,8 @@ jobs:
       PORT: 8081
       ENV: test
       FRONTEND_URL: http://localhost:3001
+      # Test: Auto-approve users for testing
+      AUTO_APPROVE_USERS: true
 
     steps:
       - name: Checkout code
@@ -169,8 +173,16 @@ jobs:
 
       - name: Start backend server in background
         run: |
-          ./bin/server &
-          echo "Backend server started with PID: $!"
+          nohup ./bin/server > backend.log 2>&1 &
+          SERVER_PID=$!
+          echo "Backend server started with PID: $SERVER_PID"
+          sleep 2
+          if ! kill -0 $SERVER_PID 2>/dev/null; then
+            echo "ERROR: Backend server failed to start!"
+            echo "=== Backend log ==="
+            cat backend.log
+            exit 1
+          fi
 
       - name: Wait for backend to be ready
         run: |
@@ -183,7 +195,11 @@ jobs:
             echo "Attempt $i/30: Backend not ready yet, waiting..."
             sleep 2
           done
-          echo "Backend server failed to start within timeout"
+          echo "ERROR: Backend server failed to start within timeout"
+          echo "=== Backend log ==="
+          cat backend.log || echo "No log file found"
+          echo "=== Process check ==="
+          ps aux | grep server || echo "No server process found"
           exit 1
 
       # ==========================================
