@@ -553,7 +553,7 @@ paths:
     post:
       security:
         - BearerAuth: []
-      description: 新しい投稿を作成
+      description: 新しい投稿を作成（画像・動画を最大4つまで添付可能）
       tags:
         - posts
       summary: 投稿作成
@@ -562,7 +562,7 @@ paths:
           application/json:
             schema:
               $ref: "#/components/schemas/request.CreatePostRequest"
-        description: 投稿内容
+        description: 投稿内容（media配列に画像URLを含めることができます）
         required: true
       responses:
         "201":
@@ -591,7 +591,7 @@ paths:
                 $ref: "#/components/schemas/errors.ErrorResponse"
   "/posts/{id}":
     get:
-      description: IDから投稿を取得
+      description: IDから投稿を取得（添付画像・動画を含む）
       tags:
         - posts
       summary: 投稿取得
@@ -665,7 +665,7 @@ paths:
     patch:
       security:
         - BearerAuth: []
-      description: 投稿内容を更新（投稿者のみ）
+      description: 投稿内容を更新（投稿者のみ、画像の編集・削除は未対応）
       tags:
         - posts
       summary: 投稿更新
@@ -1014,7 +1014,7 @@ paths:
     get:
       security:
         - BearerAuth: []
-      description: フォロー中のユーザー + 自分の投稿を時系列で取得
+      description: フォロー中のユーザー + 自分の投稿を時系列で取得（添付画像・動画を含む）
       tags:
         - posts
       summary: タイムライン取得
@@ -1038,6 +1038,58 @@ paths:
                 $ref: "#/components/schemas/response.PostListResponse"
         "401":
           description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/errors.ErrorResponse"
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/errors.ErrorResponse"
+  /upload/image:
+    post:
+      security:
+        - BearerAuth: []
+      description: 画像をFirebase Storageにアップロードし、URLを返す
+      tags:
+        - upload
+      summary: 画像アップロード
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  description: アップロードする画像ファイル
+                  type: string
+                  format: binary
+              required:
+                - file
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/handler.FileUploadResponse"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/errors.ErrorResponse"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/errors.ErrorResponse"
+        "413":
+          description: Request Entity Too Large
           content:
             application/json:
               schema:
@@ -1383,7 +1435,7 @@ paths:
                 $ref: "#/components/schemas/errors.ErrorResponse"
   "/users/{username}/posts":
     get:
-      description: 指定したユーザー名の投稿一覧を取得
+      description: 指定したユーザー名の投稿一覧を取得（添付画像・動画を含む）
       tags:
         - posts
       summary: ユーザーの投稿一覧取得
@@ -1463,6 +1515,14 @@ components:
         message:
           type: string
           example: Invalid email format
+    handler.FileUploadResponse:
+      type: object
+      properties:
+        media_type:
+          type: string
+        media_url:
+          description: Firebase Storage公開URL
+          type: string
     request.CreateCommentRequest:
       type: object
       required:
@@ -1487,6 +1547,11 @@ components:
           maxLength: 250
           minLength: 1
           example: Hello, world!
+        media:
+          type: array
+          maxItems: 4
+          items:
+            $ref: "#/components/schemas/request.PostMediaRequest"
         visibility:
           type: string
           enum:
@@ -1549,6 +1614,26 @@ components:
           maxLength: 500
           minLength: 10
           example: アカウントにアクセスできなくなりました
+    request.PostMediaRequest:
+      type: object
+      required:
+        - media_type
+        - media_url
+      properties:
+        display_order:
+          type: integer
+          maximum: 3
+          minimum: 0
+          example: 0
+        media_type:
+          type: string
+          enum:
+            - image
+            - video
+          example: image
+        media_url:
+          type: string
+          example: https://firebasestorage.googleapis.com/...
     request.RegisterRequest:
       type: object
       required:
@@ -1744,6 +1829,24 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/response.PostResponse"
+    response.PostMediaResponse:
+      type: object
+      properties:
+        display_order:
+          type: integer
+          example: 0
+        id:
+          type: string
+          example: 550e8400-e29b-41d4-a716-446655440000
+        media_type:
+          type: string
+          example: image
+        media_url:
+          type: string
+          example: https://firebasestorage.googleapis.com/...
+        thumbnail_url:
+          type: string
+          example: https://firebasestorage.googleapis.com/...
     response.PostResponse:
       type: object
       properties:
@@ -1768,6 +1871,10 @@ components:
         likes_count:
           type: integer
           example: 10
+        media:
+          type: array
+          items:
+            $ref: "#/components/schemas/response.PostMediaResponse"
         updated_at:
           type: string
           example: 2025-01-01T00:00:00Z

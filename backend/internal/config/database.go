@@ -65,6 +65,7 @@ func AutoMigrate(db *gorm.DB) error {
 		&model.User{},
 		&model.RefreshToken{},
 		&model.Post{},
+		&model.PostMedia{},
 		&model.Comment{},
 		&model.Like{},
 		&model.Bookmark{},

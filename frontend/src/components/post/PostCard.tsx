@@ -9,6 +9,8 @@ import {
   Box,
   Menu,
   MenuItem,
+  Dialog,
+  DialogContent,
 } from '@mui/material';
 import {
   Favorite as FavoriteIcon,
@@ -18,6 +20,9 @@ import {
   BookmarkBorder as BookmarkBorderIcon,
   Share as ShareIcon,
   MoreVert as MoreVertIcon,
+  NavigateBefore as NavigateBeforeIcon,
+  NavigateNext as NavigateNextIcon,
+  Close as CloseIcon,
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
@@ -39,6 +44,10 @@ const PostCard: React.FC<PostCardProps> = ({ post, showActions = true, isDetailV
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+
+  // 画像モーダル用の状態
+  const [imageModalOpen, setImageModalOpen] = useState(false);
+  const [selectedImageIndex, setSelectedImageIndex] = useState(0);
 
   // ローカル状態で管理（楽観的更新用）
   const [isLiked, setIsLiked] = useState(post.is_liked || false);
@@ -397,6 +406,30 @@ const PostCard: React.FC<PostCardProps> = ({ post, showActions = true, isDetailV
     }
   };
 
+  // 画像モーダルを開く
+  const handleImageClick = (e: React.MouseEvent, index: number) => {
+    e.stopPropagation();
+    setSelectedImageIndex(index);
+    setImageModalOpen(true);
+  };
+
+  // 画像モーダルを閉じる
+  const handleCloseImageModal = () => {
+    setImageModalOpen(false);
+  };
+
+  // 前の画像へ
+  const handlePrevImage = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setSelectedImageIndex((prev) => (prev > 0 ? prev - 1 : (post.media?.length || 1) - 1));
+  };
+
+  // 次の画像へ
+  const handleNextImage = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setSelectedImageIndex((prev) => (prev < (post.media?.length || 1) - 1 ? prev + 1 : 0));
+  };
+
   return (
     <Card
       elevation={0}
@@ -463,6 +496,63 @@ const PostCard: React.FC<PostCardProps> = ({ post, showActions = true, isDetailV
             <Typography variant="body1" sx={{ whiteSpace: 'pre-wrap', mb: 1 }} data-testid="post-content">
               {post.content}
             </Typography>
+
+            {/* Media Grid - Twitter風レイアウト */}
+            {post.media && post.media.length > 0 && (
+              <Box
+                sx={{
+                  mt: 2,
+                  display: 'grid',
+                  gap: 0.5,
+                  // レイアウト: 1枚=1列、2枚=2列、3枚=2列、4枚=2列
+                  gridTemplateColumns: post.media.length === 1
+                    ? '1fr'
+                    : 'repeat(2, 1fr)',
+                  // 高さ: 1枚=auto（アスペクト比維持）、2枚以上=固定
+                  gridTemplateRows: post.media.length === 1
+                    ? 'auto'
+                    : post.media.length === 2
+                    ? '280px'
+                    : post.media.length === 3
+                    ? 'repeat(2, 190px)'
+                    : 'repeat(2, 190px)',
+                }}
+              >
+                {post.media.map((media, index) => (
+                  <Box
+                    key={media.id}
+                    sx={{
+                      position: 'relative',
+                      overflow: 'hidden',
+                      borderRadius: 2,
+                      backgroundColor: 'grey.100',
+                      // 1枚の場合: max-heightで見切れを防ぐ
+                      ...(post.media!.length === 1 && {
+                        maxHeight: '500px',
+                      }),
+                      // 3枚の場合: 最初の画像を2行にまたがらせる
+                      ...(post.media!.length === 3 && index === 0 && {
+                        gridRow: 'span 2',
+                      }),
+                    }}
+                  >
+                    <img
+                      src={media.media_url}
+                      alt={`Media ${index + 1}`}
+                      style={{
+                        width: '100%',
+                        height: '100%',
+                        // 1枚の場合: contain（見切れ防止）、複数の場合: cover
+                        objectFit: post.media!.length === 1 ? 'contain' : 'cover',
+                        cursor: 'pointer',
+                        display: 'block',
+                      }}
+                      onClick={(e) => handleImageClick(e, index)}
+                    />
+                  </Box>
+                ))}
+              </Box>
+            )}
           </Box>
         </Box>
       </CardContent>
@@ -509,6 +599,121 @@ const PostCard: React.FC<PostCardProps> = ({ post, showActions = true, isDetailV
           </IconButton>
         </CardActions>
       )}
+
+      {/* 画像モーダル */}
+      <Dialog
+        open={imageModalOpen}
+        onClose={handleCloseImageModal}
+        maxWidth="lg"
+        fullWidth
+        PaperProps={{
+          sx: {
+            backgroundColor: 'rgba(0, 0, 0, 0.9)',
+            boxShadow: 'none',
+          },
+        }}
+      >
+        <DialogContent
+          sx={{
+            position: 'relative',
+            p: 0,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            minHeight: '80vh',
+          }}
+        >
+          {/* 閉じるボタン */}
+          <IconButton
+            onClick={handleCloseImageModal}
+            sx={{
+              position: 'absolute',
+              top: 16,
+              right: 16,
+              color: 'white',
+              backgroundColor: 'rgba(255, 255, 255, 0.1)',
+              '&:hover': {
+                backgroundColor: 'rgba(255, 255, 255, 0.2)',
+              },
+              zIndex: 2,
+            }}
+          >
+            <CloseIcon />
+          </IconButton>
+
+          {/* 前の画像ボタン（複数画像の場合のみ） */}
+          {post.media && post.media.length > 1 && (
+            <IconButton
+              onClick={handlePrevImage}
+              sx={{
+                position: 'absolute',
+                left: 16,
+                color: 'white',
+                backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                '&:hover': {
+                  backgroundColor: 'rgba(255, 255, 255, 0.2)',
+                },
+                zIndex: 2,
+              }}
+            >
+              <NavigateBeforeIcon fontSize="large" />
+            </IconButton>
+          )}
+
+          {/* 画像表示 */}
+          {post.media && post.media[selectedImageIndex] && (
+            <Box
+              component="img"
+              src={post.media[selectedImageIndex].media_url}
+              alt={`Media ${selectedImageIndex + 1}`}
+              sx={{
+                maxWidth: '100%',
+                maxHeight: '80vh',
+                objectFit: 'contain',
+              }}
+            />
+          )}
+
+          {/* 次の画像ボタン（複数画像の場合のみ） */}
+          {post.media && post.media.length > 1 && (
+            <IconButton
+              onClick={handleNextImage}
+              sx={{
+                position: 'absolute',
+                right: 16,
+                color: 'white',
+                backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                '&:hover': {
+                  backgroundColor: 'rgba(255, 255, 255, 0.2)',
+                },
+                zIndex: 2,
+              }}
+            >
+              <NavigateNextIcon fontSize="large" />
+            </IconButton>
+          )}
+
+          {/* 画像カウンター（複数画像の場合のみ） */}
+          {post.media && post.media.length > 1 && (
+            <Typography
+              sx={{
+                position: 'absolute',
+                bottom: 16,
+                left: '50%',
+                transform: 'translateX(-50%)',
+                color: 'white',
+                backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                px: 2,
+                py: 0.5,
+                borderRadius: 1,
+                zIndex: 2,
+              }}
+            >
+              {selectedImageIndex + 1} / {post.media.length}
+            </Typography>
+          )}
+        </DialogContent>
+      </Dialog>
     </Card>
   );
 };

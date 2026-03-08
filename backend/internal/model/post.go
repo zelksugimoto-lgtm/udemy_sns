@@ -10,10 +10,11 @@ type Post struct {
 	Visibility string    `gorm:"type:varchar(20);not null;default:'public';index" json:"visibility"` // public, followers, private
 
 	// Relations
-	User      User       `gorm:"foreignKey:UserID" json:"user,omitempty"`
-	Comments  []Comment  `gorm:"foreignKey:PostID" json:"comments,omitempty"`
-	Likes     []Like     `gorm:"foreignKey:LikeableID;polymorphicType:LikeableType;polymorphicValue:Post;constraint:-" json:"likes,omitempty"`
-	Bookmarks []Bookmark `gorm:"foreignKey:PostID" json:"bookmarks,omitempty"`
+	User      User        `gorm:"foreignKey:UserID" json:"user,omitempty"`
+	Media     []PostMedia `gorm:"foreignKey:PostID" json:"media,omitempty"`
+	Comments  []Comment   `gorm:"foreignKey:PostID" json:"comments,omitempty"`
+	Likes     []Like      `gorm:"foreignKey:LikeableID;polymorphicType:LikeableType;polymorphicValue:Post;constraint:-" json:"likes,omitempty"`
+	Bookmarks []Bookmark  `gorm:"foreignKey:PostID" json:"bookmarks,omitempty"`
 }
 
 // TableName テーブル名を指定

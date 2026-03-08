@@ -8,7 +8,9 @@ import {
   Typography,
   CircularProgress,
   Alert,
+  IconButton,
 } from '@mui/material';
+import { Close as CloseIcon } from '@mui/icons-material';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
@@ -17,11 +19,14 @@ import { createPostSchema } from '../../utils/validation';
 import type { CreatePostFormData } from '../../utils/validation';
 import * as postsApi from '../../api/endpoints/posts';
 import { CHAR_LIMITS } from '../../utils/constants';
+import MediaUpload from './MediaUpload';
+import type { UploadedFile } from '../../utils/fileUpload';
 
 const PostForm: React.FC = () => {
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const [error, setError] = useState<string | null>(null);
+  const [uploadedMedia, setUploadedMedia] = useState<UploadedFile[]>([]);
 
   const {
     register,
@@ -48,6 +53,7 @@ const PostForm: React.FC = () => {
       queryClient.invalidateQueries({ queryKey: ['timeline'] });
       queryClient.invalidateQueries({ queryKey: ['userPosts'] });
       reset();
+      setUploadedMedia([]);
       setError(null);
     },
     onError: (err: Error) => {
@@ -58,10 +64,31 @@ const PostForm: React.FC = () => {
   const onSubmit = async (data: CreatePostFormData) => {
     try {
       setError(null);
-      await createPostMutation.mutateAsync(data);
+
+      // メディアがある場合は追加
+      const postData = {
+        ...data,
+        ...(uploadedMedia.length > 0 && {
+          media: uploadedMedia.map((media) => ({
+            media_type: media.media_type,
+            media_url: media.media_url,
+            display_order: media.display_order,
+          })),
+        }),
+      };
+
+      await createPostMutation.mutateAsync(postData);
     } catch (err) {
       // エラーは mutation の onError で処理
     }
+  };
+
+  const handleMediaUploadComplete = (files: UploadedFile[]) => {
+    setUploadedMedia((prev) => [...prev, ...files]);
+  };
+
+  const handleRemoveMedia = (index: number) => {
+    setUploadedMedia((prev) => prev.filter((_, i) => i !== index));
   };
 
   if (!user) {
@@ -112,6 +139,63 @@ const PostForm: React.FC = () => {
               },
             }}
           />
+
+          {/* Media Upload */}
+          <Box sx={{ mt: 2, mb: 1 }}>
+            <MediaUpload
+              onUploadComplete={handleMediaUploadComplete}
+              disabled={createPostMutation.isPending || uploadedMedia.length >= 4}
+            />
+          </Box>
+
+          {/* Uploaded Media Preview */}
+          {uploadedMedia.length > 0 && (
+            <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', mb: 2 }}>
+              {uploadedMedia.map((media, index) => (
+                <Box
+                  key={index}
+                  sx={{
+                    position: 'relative',
+                    width: 80,
+                    height: 80,
+                    borderRadius: 1,
+                    overflow: 'hidden',
+                    border: '1px solid',
+                    borderColor: 'divider',
+                  }}
+                >
+                  <img
+                    src={media.media_url}
+                    alt={`Uploaded ${index + 1}`}
+                    style={{
+                      width: '100%',
+                      height: '100%',
+                      objectFit: 'cover',
+                    }}
+                  />
+                  <IconButton
+                    size="small"
+                    sx={{
+                      position: 'absolute',
+                      top: 2,
+                      right: 2,
+                      backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                      color: 'white',
+                      '&:hover': {
+                        backgroundColor: 'rgba(0, 0, 0, 0.7)',
+                      },
+                      width: 20,
+                      height: 20,
+                    }}
+                    onClick={() => handleRemoveMedia(index)}
+                    disabled={createPostMutation.isPending}
+                  >
+                    <CloseIcon sx={{ fontSize: 14 }} />
+                  </IconButton>
+                </Box>
+              ))}
+            </Box>
+          )}
 
           <Box
             sx={{

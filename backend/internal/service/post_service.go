@@ -4,6 +4,7 @@ import (
 	"errors"
 
 	"github.com/google/uuid"
+	"github.com/rs/zerolog/log"
 	"github.com/yourusername/sns-app/internal/dto/request"
 	"github.com/yourusername/sns-app/internal/dto/response"
 	"github.com/yourusername/sns-app/internal/model"
@@ -22,32 +23,68 @@ type PostService interface {
 }
 
 type postService struct {
-	postRepo     repository.PostRepository
-	userRepo     repository.UserRepository
-	followRepo   repository.FollowRepository
-	likeRepo     repository.LikeRepository
-	bookmarkRepo repository.BookmarkRepository
+	postRepo      repository.PostRepository
+	postMediaRepo repository.PostMediaRepository
+	userRepo      repository.UserRepository
+	followRepo    repository.FollowRepository
+	likeRepo      repository.LikeRepository
+	bookmarkRepo  repository.BookmarkRepository
+	storageService *StorageService
 }
 
 // NewPostService 投稿サービスのコンストラクタ
 func NewPostService(
 	postRepo repository.PostRepository,
+	postMediaRepo repository.PostMediaRepository,
 	userRepo repository.UserRepository,
 	followRepo repository.FollowRepository,
 	likeRepo repository.LikeRepository,
 	bookmarkRepo repository.BookmarkRepository,
+	storageService *StorageService,
 ) PostService {
 	return &postService{
-		postRepo:     postRepo,
-		userRepo:     userRepo,
-		followRepo:   followRepo,
-		likeRepo:     likeRepo,
-		bookmarkRepo: bookmarkRepo,
+		postRepo:       postRepo,
+		postMediaRepo:  postMediaRepo,
+		userRepo:       userRepo,
+		followRepo:     followRepo,
+		likeRepo:       likeRepo,
+		bookmarkRepo:   bookmarkRepo,
+		storageService: storageService,
 	}
 }
 
 // CreatePost 投稿作成
 func (s *postService) CreatePost(userID uuid.UUID, req *request.CreatePostRequest) (*response.PostResponse, error) {
+	// メディアのバリデーション
+	if req.Media != nil && len(*req.Media) > 0 {
+		if len(*req.Media) > 4 {
+			return nil, errors.New("メディアは最大4つまで添付できます")
+		}
+
+		for _, mediaReq := range *req.Media {
+			// メディアタイプ検証
+			if err := s.storageService.ValidateMediaType(mediaReq.MediaType); err != nil {
+				return nil, err
+			}
+
+			// URLバリデーション
+			if err := s.storageService.ValidateMediaURL(mediaReq.MediaURL); err != nil {
+				return nil, err
+			}
+
+			// セキュリティ: メディアの所有権を検証（IDOR攻撃対策）
+			if err := s.storageService.ValidateMediaOwnership(mediaReq.MediaURL, userID); err != nil {
+				return nil, err
+			}
+
+			// display_orderバリデーション
+			if mediaReq.DisplayOrder < 0 || mediaReq.DisplayOrder > 3 {
+				return nil, errors.New("display_orderは0-3の範囲で指定してください")
+			}
+		}
+	}
+
+	// 投稿作成
 	post := &model.Post{
 		UserID:     userID,
 		Content:    req.Content,
@@ -55,16 +92,37 @@ func (s *postService) CreatePost(userID uuid.UUID, req *request.CreatePostReques
 	}
 
 	if err := s.postRepo.Create(post); err != nil {
+		log.Error().Err(err).Str("user_id", userID.String()).Msg("投稿作成失敗（DB）")
 		return nil, err
+	}
+
+	// メディア保存
+	var mediaModels []model.PostMedia
+	if req.Media != nil && len(*req.Media) > 0 {
+		mediaModels = make([]model.PostMedia, len(*req.Media))
+		for i, mediaReq := range *req.Media {
+			mediaModels[i] = model.PostMedia{
+				PostID:       post.ID,
+				MediaType:    mediaReq.MediaType,
+				MediaURL:     mediaReq.MediaURL,
+				DisplayOrder: mediaReq.DisplayOrder,
+			}
+		}
+
+		if err := s.postMediaRepo.CreateBatch(mediaModels); err != nil {
+			log.Error().Err(err).Str("post_id", post.ID.String()).Int("media_count", len(mediaModels)).Msg("メディア保存失敗（DB）")
+			return nil, err
+		}
 	}
 
 	// ユーザー情報を取得
 	user, err := s.userRepo.FindByID(userID)
 	if err != nil {
+		log.Error().Err(err).Str("user_id", userID.String()).Msg("ユーザー情報取得失敗")
 		return nil, err
 	}
 
-	return mapPostToPostResponse(post, user, 0, 0, false, false), nil
+	return mapPostToPostResponse(post, user, 0, 0, false, false, mediaModels), nil
 }
 
 // GetPost 投稿取得
@@ -77,6 +135,9 @@ func (s *postService) GetPost(postID uuid.UUID, currentUserID *uuid.UUID) (*resp
 		return nil, errors.New("投稿が見つかりません")
 	}
 
+	// メディア取得
+	media, _ := s.postMediaRepo.FindByPostID(postID)
+
 	// いいね数とコメント数を取得
 	likesCount, _ := s.postRepo.CountLikes(postID)
 	commentsCount, _ := s.postRepo.CountComments(postID)
@@ -88,7 +149,7 @@ func (s *postService) GetPost(postID uuid.UUID, currentUserID *uuid.UUID) (*resp
 		isBookmarked, _ = s.bookmarkRepo.Exists(*currentUserID, postID)
 	}
 
-	return mapPostToPostResponse(post, &post.User, int(likesCount), int(commentsCount), isLiked, isBookmarked), nil
+	return mapPostToPostResponse(post, &post.User, int(likesCount), int(commentsCount), isLiked, isBookmarked, media), nil
 }
 
 // UpdatePost 投稿更新
@@ -118,11 +179,14 @@ func (s *postService) UpdatePost(userID uuid.UUID, postID uuid.UUID, req *reques
 		return nil, err
 	}
 
+	// メディア取得
+	media, _ := s.postMediaRepo.FindByPostID(postID)
+
 	// いいね数とコメント数を取得
 	likesCount, _ := s.postRepo.CountLikes(postID)
 	commentsCount, _ := s.postRepo.CountComments(postID)
 
-	return mapPostToPostResponse(post, &post.User, int(likesCount), int(commentsCount), false, false), nil
+	return mapPostToPostResponse(post, &post.User, int(likesCount), int(commentsCount), false, false, media), nil
 }
 
 // DeletePost 投稿削除
@@ -168,6 +232,13 @@ func (s *postService) GetTimeline(userID uuid.UUID, limit, offset int) (*respons
 	isLikedMap, _ := s.likeRepo.ExistsInBatch(userID, "Post", postIDs)
 	isBookmarkedMap, _ := s.bookmarkRepo.ExistsInBatch(userID, postIDs)
 
+	// メディアを一括取得
+	allMedia, _ := s.postMediaRepo.FindByPostIDs(postIDs)
+	mediaMap := make(map[uuid.UUID][]model.PostMedia)
+	for _, media := range allMedia {
+		mediaMap[media.PostID] = append(mediaMap[media.PostID], media)
+	}
+
 	// PostResponseに変換
 	postResponses := make([]response.PostResponse, len(posts))
 	for i, post := range posts {
@@ -175,8 +246,9 @@ func (s *postService) GetTimeline(userID uuid.UUID, limit, offset int) (*respons
 		commentsCount := int(commentsCounts[post.ID])
 		isLiked := isLikedMap[post.ID]
 		isBookmarked := isBookmarkedMap[post.ID]
+		media := mediaMap[post.ID]
 
-		postResponses[i] = *mapPostToPostResponse(&post, &post.User, likesCount, commentsCount, isLiked, isBookmarked)
+		postResponses[i] = *mapPostToPostResponse(&post, &post.User, likesCount, commentsCount, isLiked, isBookmarked, media)
 	}
 
 	hasMore := offset+limit < int(total)
@@ -224,6 +296,13 @@ func (s *postService) GetUserPosts(username string, limit, offset int, currentUs
 		isBookmarkedMap, _ = s.bookmarkRepo.ExistsInBatch(*currentUserID, postIDs)
 	}
 
+	// メディアを一括取得
+	allMedia, _ := s.postMediaRepo.FindByPostIDs(postIDs)
+	mediaMap := make(map[uuid.UUID][]model.PostMedia)
+	for _, media := range allMedia {
+		mediaMap[media.PostID] = append(mediaMap[media.PostID], media)
+	}
+
 	// PostResponseに変換
 	postResponses := make([]response.PostResponse, len(posts))
 	for i, post := range posts {
@@ -231,8 +310,9 @@ func (s *postService) GetUserPosts(username string, limit, offset int, currentUs
 		commentsCount := int(commentsCounts[post.ID])
 		isLiked := isLikedMap[post.ID]
 		isBookmarked := isBookmarkedMap[post.ID]
+		media := mediaMap[post.ID]
 
-		postResponses[i] = *mapPostToPostResponse(&post, &post.User, likesCount, commentsCount, isLiked, isBookmarked)
+		postResponses[i] = *mapPostToPostResponse(&post, &post.User, likesCount, commentsCount, isLiked, isBookmarked, media)
 	}
 
 	hasMore := offset+limit < int(total)
@@ -280,6 +360,13 @@ func (s *postService) GetUserLikedPosts(username string, limit, offset int, curr
 		isBookmarkedMap, _ = s.bookmarkRepo.ExistsInBatch(*currentUserID, postIDs)
 	}
 
+	// メディアを一括取得
+	allMedia, _ := s.postMediaRepo.FindByPostIDs(postIDs)
+	mediaMap := make(map[uuid.UUID][]model.PostMedia)
+	for _, media := range allMedia {
+		mediaMap[media.PostID] = append(mediaMap[media.PostID], media)
+	}
+
 	// PostResponseに変換
 	postResponses := make([]response.PostResponse, len(posts))
 	for i, post := range posts {
@@ -287,8 +374,9 @@ func (s *postService) GetUserLikedPosts(username string, limit, offset int, curr
 		commentsCount := int(commentsCounts[post.ID])
 		isLiked := isLikedMap[post.ID]
 		isBookmarked := isBookmarkedMap[post.ID]
+		media := mediaMap[post.ID]
 
-		postResponses[i] = *mapPostToPostResponse(&post, &post.User, likesCount, commentsCount, isLiked, isBookmarked)
+		postResponses[i] = *mapPostToPostResponse(&post, &post.User, likesCount, commentsCount, isLiked, isBookmarked, media)
 	}
 
 	hasMore := offset+limit < int(total)
@@ -305,11 +393,24 @@ func (s *postService) GetUserLikedPosts(username string, limit, offset int, curr
 }
 
 // mapPostToPostResponse PostをPostResponseにマッピング
-func mapPostToPostResponse(post *model.Post, user *model.User, likesCount, commentsCount int, isLiked, isBookmarked bool) *response.PostResponse {
+func mapPostToPostResponse(post *model.Post, user *model.User, likesCount, commentsCount int, isLiked, isBookmarked bool, media []model.PostMedia) *response.PostResponse {
+	// メディアをレスポンス形式に変換
+	mediaResponses := make([]response.PostMediaResponse, len(media))
+	for i, m := range media {
+		mediaResponses[i] = response.PostMediaResponse{
+			ID:           m.ID,
+			MediaType:    m.MediaType,
+			MediaURL:     m.MediaURL,
+			ThumbnailURL: m.ThumbnailURL,
+			DisplayOrder: m.DisplayOrder,
+		}
+	}
+
 	return &response.PostResponse{
 		ID:            post.ID,
 		Content:       post.Content,
 		Visibility:    post.Visibility,
+		Media:         mediaResponses,
 		LikesCount:    likesCount,
 		CommentsCount: commentsCount,
 		IsLiked:       isLiked,

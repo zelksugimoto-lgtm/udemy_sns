@@ -140,10 +140,14 @@ cp .env.example .env
 
 # .env を編集（必要な値を設定）
 # - JWT_SECRET
+# - FIREBASE_SERVICE_ACCOUNT_KEY（画像アップロード機能を使う場合）
 # - FIREBASE_PROJECT_ID
 # - FIREBASE_STORAGE_BUCKET
 # - その他の設定
 ```
+
+**画像アップロード機能を使用する場合**:
+Firebase Storageの設定が必要です。詳細は [Firebase セットアップガイド](docs/FIREBASE_SETUP.md) を参照してください。
 
 ### 3. Docker環境起動
 ```bash

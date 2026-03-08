@@ -101,9 +101,14 @@ func main() {
 		return c.JSON(200, map[string]string{"status": "ok"})
 	})
 
+	// Firebase初期化（オプション）
+	storageBucket := os.Getenv("FIREBASE_STORAGE_BUCKET")
+	storageService := service.NewStorageService(storageBucket)
+
 	// Repositories
 	userRepo := repository.NewUserRepository(db)
 	postRepo := repository.NewPostRepository(db)
+	postMediaRepo := repository.NewPostMediaRepository(db)
 	commentRepo := repository.NewCommentRepository(db)
 	likeRepo := repository.NewLikeRepository(db)
 	bookmarkRepo := repository.NewBookmarkRepository(db)
@@ -117,7 +122,7 @@ func main() {
 	// Services
 	authService := service.NewAuthService(userRepo, refreshTokenRepo)
 	userService := service.NewUserService(userRepo, followRepo, postRepo)
-	postService := service.NewPostService(postRepo, userRepo, followRepo, likeRepo, bookmarkRepo)
+	postService := service.NewPostService(postRepo, postMediaRepo, userRepo, followRepo, likeRepo, bookmarkRepo, storageService)
 	notificationService := service.NewNotificationService(notificationRepo)
 	commentService := service.NewCommentService(commentRepo, postRepo, userRepo, likeRepo, notificationService)
 	likeService := service.NewLikeService(likeRepo, postRepo, commentRepo, notificationService)
@@ -141,6 +146,7 @@ func main() {
 	followHandler := handler.NewFollowHandler(followService)
 	notificationHandler := handler.NewNotificationHandler(notificationService)
 	reportHandler := handler.NewReportHandler(reportService)
+	uploadHandler := handler.NewUploadHandler(storageService)
 
 	// Admin Handler
 	adminHnd := adminHandler.NewAdminHandler(adminSvc, userMgmtService, resetService, postRepo, commentRepo)
@@ -212,6 +218,9 @@ func main() {
 
 	// Report routes（一般API: 60回/分のレート制限）
 	api.POST("/reports", reportHandler.CreateReport, appMiddleware.AuthMiddleware(userRepo), appMiddleware.GeneralRateLimitMiddleware())
+
+	// Upload routes（一般API: 60回/分のレート制限）
+	api.POST("/upload/image", uploadHandler.UploadImage, appMiddleware.AuthMiddleware(userRepo), appMiddleware.GeneralRateLimitMiddleware())
 
 	// Admin routes
 	admin := e.Group("/admin")
