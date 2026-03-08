@@ -3,6 +3,7 @@ package handler
 import (
 	"html/template"
 	"net/http"
+	"os"
 	"strconv"
 
 	"github.com/google/uuid"
@@ -44,7 +45,12 @@ func NewAdminHandler(
 	// テンプレートをパース
 	tmpl, err := template.New("").Funcs(funcMap).ParseGlob("templates/admin/*.html")
 	if err != nil {
-		log.Fatal().Err(err).Msg("テンプレートのパースに失敗")
+		// テスト環境やCI環境ではテンプレートファイルが存在しないため、警告のみ出力
+		if os.Getenv("ENV") == "test" {
+			log.Warn().Err(err).Msg("テンプレートファイルが見つかりません（テスト環境では正常）")
+		} else {
+			log.Fatal().Err(err).Msg("テンプレートのパースに失敗")
+		}
 	}
 
 	return &AdminHandler{

@@ -41,6 +41,7 @@ WORKDIR /app
 # ビルドステージからバイナリとドキュメントをコピー
 COPY --from=builder /app/main .
 COPY --from=builder /app/docs ./docs
+COPY --from=builder /app/templates ./templates
 
 # 非rootユーザーで実行
 RUN addgroup -g 1000 appuser && \
